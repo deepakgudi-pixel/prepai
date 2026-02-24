@@ -80,13 +80,6 @@
     "imageUrl": {
       "type": "string"
     },
-    "subscriptionTier": {
-      "type": "enumeration",
-      "enum": [
-        "free",
-        "pro"
-      ]
-    },
     "recipes": {
       "type": "relation",
       "relation": "oneToMany",
