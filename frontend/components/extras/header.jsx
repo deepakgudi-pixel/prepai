@@ -13,7 +13,7 @@ import UserDropdown from "./UserDropdown";
 import { checkUser } from "@/lib/checkUser";
 
 async function Header() {
-  const user =  await checkUser();
+  const user = await checkUser();
 
   return (
     <header
