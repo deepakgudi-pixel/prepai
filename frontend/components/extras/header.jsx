@@ -10,9 +10,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Cookie, Refrigerator } from "lucide-react";
 import UserDropdown from "./UserDropdown";
+import { checkUser } from "@/lib/checkUser";
 
 async function Header() {
-  const user = null;
+  const user =  await checkUser();
 
   return (
     <header
