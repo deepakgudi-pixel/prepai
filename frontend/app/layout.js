@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
         baseTheme: shadcn,
       }}
     >
-      <html lang="en">
+      <html lang={"en"}>
         <body className={`${inter.className}`}>
           <Header />
           <main className={"min-h-screen"}> {children} </main>

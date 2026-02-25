@@ -8,16 +8,16 @@ function UserDropdown() {
      <UserButton>
       <UserButton.MenuItems>
         <UserButton.Link
-          label="My Recipes"
+          label={"My Recipes"}
           labelIcon={<Cookie size={16} />}
-          href="/recipes"
+          href={"/recipes"}
         />
         <UserButton.Link
-          label="My Pantry"
+          label={"My Pantry"}
           labelIcon={<Refrigerator size={16} />}
-          href="/pantry"
+          href={"/pantry"}
         />
-        <UserButton.Action label="manageAccount" />
+        <UserButton.Action label={"manageAccount"} />
       </UserButton.MenuItems>
     </UserButton>
   );
