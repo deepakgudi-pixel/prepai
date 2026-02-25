@@ -2,21 +2,63 @@
 
 const MEALDB_BASE = "https://www.themealdb.com/api/json/v1/1";
 
-// Get random recipe of the day
+const VEG_CATEGORIES = [
+  "Vegetarian",
+  "Vegan", 
+  "Pasta",
+  "Dessert",
+  "Starter",
+  "Breakfast",
+  "Side",
+];
+
+// Helper to filter only veg meals from a list
+async function filterVegMeals(meals) {
+  if (!meals) return [];
+  
+  const detailed = await Promise.all(
+    meals.slice(0, 20).map((meal) =>
+      fetch(`${MEALDB_BASE}/lookup.php?i=${meal.idMeal}`, {
+        next: { revalidate: 86400 },
+      })
+        .then((r) => r.json())
+        .then((d) => d.meals?.[0])
+    )
+  );
+
+  return detailed.filter(
+    (meal) => meal && VEG_CATEGORIES.includes(meal.strCategory)
+  );
+}
+
+// Get random recipe of the day (always vegetarian)
 export async function getRecipeOfTheDay() {
   try {
-    const response = await fetch(`${MEALDB_BASE}/random.php`, {
-      next: { revalidate: 86400 }, // Cache for 24 hours
+    const response = await fetch(`${MEALDB_BASE}/filter.php?c=Vegetarian`, {
+      next: { revalidate: 86400 },
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch recipe of the day");
-    }
+    if (!response.ok) throw new Error("Failed to fetch vegetarian meals");
 
     const data = await response.json();
+    const meals = data.meals;
+
+    const today = new Date();
+    const dayIndex = Math.floor(today.getTime() / 86400000) % meals.length;
+    const selectedMeal = meals[dayIndex];
+
+    const detailResponse = await fetch(
+      `${MEALDB_BASE}/lookup.php?i=${selectedMeal.idMeal}`,
+      { next: { revalidate: 86400 } }
+    );
+
+    if (!detailResponse.ok) throw new Error("Failed to fetch meal details");
+
+    const detailData = await detailResponse.json();
+
     return {
       success: true,
-      recipe: data.meals[0],
+      recipe: detailData.meals[0],
     };
   } catch (error) {
     console.error("Error fetching recipe of the day:", error);
@@ -24,21 +66,57 @@ export async function getRecipeOfTheDay() {
   }
 }
 
-// Get all categories
+
+// Get tomorrow's recipe (for homepage preview)
+export async function getUpcomingRecipe() {
+    try {
+      const response = await fetch(`${MEALDB_BASE}/filter.php?c=Vegetarian`, {
+        next: { revalidate: 86400 },
+      });
+  
+      if (!response.ok) throw new Error("Failed to fetch vegetarian meals");
+  
+      const data = await response.json();
+      const meals = data.meals;
+  
+      const today = new Date();
+      // +1 from recipe of the day
+      const dayIndex = (Math.floor(today.getTime() / 86400000) + 1) % meals.length;
+      const selectedMeal = meals[dayIndex];
+  
+      const detailResponse = await fetch(
+        `${MEALDB_BASE}/lookup.php?i=${selectedMeal.idMeal}`,
+        { next: { revalidate: 86400 } }
+      );
+  
+      const detailData = await detailResponse.json();
+      return { success: true, recipe: detailData.meals[0] };
+    } catch (error) {
+      console.error("Error fetching upcoming recipe:", error);
+      throw new Error(error.message || "Failed to load upcoming recipe");
+    }
+  }
+
+// Get only veg-friendly categories
 export async function getCategories() {
   try {
     const response = await fetch(`${MEALDB_BASE}/list.php?c=list`, {
-      next: { revalidate: 604800 }, // Cache for 1 week (categories rarely change)
+      next: { revalidate: 604800 },
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch categories");
-    }
+    if (!response.ok) throw new Error("Failed to fetch categories");
 
     const data = await response.json();
+    const allCategories = data.meals || [];
+
+    // Only show veg-friendly categories
+    const vegCategories = allCategories.filter((cat) =>
+      VEG_CATEGORIES.includes(cat.strCategory)
+    );
+
     return {
       success: true,
-      categories: data.meals || [],
+      categories: vegCategories,
     };
   } catch (error) {
     console.error("Error fetching categories:", error);
@@ -46,16 +124,14 @@ export async function getCategories() {
   }
 }
 
-// Get all areas/cuisines
+// Get all areas (cuisines exist across veg/non-veg, keep as is)
 export async function getAreas() {
   try {
     const response = await fetch(`${MEALDB_BASE}/list.php?a=list`, {
-      next: { revalidate: 604800 }, // Cache for 1 week
+      next: { revalidate: 604800 },
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch areas");
-    }
+    if (!response.ok) throw new Error("Failed to fetch areas");
 
     const data = await response.json();
     return {
@@ -68,21 +144,21 @@ export async function getAreas() {
   }
 }
 
-// Get meals by category
+// Get meals by category - filtered to veg only
 export async function getMealsByCategory(category) {
   try {
     const response = await fetch(`${MEALDB_BASE}/filter.php?c=${category}`, {
-      next: { revalidate: 86400 }, // Cache for 24 hours
+      next: { revalidate: 86400 },
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch meals");
-    }
+    if (!response.ok) throw new Error("Failed to fetch meals");
 
     const data = await response.json();
+    const meals = await filterVegMeals(data.meals);
+
     return {
       success: true,
-      meals: data.meals || [],
+      meals,
       category,
     };
   } catch (error) {
@@ -91,22 +167,22 @@ export async function getMealsByCategory(category) {
   }
 }
 
-// Get meals by area
+// Get meals by area - filtered to veg only
 export async function getMealsByArea(area) {
   try {
     const response = await fetch(`${MEALDB_BASE}/filter.php?a=${area}`, {
-      next: { revalidate: 86400 }, // Cache for 24 hours
+      next: { revalidate: 86400 },
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch meals");
-    }
+    if (!response.ok) throw new Error("Failed to fetch meals");
 
     const data = await response.json();
+    const meals = await filterVegMeals(data.meals);
+
     return {
       success: true,
-      meals: data.meals || [],
-      area,
+      meals,
+      category: area,
     };
   } catch (error) {
     console.error("Error fetching meals by area:", error);

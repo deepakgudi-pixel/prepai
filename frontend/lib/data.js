@@ -58,20 +58,14 @@ export const HOW_IT_WORKS_STEPS = [
 // Helper function for category emojis
 export function getCategoryEmoji(category) {
   const emojiMap = {
-    Beef: "🥩",
-    Chicken: "🍗",
     Dessert: "🍰",
-    Lamb: "🍖",
     Miscellaneous: "🍴",
     Pasta: "🍝",
-    Pork: "🥓",
-    Seafood: "🦐",
     Side: "🥗",
     Starter: "🥟",
     Vegan: "🥬",
     Vegetarian: "🥕",
     Breakfast: "🍳",
-    Goat: "🐐",
   };
   return emojiMap[category] || "🍽️";
 }
