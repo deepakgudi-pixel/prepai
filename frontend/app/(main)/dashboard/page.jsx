@@ -40,7 +40,7 @@ export default async function DashboardPage() {
           <section className={"mb-24 relative"}>
             <div className={"flex items-center gap-2 mb-6"}>
               <Flame className={"w-6 h-6 text-orange-600"} />
-              <h2 className={"text-3xl font-serif font-bold text-stone-900"}>
+              <h2 className={"text-3xl font-bold text-stone-900"}>
                 Recipe of the Day
               </h2>
             </div>

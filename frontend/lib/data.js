@@ -73,7 +73,7 @@ export function getCategoryEmoji(category) {
 // Helper function for country flags
 export function getCountryFlag(country) {
   const emojiMap = {
-    American: "🗽",
+    American: "🗽", 
     British: "👑",
     Canadian: "🍁",
     Chinese: "🐉",
