@@ -2,63 +2,14 @@
 
 const MEALDB_BASE = "https://www.themealdb.com/api/json/v1/1";
 
-const VEG_CATEGORIES = [
-  "Vegetarian",
-  "Vegan",
-  "Pasta",
-  "Dessert",
-  "Starter",
-  "Breakfast",
-  "Side",
-];
-
-// Fetch all veg meal IDs across all veg-friendly categories
-async function getVegMealIds() {
-  const responses = await Promise.all(
-    VEG_CATEGORIES.map((cat) =>
-      fetch(`${MEALDB_BASE}/filter.php?c=${cat}`, {
-        next: { revalidate: 86400 },
-      })
-        .then((r) => r.json())
-        .then((d) => d.meals || [])
-    )
-  );
-
-  const allIds = responses.flat().map((m) => m.idMeal);
-  return new Set(allIds);
-}
-
-// Helper to filter only veg meals from a list
-async function filterVegMeals(meals) {
-  if (!meals) return [];
-
-  const vegIds = await getVegMealIds();
-
-  // Only keep meals that exist in any veg category
-  const vegMeals = meals.filter((meal) => vegIds.has(meal.idMeal));
-
-  // Fetch full details for those
-  const detailed = await Promise.all(
-    vegMeals.slice(0, 20).map((meal) =>
-      fetch(`${MEALDB_BASE}/lookup.php?i=${meal.idMeal}`, {
-        next: { revalidate: 86400 },
-      })
-        .then((r) => r.json())
-        .then((d) => d.meals?.[0])
-    )
-  );
-
-  return detailed.filter(Boolean);
-}
-
-// Get random recipe of the day (always vegetarian)
+// Get random recipe of the day
 export async function getRecipeOfTheDay() {
   try {
-    const response = await fetch(`${MEALDB_BASE}/filter.php?c=Vegetarian`, {
+    const response = await fetch(`${MEALDB_BASE}/filter.php?c=Chicken`, {
       next: { revalidate: 86400 },
     });
 
-    if (!response.ok) throw new Error("Failed to fetch vegetarian meals");
+    if (!response.ok) throw new Error("Failed to fetch meals");
 
     const data = await response.json();
     const meals = data.meals;
@@ -89,11 +40,11 @@ export async function getRecipeOfTheDay() {
 // Get tomorrow's recipe (for homepage preview)
 export async function getUpcomingRecipe() {
   try {
-    const response = await fetch(`${MEALDB_BASE}/filter.php?c=Vegetarian`, {
+    const response = await fetch(`${MEALDB_BASE}/filter.php?c=Chicken`, {
       next: { revalidate: 86400 },
     });
 
-    if (!response.ok) throw new Error("Failed to fetch vegetarian meals");
+    if (!response.ok) throw new Error("Failed to fetch meals");
 
     const data = await response.json();
     const meals = data.meals;
@@ -117,7 +68,7 @@ export async function getUpcomingRecipe() {
   }
 }
 
-// Get only veg-friendly categories
+// Get all categories
 export async function getCategories() {
   try {
     const response = await fetch(`${MEALDB_BASE}/list.php?c=list`, {
@@ -127,16 +78,10 @@ export async function getCategories() {
     if (!response.ok) throw new Error("Failed to fetch categories");
 
     const data = await response.json();
-    const allCategories = data.meals || [];
-
-    // Only show veg-friendly categories
-    const vegCategories = allCategories.filter((cat) =>
-      VEG_CATEGORIES.includes(cat.strCategory)
-    );
 
     return {
       success: true,
-      categories: vegCategories,
+      categories: data.meals || [],
     };
   } catch (error) {
     console.error("Error fetching categories:", error);
@@ -144,7 +89,7 @@ export async function getCategories() {
   }
 }
 
-// Get all areas (cuisines exist across veg/non-veg, keep as is)
+// Get all areas (cuisines)
 export async function getAreas() {
   try {
     const response = await fetch(`${MEALDB_BASE}/list.php?a=list`, {
@@ -164,7 +109,7 @@ export async function getAreas() {
   }
 }
 
-// Get meals by category - filtered to veg only
+// Get meals by category
 export async function getMealsByCategory(category) {
   try {
     const response = await fetch(`${MEALDB_BASE}/filter.php?c=${category}`, {
@@ -174,11 +119,22 @@ export async function getMealsByCategory(category) {
     if (!response.ok) throw new Error("Failed to fetch meals");
 
     const data = await response.json();
-    const meals = await filterVegMeals(data.meals);
+    const meals = data.meals || [];
+
+    // Fetch full details for up to 20 meals
+    const detailed = await Promise.all(
+      meals.slice(0, 20).map((meal) =>
+        fetch(`${MEALDB_BASE}/lookup.php?i=${meal.idMeal}`, {
+          next: { revalidate: 86400 },
+        })
+          .then((r) => r.json())
+          .then((d) => d.meals?.[0])
+      )
+    );
 
     return {
       success: true,
-      meals,
+      meals: detailed.filter(Boolean),
       category,
     };
   } catch (error) {
@@ -187,7 +143,7 @@ export async function getMealsByCategory(category) {
   }
 }
 
-// Get meals by area - filtered to veg only
+// Get meals by area
 export async function getMealsByArea(area) {
   try {
     const response = await fetch(`${MEALDB_BASE}/filter.php?a=${area}`, {
@@ -197,11 +153,22 @@ export async function getMealsByArea(area) {
     if (!response.ok) throw new Error("Failed to fetch meals");
 
     const data = await response.json();
-    const meals = await filterVegMeals(data.meals);
+    const meals = data.meals || [];
+
+    // Fetch full details for up to 20 meals
+    const detailed = await Promise.all(
+      meals.slice(0, 20).map((meal) =>
+        fetch(`${MEALDB_BASE}/lookup.php?i=${meal.idMeal}`, {
+          next: { revalidate: 86400 },
+        })
+          .then((r) => r.json())
+          .then((d) => d.meals?.[0])
+      )
+    );
 
     return {
       success: true,
-      meals,
+      meals: detailed.filter(Boolean),
       category: area,
     };
   } catch (error) {
