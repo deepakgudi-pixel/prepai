@@ -91,7 +91,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
             </div>
           ) : (
             // Fallback gradient background when no image
-            <div className={"relative aspect-square bg-gradient-to-br from-orange-400 via-amber-400 to-yellow-400 flex items-center justify-center"}>
+            <div className={"relative aspect-square bg-gradient-to-br from-green-400 via-amber-400 to-yellow-400 flex items-center justify-center"}>
               <ChefHat className={"w-20 h-20 text-white/30"} />
               <div className={"absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"} />
             </div>
@@ -99,7 +99,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
 
           {/* Title */}
           <CardHeader>
-            <CardTitle className={"text-lg font-bold text-stone-900 group-hover:text-orange-600 transition-colors line-clamp-2"}>
+            <CardTitle className={"text-lg font-bold text-stone-900 group-hover:text-green-800 transition-colors line-clamp-2"}>
               {data.title}
             </CardTitle>
           </CardHeader>
@@ -130,7 +130,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
                     data.matchPercentage >= 90
                       ? "bg-green-600"
                       : data.matchPercentage >= 75
-                      ? "bg-orange-600"
+                      ? "bg-green-800"
                       : "bg-stone-600"
                   } text-white text-lg px-3 py-1.5 shadow-lg`}
                 >
@@ -148,7 +148,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
                 {data.cuisine && (
                   <Badge
                     variant={"outline"}
-                    className={"text-orange-600 border-orange-200 capitalize"}
+                    className={"text-green-800 border-green-200 capitalize"}
                   >
                     {data.cuisine}
                   </Badge>
@@ -171,7 +171,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
                     data.matchPercentage >= 90
                       ? "bg-green-600"
                       : data.matchPercentage >= 75
-                      ? "bg-orange-600"
+                      ? "bg-green-800"
                       : "bg-stone-600"
                   } text-white text-lg px-3 py-1`}
                 >
@@ -218,8 +218,8 @@ export default function RecipeCard({ recipe, variant = "default" }) {
 
           {/* Missing Ingredients */}
           {data.missingIngredients && data.missingIngredients.length > 0 && (
-            <div className={"p-4 bg-orange-50 border border-orange-100"}>
-              <h4 className={"text-sm font-semibold text-orange-900 mb-2"}>
+            <div className={"p-4 bg-green-50 border border-green-100"}>
+              <h4 className={"text-sm font-semibold text-green-900 mb-2"}>
                 You&apos;ll need:
               </h4>
               <div className={"flex flex-wrap gap-2"}>
@@ -227,7 +227,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
                   <Badge
                     key={i}
                     variant={"outline"}
-                    className={"text-orange-700 border-orange-200 bg-white"}
+                    className={"text-green-700 border-green-200 bg-white"}
                   >
                     {ingredient}
                   </Badge>
@@ -253,7 +253,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
   if (variant === "list") {
     return (
       <Link href={data.href}>
-        <Card className={"rounded-none border-stone-200 hover:shadow-lg hover:border-orange-200 transition-all cursor-pointer group overflow-hidden py-0"}>
+        <Card className={"rounded-none border-stone-200 hover:shadow-lg hover:border-green-200 transition-all cursor-pointer group overflow-hidden py-0"}>
           <div className={"flex flex-col md:flex-row"}>
             {/* Image (if available) */}
             {data.showImage ? (
@@ -268,7 +268,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
               </div>
             ) : (
               // Fallback gradient when no image
-              <div className={"relative w-full md:w-48 aspect-video md:aspect-square flex-shrink-0 bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center"}>
+              <div className={"relative w-full md:w-48 aspect-video md:aspect-square flex-shrink-0 bg-gradient-to-br from-green-400 to-amber-400 flex items-center justify-center"}>
                 <ChefHat className={"w-12 h-12 text-white/30"} />
               </div>
             )}
@@ -280,7 +280,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
                   {data.cuisine && (
                     <Badge
                       variant={"outline"}
-                      className={"text-orange-600 border-orange-200 capitalize"}
+                      className={"text-green-800 border-green-200 capitalize"}
                     >
                       {data.cuisine}
                     </Badge>
@@ -295,7 +295,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
                   )}
                 </div>
 
-                <CardTitle className={"text-xl font-bold text-stone-900 group-hover:text-orange-600 transition-colors"}>
+                <CardTitle className={"text-xl font-bold text-stone-900 group-hover:text-green-800 transition-colors"}>
                   {data.title}
                 </CardTitle>
 

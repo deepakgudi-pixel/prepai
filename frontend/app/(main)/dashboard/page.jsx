@@ -39,7 +39,7 @@ export default async function DashboardPage() {
         {recipeOfTheDay && (
           <section className={"mb-24 relative"}>
             <div className={"flex items-center gap-2 mb-6"}>
-              <Flame className={"w-6 h-6 text-orange-600"} />
+              <Flame className={"w-6 h-6 text-green-800"} />
               <h2 className={"text-3xl font-bold text-stone-900"}>
                 Recipe of the Day
               </h2>
@@ -48,7 +48,7 @@ export default async function DashboardPage() {
             <div className={"absolute top-20 left-5 z-10 flex items-center gap-3 mb-6"}>
               <Badge
                 variant={"outline"}
-                className={"border-2 border-orange-600 text-orange-700 bg-orange-50 font-bold uppercase tracking-wide"}
+                className={"border-2 border-green-800 text-green-700 bg-green-50 font-bold uppercase tracking-wide"}
               >
                 <Flame className={"mr-1 w-4 h-4"} />
                 Today&apos;s Special
@@ -60,7 +60,7 @@ export default async function DashboardPage() {
                 recipeOfTheDay.strMeal
               )}`}
             >
-              <div className={"relative bg-white border-2 border-stone-900 overflow-hidden hover:border-orange-600 hover:shadow-lg transition-all duration-300 group cursor-pointer"}>
+              <div className={"relative bg-white border-2 border-stone-900 overflow-hidden hover:border-green-800 hover:shadow-lg transition-all duration-300 group cursor-pointer"}>
                 <div className={"grid md:grid-cols-2 gap-0"}>
                   {/* Image */}
                   <div className={"relative aspect-4/3 md:aspect-auto border-b-2 md:border-b-0 md:border-r-2 border-stone-900"}>
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
                     <div className={"flex flex-wrap gap-2 mb-6"}>
                       <Badge
                         variant={"outline"}
-                        className={"border-2 border-orange-600 text-orange-700 bg-orange-50 font-bold"}
+                        className={"border-2 border-green-800 text-green-700 bg-green-50 font-bold"}
                       >
                         {recipeOfTheDay.strCategory}
                       </Badge>
@@ -90,7 +90,7 @@ export default async function DashboardPage() {
                       </Badge>
                     </div>
 
-                    <h3 className={"text-4xl md:text-5xl font-bold text-stone-900 mb-4 group-hover:text-orange-600 transition-colors leading-tight"}>
+                    <h3 className={"text-4xl md:text-5xl font-bold text-stone-900 mb-4 group-hover:text-green-800 transition-colors leading-tight"}>
                       {recipeOfTheDay.strMeal}
                     </h3>
 
@@ -115,7 +115,7 @@ export default async function DashboardPage() {
                       </div>
                     )}
 
-                    <Button className={"w-fit bg-orange-600 hover:bg-orange-700 text-white font-bold border-2 border-orange-700 px-6 py-5"}>
+                    <Button className={"w-fit bg-green-800 hover:bg-green-700 text-white font-bold border-2 border-green-700 px-6 py-5"}>
                       Start Cooking <ArrowRight className={"w-5 h-5 ml-2"} />
                     </Button>
                   </div>
@@ -142,11 +142,11 @@ export default async function DashboardPage() {
                 key={category.strCategory}
                 href={`/recipes/category/${category.strCategory.toLowerCase()}`}
               >
-                <div className={"bg-white p-6 border-2 border-stone-200 hover:border-orange-600 hover:shadow-lg transition-all text-center group cursor-pointer"}>
+                <div className={"bg-white p-6 border-2 border-stone-200 hover:border-green-800 hover:shadow-lg transition-all text-center group cursor-pointer"}>
                   <div className={"text-4xl mb-3"}>
                     {getCategoryEmoji(category.strCategory)}
                   </div>
-                  <h3 className={"font-bold text-stone-900 group-hover:text-orange-600 transition-colors text-sm"}>
+                  <h3 className={"font-bold text-stone-900 group-hover:text-green-800 transition-colors text-sm"}>
                     {category.strCategory}
                   </h3>
                 </div>
@@ -174,12 +174,12 @@ export default async function DashboardPage() {
                   .toLowerCase()
                   .replace(/\s+/g, "-")}`}
               >
-                <div className={"bg-stone-50 p-5 border-2 border-stone-200 hover:border-orange-600 hover:shadow-lg transition-all group cursor-pointer"}>
+                <div className={"bg-stone-50 p-5 border-2 border-stone-200 hover:border-green-800 hover:shadow-lg transition-all group cursor-pointer"}>
                   <div className={"flex items-center gap-3"}>
                     <span className={"text-3xl"}>
                       {getCountryFlag(area.strArea)}
                     </span>
-                    <span className={"font-bold text-stone-900 group-hover:text-orange-600 transition-colors text-sm"}>
+                    <span className={"font-bold text-stone-900 group-hover:text-green-800 transition-colors text-sm"}>
                       {area.strArea}
                     </span>
                   </div>

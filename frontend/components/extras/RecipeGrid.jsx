@@ -32,7 +32,7 @@ export default function RecipeGrid({
         <div className={"mb-8"}>
           <Link
             href={backLink}
-            className={"inline-flex items-center gap-2 text-stone-600 hover:text-orange-600 transition-colors mb-4"}
+            className={"inline-flex items-center gap-2 text-stone-600 hover:text-green-800 transition-colors mb-4"}
           >
             <ArrowLeft className={"w-4 h-4"} />
             Back to Dashboard
@@ -40,7 +40,7 @@ export default function RecipeGrid({
 
           <h1 className={"text-5xl md:text-6xl font-bold text-stone-900 capitalize tracking-tight leading-tight"}>
             {displayName}{" "}
-            <span className={"text-orange-600"}>
+            <span className={"text-green-800"}>
               {type === "cuisine" ? "Cuisine" : "Recipes"}
             </span>
           </h1>
@@ -56,7 +56,7 @@ export default function RecipeGrid({
         {/* Loading State */}
         {loading && (
           <div className={"flex flex-col justify-center items-center py-20"}>
-            <Loader2 className={"w-10 h-10 text-orange-600 animate-spin mb-4"} />
+            <Loader2 className={"w-10 h-10 text-green-800 animate-spin mb-4"} />
             <p className={"text-stone-500"}>Loading recipes...</p>
           </div>
         )}
@@ -82,7 +82,7 @@ export default function RecipeGrid({
               {type === "cuisine" ? "dishes" : "recipes"}.
             </p>
             <Link href={backLink}>
-              <span className={"inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold"}>
+              <span className={"inline-flex items-center gap-2 text-green-800 hover:text-green-700 font-semibold"}>
                 <ArrowLeft className={"w-4 h-4"} />
                 Go back to explore more
               </span>
