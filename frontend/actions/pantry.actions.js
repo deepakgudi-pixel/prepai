@@ -29,8 +29,8 @@ export async function scanPantryImage(formData) {
     const buffer = Buffer.from(bytes);
     const base64Image = buffer.toString("base64");
 
-    // Calling the latest Gemini 3 Flash model
-    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+     // Call Gemini Vision API
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
     const prompt = `You are a professional chef and ingredient recognition expert. Analyze this image of a pantry/fridge and identify all visible food ingredients.
 
@@ -123,7 +123,6 @@ export async function saveToPantry(formData) {
           data: {
             name: ingredient.name,
             quantity: ingredient.quantity,
-            imageUrl: "",
             owner: user.id,
           },
         }),
@@ -171,7 +170,6 @@ export async function addPantryItemManually(formData) {
         data: {
           name: name.trim(),
           quantity: quantity.trim(),
-          imageUrl: "",
           owner: user.id,
         },
       }),
