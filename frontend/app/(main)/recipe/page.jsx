@@ -124,8 +124,8 @@ function RecipeContent() {
     return (
       <div className="min-h-screen bg-stone-50 pt-24 pb-16 px-4">
         <div className="container mx-auto max-w-4xl text-center py-20">
-          <div className="bg-orange-50 w-20 h-20 border-2 border-orange-200 flex items-center justify-center mx-auto mb-6">
-            <AlertCircle className="w-10 h-10 text-orange-600" />
+          <div className="bg-green-50 w-20 h-20 border-2 border-green-200 flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-10 h-10 text-green-600" />
           </div>
           <h2 className="text-2xl font-bold text-stone-900 mb-2">
             No recipe specified
@@ -134,7 +134,7 @@ function RecipeContent() {
             Please select a recipe from the dashboard
           </p>
           <Link href="/dashboard">
-            <Button className="bg-orange-600 hover:bg-orange-700">
+            <Button className="bg-green-600 hover:bg-green-700">
               Go to Dashboard
             </Button>
           </Link>
@@ -155,13 +155,13 @@ function RecipeContent() {
             </h2>
             <p className="text-stone-600 font-light">
               Our AI chef is crafting detailed instructions for{" "}
-              <span className="font-bold text-orange-600">{recipeName}</span>
+              <span className="font-bold text-green-600">{recipeName}</span>
               ...
             </p>
             <div className="mt-8 max-w-md mx-auto">
               <div className="flex items-center gap-3 text-sm text-stone-500">
                 <div className="flex-1 h-1 bg-stone-200 overflow-hidden relative">
-                  <div className="absolute left-0 top-0 h-full bg-orange-600 animate-slow-fill" />
+                  <div className="absolute left-0 top-0 h-full bg-green-600 animate-slow-fill" />
                 </div>
               </div>
             </div>
@@ -196,7 +196,7 @@ function RecipeContent() {
             </Button>
             <Button
               onClick={() => window.location.reload()}
-              className="bg-orange-600 hover:bg-orange-700"
+              className="bg-green-600 hover:bg-green-700"
             >
               Retry
             </Button>
@@ -214,7 +214,7 @@ function RecipeContent() {
         <div className="mb-8">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-stone-600 hover:text-orange-600 transition-colors mb-6 font-medium"
+            className="inline-flex items-center gap-2 text-stone-600 hover:text-green-600 transition-colors mb-6 font-medium"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
@@ -238,7 +238,7 @@ function RecipeContent() {
             <div className="flex flex-wrap gap-2 mb-4">
               <Badge
                 variant="outline"
-                className="text-orange-600 border-2 border-orange-200 capitalize"
+                className="text-green-600 border-2 border-green-200 capitalize"
               >
                 {recipe.cuisine}
               </Badge>
@@ -263,19 +263,19 @@ function RecipeContent() {
             {/* Meta Info */}
             <div className="flex flex-wrap gap-6 text-stone-600 mb-6">
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-orange-600" />
+                <Clock className="w-5 h-5 text-green-600" />
                 <span className="font-medium">
                   {parseInt(recipe.prepTime) + parseInt(recipe.cookTime)} mins
                   total
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-orange-600" />
+                <Users className="w-5 h-5 text-green-600" />
                 <span className="font-medium">{recipe.servings} servings</span>
               </div>
               {recipe.nutrition?.calories && (
                 <div className="flex items-center gap-2">
-                  <Flame className="w-5 h-5 text-orange-600" />
+                  <Flame className="w-5 h-5 text-green-600" />
                   <span className="font-medium">
                     {recipe.nutrition.calories} cal/serving
                   </span>
@@ -291,7 +291,7 @@ function RecipeContent() {
                 className={`${
                   isSaved
                     ? "bg-green-600 hover:bg-green-700 border-2 border-green-700"
-                    : "bg-orange-600 hover:bg-orange-700 border-2 border-orange-700"
+                    : "bg-green-600 hover:bg-green-700 border-2 border-green-700"
                 } text-white gap-2 transition-all`}
               >
                 {saving || removing ? (
@@ -320,7 +320,7 @@ function RecipeContent() {
                 {({ loading }) => (
                   <Button
                     variant="outline"
-                    className="border-2 border-orange-600 text-orange-700 hover:bg-orange-50 gap-2"
+                    className="border-2 border-green-600 text-green-700 hover:bg-green-50 gap-2"
                     disabled={loading}
                   >
                     <Download className="w-4 h-4" />
@@ -338,7 +338,7 @@ function RecipeContent() {
             {/* Ingredients */}
             <div className="bg-white p-6 border-2 border-stone-200 lg:sticky lg:top-24">
               <h2 className="text-2xl font-bold text-stone-900 mb-4 flex items-center gap-2">
-                <ChefHat className="w-6 h-6 text-orange-600" />
+                <ChefHat className="w-6 h-6 text-green-600" />
                 Ingredients
               </h2>
 
@@ -361,7 +361,7 @@ function RecipeContent() {
                         className="flex justify-between items-start gap-2 text-stone-700 py-2 border-b border-stone-100 last:border-0"
                       >
                         <span className="flex-1">{ingredient.item}</span>
-                        <span className="font-bold text-orange-600 text-sm whitespace-nowrap">
+                        <span className="font-bold text-green-600 text-sm whitespace-nowrap">
                           {ingredient.amount}
                         </span>
                       </li>
@@ -377,8 +377,8 @@ function RecipeContent() {
                     Nutrition (per serving)
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-orange-50 p-3 text-center border-2 border-orange-100">
-                      <div className="text-2xl font-bold text-orange-600">
+                    <div className="bg-green-50 p-3 text-center border-2 border-green-100">
+                      <div className="text-2xl font-bold text-green-600">
                         {recipe.nutrition.calories}
                       </div>
                       <div className="text-xs text-stone-500 font-bold uppercase tracking-wide">
@@ -432,12 +432,12 @@ function RecipeContent() {
                     key={step.step}
                     className={`relative pl-12 pb-8 ${
                       index !== recipe.instructions.length - 1
-                        ? "border-l-2 border-orange-300 ml-5"
+                        ? "border-l-2 border-green-300 ml-5"
                         : "ml-5"
                     }`}
                   >
                     {/* Step Number */}
-                    <div className="absolute -left-5 top-0 w-10 h-10 bg-orange-600 text-white flex items-center justify-center font-bold border-2 border-orange-700">
+                    <div className="absolute -left-5 top-0 w-10 h-10 bg-green-600 text-white flex items-center justify-center font-bold border-2 border-green-700">
                       {step.step}
                     </div>
 
@@ -450,9 +450,9 @@ function RecipeContent() {
                         {step.instruction}
                       </p>
                       {step.tip && (
-                        <div className="bg-orange-50 border-l-4 border-orange-600 p-4">
-                          <p className="text-sm text-orange-900 flex items-start gap-2">
-                            <Lightbulb className="w-4 h-4 mt-0.5 flex-shrink-0 fill-orange-600" />
+                        <div className="bg-green-50 border-l-4 border-green-600 p-4">
+                          <p className="text-sm text-green-900 flex items-start gap-2">
+                            <Lightbulb className="w-4 h-4 mt-0.5 flex-shrink-0 fill-green-600" />
                             <span>
                               <strong className="font-bold">Pro Tip:</strong>{" "}
                               {step.tip}
@@ -484,9 +484,9 @@ function RecipeContent() {
 
             {/* General Tips */}
             {recipe.tips && recipe.tips.length > 0 && (
-              <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-8 border-2 border-orange-200">
+              <div className="bg-gradient-to-br from-green-50 to-amber-50 p-8 border-2 border-green-200">
                 <h2 className="text-2xl font-bold text-stone-900 mb-4 flex items-center gap-2">
-                  <Lightbulb className="w-6 h-6 text-orange-600 fill-orange-600" />
+                  <Lightbulb className="w-6 h-6 text-green-600 fill-green-600" />
                   Chef&apos;s Tips & Tricks
                 </h2>
                 <ul className="space-y-3">
@@ -495,7 +495,7 @@ function RecipeContent() {
                       key={i}
                       className="flex items-start gap-3 text-stone-700"
                     >
-                      <CheckCircle2 className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                       <span className="font-light">{tip}</span>
                     </li>
                   ))}
@@ -523,7 +523,7 @@ function RecipeContent() {
                     >
                       <h3 className="font-bold text-stone-900 mb-2">
                         Instead of{" "}
-                        <span className="text-orange-600">{sub.original}</span>:
+                        <span className="text-green-600">{sub.original}</span>:
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {sub.alternatives.map((alt, j) => (
@@ -554,7 +554,7 @@ export default function RecipePage() {
       fallback={
         <div className="min-h-screen bg-stone-50 pt-24 pb-16 px-4">
           <div className="container mx-auto max-w-4xl text-center py-20">
-            <Loader2 className="w-16 h-16 text-orange-600 animate-spin mx-auto mb-6" />
+            <Loader2 className="w-16 h-16 text-green-600 animate-spin mx-auto mb-6" />
             <p className="text-stone-600">Loading recipe...</p>
           </div>
         </div>

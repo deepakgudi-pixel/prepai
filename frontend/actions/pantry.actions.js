@@ -30,7 +30,7 @@ export async function scanPantryImage(formData) {
     const base64Image = buffer.toString("base64");
 
      // Call Gemini Vision API
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `You are a professional chef and ingredient recognition expert. Analyze this image of a pantry/fridge and identify all visible food ingredients.
 

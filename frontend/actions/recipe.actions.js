@@ -128,7 +128,7 @@ export async function getOrGenerateRecipe(formData) {
     // Step 2: Recipe doesn't exist, generate with Gemini
     console.log("🤖 Recipe not found, generating with Gemini...");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
 You are a professional chef and recipe expert. Generate a detailed recipe for: "${normalizedTitle}"
@@ -504,7 +504,7 @@ export async function getRecipesByPantryIngredients() {
 
     console.log("🥘 Finding recipes for ingredients:", ingredients);
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
 You are a professional chef. Given these available ingredients: ${ingredients}

@@ -37,7 +37,7 @@ export default function PantryRecipesPage() {
         <div className="mb-8">
           <Link
             href="/pantry"
-            className="inline-flex items-center gap-2 text-stone-600 hover:text-orange-600 transition-colors mb-4 font-medium"
+            className="inline-flex items-center gap-2 text-stone-600 hover:text-green-600 transition-colors mb-4 font-medium"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Pantry
@@ -59,7 +59,7 @@ export default function PantryRecipesPage() {
           {ingredientsUsed && (
             <div className="bg-white p-4 border-2 border-stone-200 mb-4">
               <div className="flex items-start gap-3">
-                <Package className="w-5 h-5 text-orange-600 mt-0.5 shrink-0" />
+                <Package className="w-5 h-5 text-green-600 mt-0.5 shrink-0" />
                 <div>
                   <h3 className="font-bold text-stone-900 mb-1">
                     Your Available Ingredients:
@@ -138,8 +138,8 @@ export default function PantryRecipesPage() {
             recipes.length === 0 &&
             recipesData?.success === false && (
               <div className="bg-white p-12 text-center border-2 border-dashed border-stone-200">
-                <div className="bg-orange-50 w-20 h-20 border-2 border-orange-200 flex items-center justify-center mx-auto mb-6">
-                  <AlertCircle className="w-10 h-10 text-orange-600" />
+                <div className="bg-green-50 w-20 h-20 border-2 border-green-200 flex items-center justify-center mx-auto mb-6">
+                  <AlertCircle className="w-10 h-10 text-green-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-stone-900 mb-2">
                   Your Pantry is Empty
@@ -150,7 +150,7 @@ export default function PantryRecipesPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link href="/pantry/scan">
-                    <Button className="bg-orange-600 hover:bg-orange-700 text-white gap-2">
+                    <Button className="bg-green-600 hover:bg-green-700 text-white gap-2">
                       <Sparkles className="w-4 h-4" />
                       Scan with AI
                     </Button>
