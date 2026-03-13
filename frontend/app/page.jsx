@@ -74,15 +74,15 @@ export default async function Home() {
 
             <Card
               className={
-                "relative aspect-square md:aspect-4/5 border-4 border-stone-900 bg-stone-200 overflow-hidden py-0"
+                "w-full md:w-1/2 lg:w-[500px] flex-shrink-0 relative aspect-square md:aspect-4/5 border-4 border-stone-900 bg-stone-200 overflow-hidden py-0"
               }
             >
               <Image
                 src={upcoming?.strMealThumb || "/pics/image-one.jpg"}
                 alt={upcoming?.strMeal || "Delicious vegetarian dish"}
-                width={500}
-                height={500}
-                className={"w-full h-full object-cover"}
+                fill
+                sizes="(max-width: 768px) 100vw, 500px"
+                className={"object-cover"}
               />
 
               {/* Floating Card */}
