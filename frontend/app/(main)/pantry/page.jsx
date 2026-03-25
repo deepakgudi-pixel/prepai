@@ -28,6 +28,7 @@ export default function PantryPage() {
   const [items, setItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({ name: "", quantity: "" });
+  const [dietaryPreference, setDietaryPreference] = useState("all");
 
   // Fetch pantry items
   const {
@@ -157,7 +158,29 @@ export default function PantryPage() {
         {/* Quick Action Card - Find Recipes */}
 
         {items.length > 0 && (
-          <Link href="/pantry/recipes" className="block mb-8">
+          <div className="mb-8 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 border-2 border-stone-200">
+              <div className="flex items-center gap-2">
+                <span className="text-stone-700 font-bold">Dietary Preference:</span>
+              </div>
+              <div className="flex bg-stone-100 p-1 rounded-md border border-stone-200">
+                {["all", "veg", "non-veg"].map((pref) => (
+                  <button
+                    key={pref}
+                    onClick={() => setDietaryPreference(pref)}
+                    className={`px-6 py-1.5 rounded-sm text-xs font-black uppercase tracking-wider transition-all ${
+                      dietaryPreference === pref
+                        ? "bg-green-800 text-white shadow-sm"
+                        : "text-stone-500 hover:text-stone-800"
+                    }`}
+                  >
+                    {pref}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <Link href={`/pantry/recipes?diet=${dietaryPreference}`} className="block">
             <div className=" bg-green-600 text-white p-6 border-2 border-emerald-700 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group">
               <div className="flex items-center gap-4">
                 <div className="bg-white/20 p-3 border-2 border-white/30 group-hover:bg-white/30 transition-colors">
@@ -169,8 +192,8 @@ export default function PantryPage() {
                     What Can I Cook Today?
                   </h3>
                   <p className="text-green-100 text-sm font-light">
-                    Get AI-powered recipe suggestions from your {items.length}{" "}
-                    ingredients
+                    Get AI-powered {dietaryPreference !== "all" ? `${dietaryPreference} ` : ""}recipe suggestions from your{" "}
+                    {items.length} ingredients
                   </p>
                 </div>
 
@@ -182,6 +205,7 @@ export default function PantryPage() {
               </div>
             </div>
           </Link>
+          </div>
         )}
 
         {/* Loading State */}
