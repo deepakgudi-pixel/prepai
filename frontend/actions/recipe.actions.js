@@ -66,7 +66,7 @@ export async function getOrGenerateRecipe(formData) {
   try {
     const user = await checkUser();
     if (!user) {
-      throw new Error("User not authenticated");
+      return { success: false, message: "User not authenticated" };
     }
 
     const recipeName = formData.get("recipeName");
@@ -327,7 +327,7 @@ Guidelines:
     };
   } catch (error) {
     console.error("❌ Error in getOrGenerateRecipe:", error);
-    throw new Error(error.message || "Failed to load recipe");
+    return { success: false, message: error.message || "Failed to load recipe" };
   }
 }
 
@@ -399,7 +399,7 @@ export async function saveRecipeToCollection(formData) {
     };
   } catch (error) {
     console.error("❌ Error saving recipe to collection:", error);
-    throw new Error(error.message || "Failed to save recipe");
+    return { success: false, message: error.message || "Failed to save recipe" };
   }
 }
 
@@ -464,7 +464,7 @@ export async function removeRecipeFromCollection(formData) {
     };
   } catch (error) {
     console.error("❌ Error removing recipe from collection:", error);
-    throw new Error(error.message || "Failed to remove recipe");
+    return { success: false, message: error.message || "Failed to remove recipe" };
   }
 }
 
@@ -566,7 +566,7 @@ Rules:
     };
   } catch (error) {
     console.error("❌ Error in getRecipesByPantryIngredients:", error);
-    throw new Error(error.message || "Failed to get recipe suggestions");
+    return { success: false, recipes: [], message: error.message || "Failed to get recipe suggestions" };
   }
 }
 
@@ -607,6 +607,51 @@ export async function getSavedRecipes() {
     };
   } catch (error) {
     console.error("Error fetching saved recipes:", error);
-    throw new Error(error.message || "Failed to load saved recipes");
+    return { 
+      success: false, 
+      recipes: [], 
+      count: 0, 
+      message: error.message || "Failed to load saved recipes" 
+    };
+  }
+}
+
+export async function updateUserPreference(preference) {
+  try {
+    const user = await checkUser();
+    if (!user) {
+      throw new Error("User not authenticated");
+    }
+
+    const response = await fetch(`${STRAPI_URL}/api/users/${user.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${STRAPI_API_TOKEN}`,
+      },
+      body: JSON.stringify({ dietaryPreference: preference }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ Error updating preference:", errorText);
+      throw new Error("Failed to update dietary preference");
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ Error in updateUserPreference:", error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getUserPreference() {
+  try {
+    const user = await checkUser();
+    if (!user) return { success: false, preference: "all" };
+    return { success: true, preference: user.dietaryPreference || "all" };
+  } catch (error) {
+    console.error("❌ Error fetching user preference:", error);
+    return { success: false, preference: "all" };
   }
 }

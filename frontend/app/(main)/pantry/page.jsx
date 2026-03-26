@@ -1,10 +1,15 @@
 "use client";
 
 import {
+  clearAllPantryItems,
   deletePantryItem,
   getPantryItems,
   updatePantryItem,
 } from "@/actions/pantry.actions";
+import {
+  getUserPreference,
+  updateUserPreference,
+} from "@/actions/recipe.actions";
 import AddToPantryModal from "@/components/extras/AddToPantryModal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,6 +35,18 @@ export default function PantryPage() {
   const [editValues, setEditValues] = useState({ name: "", quantity: "" });
   const [dietaryPreference, setDietaryPreference] = useState("all");
 
+  // User preference actions
+  const {
+    loading: loadingPref,
+    data: prefData,
+    fn: fetchPref,
+  } = useFetch(getUserPreference);
+
+  const {
+    loading: updatingPref,
+    fn: updatePrefAction,
+  } = useFetch(updateUserPreference);
+
   // Fetch pantry items
   const {
     loading: loadingItems,
@@ -54,12 +71,22 @@ export default function PantryPage() {
   // Load items on mount
   useEffect(() => {
     fetchItems();
+    fetchPref();
   }, []);
+
+  // Set initial preference from database
+  useEffect(() => {
+    if (prefData?.success) {
+      setDietaryPreference(prefData.preference);
+    }
+  }, [prefData]);
 
   // Update items when data arrives
   useEffect(() => {
     if (itemsData?.success) {
       setItems(itemsData.items);
+    } else if (itemsData && !itemsData.success && !loadingItems) {
+      toast.error(itemsData.message || "Failed to load pantry items");
     }
   }, [itemsData]);
 
@@ -70,6 +97,19 @@ export default function PantryPage() {
     await deleteItem(formData);
   };
 
+  // Clear All action
+  const {
+    loading: clearing,
+    data: clearData,
+    fn: clearAll,
+  } = useFetch(clearAllPantryItems);
+
+  const handleClearAll = async () => {
+    if (window.confirm("Are you sure you want to clear ALL ingredients? This cannot be undone.")) {
+      await clearAll();
+    }
+  };
+
   // Refresh after delete
   useEffect(() => {
     if (deleteData?.success && !deleting) {
@@ -77,6 +117,14 @@ export default function PantryPage() {
       fetchItems();
     }
   }, [deleteData]);
+
+  // Refresh after clear all
+  useEffect(() => {
+    if (clearData?.success && !clearing) {
+      toast.success(clearData.message);
+      fetchItems();
+    }
+  }, [clearData]);
 
   // Refresh after update
   useEffect(() => {
@@ -103,6 +151,13 @@ export default function PantryPage() {
     formData.append("name", editValues.name);
     formData.append("quantity", editValues.quantity);
     await updateItem(formData);
+  };
+
+  // Handle preference change and save to DB
+  const handlePreferenceChange = async (pref) => {
+    setDietaryPreference(pref);
+    await updatePrefAction(pref);
+    toast.success(`Dietary preference saved: ${pref}`);
   };
 
   // Cancel edit
@@ -133,26 +188,53 @@ export default function PantryPage() {
                 </p>
               </div>
             </div>
-            {/* Add to Pantry Button - Desktop */}
+            <div className="hidden md:flex gap-2">
+              {items.length > 0 && (
+                <Button
+                  onClick={handleClearAll}
+                  variant="destructive"
+                  className="bg-red-600 hover:bg-red-700 text-white gap-2"
+                  size="lg"
+                  disabled={clearing}
+                >
+                  {clearing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                  Clear All
+                </Button>
+              )}
+              {/* Add to Pantry Button - Desktop */}
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                size="lg"
+              >
+                <Plus className="w-5 h-5" />
+                Add to Pantry
+              </Button>
+            </div>
+          </div>
+
+          {/* Add to Pantry Button - Mobile (Full Width) */}
+          <div className="md:hidden space-y-2 mb-4">
+            {items.length > 0 && (
+              <Button
+                onClick={handleClearAll}
+                className="w-full bg-red-600 hover:bg-red-700 text-white gap-2"
+                size="lg"
+                disabled={clearing}
+              >
+                {clearing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                Clear All
+              </Button>
+            )}
             <Button
               onClick={() => setIsModalOpen(true)}
-              className="hidden md:flex bg-green-600 hover:bg-green-700 text-white gap-2"
+              className="w-full bg-green-600 hover:bg-green-700 text-white gap-2"
               size="lg"
             >
               <Plus className="w-5 h-5" />
               Add to Pantry
             </Button>
           </div>
-
-          {/* Add to Pantry Button - Mobile (Full Width) */}
-          <Button
-            onClick={() => setIsModalOpen(true)}
-            className="md:hidden w-full bg-green-600 hover:bg-green-700 text-white gap-2 mb-4"
-            size="lg"
-          >
-            <Plus className="w-5 h-5" />
-            Add to Pantry
-          </Button>
         </div>
 
         {/* Quick Action Card - Find Recipes */}
@@ -167,7 +249,8 @@ export default function PantryPage() {
                 {["all", "veg", "non-veg"].map((pref) => (
                   <button
                     key={pref}
-                    onClick={() => setDietaryPreference(pref)}
+                    onClick={() => handlePreferenceChange(pref)}
+                    disabled={updatingPref}
                     className={`px-6 py-1.5 rounded-sm text-xs font-black uppercase tracking-wider transition-all ${
                       dietaryPreference === pref
                         ? "bg-green-800 text-white shadow-sm"

@@ -199,7 +199,7 @@ export async function getPantryItems() {
   try {
     const user = await checkUser();
     if (!user) {
-      throw new Error("User not authenticated");
+      return { success: false, items: [], message: "Please sign in to view your pantry" };
     }
 
     const response = await fetch(
@@ -224,7 +224,50 @@ export async function getPantryItems() {
     };
   } catch (error) {
     console.error("Error fetching pantry:", error);
-    throw new Error(error.message || "Failed to load pantry");
+    return { success: false, items: [], message: error.message || "Failed to load pantry" };
+  }
+}
+
+// Clear all ingredients from pantry
+export async function clearAllPantryItems() {
+  try {
+    const user = await checkUser();
+    if (!user) {
+      throw new Error("User not authenticated");
+    }
+
+    // 1. Fetch all items for the user to get their IDs
+    const response = await fetch(
+      `${STRAPI_URL}/api/pantry-items?filters[owner][id][$eq]=${user.id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${STRAPI_API_TOKEN}`,
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) throw new Error("Failed to fetch items for clearing");
+
+    const data = await response.json();
+    const items = data.data || [];
+
+    // 2. Delete items in parallel
+    const deletePromises = items.map((item) =>
+      fetch(`${STRAPI_URL}/api/pantry-items/${item.documentId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${STRAPI_API_TOKEN}`,
+        },
+      })
+    );
+
+    await Promise.all(deletePromises);
+
+    return { success: true, message: "Pantry cleared successfully" };
+  } catch (error) {
+    console.error("Error clearing pantry:", error);
+    throw new Error(error.message || "Failed to clear pantry");
   }
 }
 
