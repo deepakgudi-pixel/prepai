@@ -649,9 +649,15 @@ export async function getUserPreference() {
   try {
     const user = await checkUser();
     if (!user) return { success: false, preference: "all" };
-    return { success: true, preference: user.dietaryPreference || "all" };
+    
+    // Return the saved preference from the database
+    return { 
+      success: true, 
+      preference: user.dietaryPreference || "all" 
+    };
   } catch (error) {
     console.error("❌ Error fetching user preference:", error);
-    return { success: false, preference: "all" };
+    // Return the error so the UI knows not to overwrite local state with "all"
+    return { success: false, preference: "all", error: error.message };
   }
 }

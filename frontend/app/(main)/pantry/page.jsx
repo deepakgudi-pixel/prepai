@@ -155,9 +155,17 @@ export default function PantryPage() {
 
   // Handle preference change and save to DB
   const handlePreferenceChange = async (pref) => {
-    setDietaryPreference(pref);
-    await updatePrefAction(pref);
-    toast.success(`Dietary preference saved: ${pref}`);
+    try {
+      const result = await updatePrefAction(pref);
+      if (result?.success) {
+        setDietaryPreference(pref);
+        toast.success(`Dietary preference updated to: ${pref}`);
+      } else {
+        toast.error(result?.message || "Failed to save preference");
+      }
+    } catch (error) {
+      toast.error("An error occurred while saving your preference");
+    }
   };
 
   // Cancel edit

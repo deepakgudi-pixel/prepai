@@ -4,30 +4,71 @@ const STRAPI_URL =
   process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
 
-// Permanent fix: Helper to handle transient Strapi Cloud 5xx errors with retries
-const fetchWithRetry = async (url, options, retries = 5, delay = 1000) => {
+/**
+ * Retries a fetch request with exponential backoff.
+ * Key fix: retries=8 and longer timeout (20s) to survive Strapi Cloud cold starts.
+ * Strapi Cloud can take 10-30s to wake from idle — we wait it out instead of failing fast.
+ */
+const fetchWithRetry = async (url, options, retries = 8, delay = 1500) => {
   let lastResponse;
+  let lastError;
+
   for (let i = 0; i < retries; i++) {
     try {
-      // Add a signal timeout to prevent hanging requests
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10000);
-      
+      // Increased to 25s — Strapi Cloud cold starts can take 15-25s
+      const timeout = setTimeout(() => controller.abort(), 25000);
+
       lastResponse = await fetch(url, { ...options, signal: controller.signal });
       clearTimeout(timeout);
 
-      // Return immediately if successful or if it's a client-side error (4xx) which shouldn't be retried
+      // Success or a real client error (4xx) — no point retrying
       if (lastResponse.ok || (lastResponse.status >= 400 && lastResponse.status < 500)) {
         return lastResponse;
       }
-      console.warn(`⚠️ Strapi attempt ${i + 1}/${retries} failed (Status: ${lastResponse.status}). Retrying in ${delay * Math.pow(2, i)}ms...`);
+
+      // 5xx = Strapi is waking up or overloaded — keep retrying
+      console.warn(
+        `⚠️ Strapi attempt ${i + 1}/${retries} failed (Status: ${lastResponse.status}). ` +
+        `Retrying in ${Math.round((delay * Math.pow(2, i)) / 1000)}s...`
+      );
     } catch (error) {
-      console.warn(`⚠️ Strapi network error on attempt ${i + 1}: ${error.message}. Retrying...`);
+      lastError = error;
+      const isTimeout = error.name === "AbortError";
+      console.warn(
+        `⚠️ Strapi ${isTimeout ? "timeout" : "network error"} on attempt ${i + 1}/${retries}: ` +
+        `${error.message}. Retrying...`
+      );
     }
-    // Exponential backoff: 1s, 2s, 4s, 8s...
-    if (i < retries - 1) await new Promise((res) => setTimeout(res, delay * Math.pow(2, i)));
+
+    // Exponential backoff: 1.5s → 3s → 6s → 12s → 24s ...
+    // This gives Strapi Cloud enough time to fully wake up between attempts
+    if (i < retries - 1) {
+      await new Promise((res) => setTimeout(res, delay * Math.pow(2, i)));
+    }
   }
-  return lastResponse;
+
+  return lastResponse; // Return last response (even if 5xx) so caller can inspect status
+};
+
+/**
+ * Warms up Strapi by hitting a lightweight endpoint before the real requests.
+ * This avoids the first real user-facing request bearing the full cold-start delay.
+ */
+const warmUpStrapi = async () => {
+  try {
+    await fetchWithRetry(
+      `${STRAPI_URL}/_health`,
+      {
+        headers: { Authorization: `Bearer ${STRAPI_API_TOKEN}` },
+        cache: "no-store",
+      },
+      3,   // fewer retries for the warm-up ping
+      2000
+    );
+  } catch {
+    // Ignore warm-up errors — it's best-effort
+  }
 };
 
 export const checkUser = async () => {
@@ -43,7 +84,11 @@ export const checkUser = async () => {
   }
 
   try {
-    // Check if user exists in Strapi
+    // 🔥 Warm up Strapi first if it's been idle.
+    // This absorbs the cold-start latency before real queries run.
+    await warmUpStrapi();
+
+    // Check if user already exists in Strapi
     const existingUserResponse = await fetchWithRetry(
       `${STRAPI_URL}/api/users?filters[clerkId][$eq]=${user.id}`,
       {
@@ -54,25 +99,28 @@ export const checkUser = async () => {
       }
     );
 
-    if (existingUserResponse && existingUserResponse.ok) {
+    if (!existingUserResponse) {
+      throw new Error("Pantry service is temporarily unavailable. Please try again in a moment.");
+    }
+
+    if (existingUserResponse.ok) {
       const contentType = existingUserResponse.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
         const existingUserData = await existingUserResponse.json();
-        if (existingUserData && Array.isArray(existingUserData) && existingUserData.length > 0) {
+        if (Array.isArray(existingUserData) && existingUserData.length > 0) {
           return existingUserData[0];
         }
       }
     } else {
       const errorText = await existingUserResponse.text().catch(() => "Unable to read error body");
-      const status = existingUserResponse?.status || "Network Error";
-      console.error(`❌ Strapi user lookup failed permanently after retries [${status}]:`, errorText);
-
-      // Throw specific error because Clerk user exists, but backend is down.
-      // This differentiates from a missing user (null).
-      throw new Error(`Pantry service is temporarily unavailable (${status}). Please try again in a moment.`);
+      const status = existingUserResponse?.status ?? "Unknown";
+      console.error(`❌ Strapi user lookup failed after all retries [${status}]:`, errorText);
+      throw new Error(
+        `Pantry service is temporarily unavailable (${status}). Please try again in a moment.`
+      );
     }
 
-    // Get authenticated role
+    // Fetch the authenticated role
     const rolesResponse = await fetchWithRetry(
       `${STRAPI_URL}/api/users-permissions/roles`,
       {
@@ -83,8 +131,9 @@ export const checkUser = async () => {
       }
     );
 
-    if (!rolesResponse.ok) {
-      console.error(`❌ Failed to fetch roles permanently [${rolesResponse?.status}]`);
+    if (!rolesResponse || !rolesResponse.ok) {
+      const status = rolesResponse?.status ?? "Unknown";
+      console.error(`❌ Failed to fetch roles [${status}]`);
       throw new Error("Pantry service configuration error. Please contact support.");
     }
 
@@ -93,20 +142,16 @@ export const checkUser = async () => {
       throw new Error("Invalid roles response from backend");
     }
 
-    const authenticatedRole = rolesData.roles.find(
-      (role) => role.type === "authenticated"
-    );
-
+    const authenticatedRole = rolesData.roles.find((role) => role.type === "authenticated");
     if (!authenticatedRole) {
       console.error("❌ Authenticated role not found");
       throw new Error("User permissions could not be established.");
     }
 
-    // Create new user
+    // Create new user in Strapi
     const userData = {
       username:
-        user.username ||
-        user.emailAddresses[0].emailAddress.split("@")[0],
+        user.username || user.emailAddresses[0].emailAddress.split("@")[0],
       email: user.emailAddresses[0].emailAddress,
       password: `clerk_managed_${user.id}_${Date.now()}`,
       confirmed: true,
@@ -128,8 +173,8 @@ export const checkUser = async () => {
       body: JSON.stringify(userData),
     });
 
-    if (!newUserResponse.ok) {
-      const errorText = await newUserResponse.text();
+    if (!newUserResponse || !newUserResponse.ok) {
+      const errorText = await newUserResponse?.text().catch(() => "");
       console.error("❌ Error creating user:", errorText);
       throw new Error("Failed to sync your profile with the pantry service.");
     }
@@ -138,6 +183,6 @@ export const checkUser = async () => {
     return newUser;
   } catch (error) {
     console.error("❌ Critical error in checkUser:", error.message);
-    throw error; // Re-throw so actions can handle it
+    throw error;
   }
 };
