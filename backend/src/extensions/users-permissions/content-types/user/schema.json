@@ -97,6 +97,9 @@
       "relation": "oneToMany",
       "target": "api::saved-recipe.saved-recipe",
       "mappedBy": "user"
+    },
+    "dietaryPreference": {
+      "type": "string"
     }
   }
 }
