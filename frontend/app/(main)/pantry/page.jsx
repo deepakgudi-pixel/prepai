@@ -44,6 +44,7 @@ export default function PantryPage() {
 
   const {
     loading: updatingPref,
+    data: updatePrefData,
     fn: updatePrefAction,
   } = useFetch(updateUserPreference);
 
@@ -135,6 +136,19 @@ export default function PantryPage() {
     }
   }, [updateData]);
 
+  // Handle feedback after updating dietary preference
+  useEffect(() => {
+    if (updatePrefData) {
+      if (updatePrefData.success) {
+        toast.success("Dietary preference updated successfully");
+        // Re-fetch to ensure local state is in sync with database
+        fetchPref();
+      } else {
+        toast.error(updatePrefData.message || "Failed to save preference");
+      }
+    }
+  }, [updatePrefData]);
+
   // Start editing
   const startEdit = (item) => {
     setEditingId(item.documentId);
@@ -155,17 +169,7 @@ export default function PantryPage() {
 
   // Handle preference change and save to DB
   const handlePreferenceChange = async (pref) => {
-    try {
-      const result = await updatePrefAction(pref);
-      if (result?.success) {
-        setDietaryPreference(pref);
-        toast.success(`Dietary preference updated to: ${pref}`);
-      } else {
-        toast.error(result?.message || "Failed to save preference");
-      }
-    } catch (error) {
-      toast.error("An error occurred while saving your preference");
-    }
+    await updatePrefAction(pref);
   };
 
   // Cancel edit

@@ -629,7 +629,11 @@ export async function updateUserPreference(preference) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${STRAPI_API_TOKEN}`,
       },
-      body: JSON.stringify({ dietaryPreference: preference }),
+      // Note: Verify if your Strapi field is 'dietaryPreference' or 'dietary_preference'
+      // Standard Strapi API for users typically expects fields at the root level.
+      body: JSON.stringify({ 
+        dietaryPreference: preference 
+      }),
     });
 
     if (!response.ok) {
