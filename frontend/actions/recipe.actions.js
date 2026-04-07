@@ -66,7 +66,7 @@ export async function getOrGenerateRecipe(formData) {
   try {
     const user = await checkUser();
     if (!user) {
-      throw new Error("User not authenticated");
+      return { success: false, message: "User not authenticated" };
     }
 
     const recipeName = formData.get("recipeName");
@@ -327,7 +327,7 @@ Guidelines:
     };
   } catch (error) {
     console.error("❌ Error in getOrGenerateRecipe:", error);
-    throw new Error(error.message || "Failed to load recipe");
+    return { success: false, message: error.message || "Failed to load recipe" };
   }
 }
 
@@ -399,7 +399,7 @@ export async function saveRecipeToCollection(formData) {
     };
   } catch (error) {
     console.error("❌ Error saving recipe to collection:", error);
-    throw new Error(error.message || "Failed to save recipe");
+    return { success: false, message: error.message || "Failed to save recipe" };
   }
 }
 
@@ -464,12 +464,12 @@ export async function removeRecipeFromCollection(formData) {
     };
   } catch (error) {
     console.error("❌ Error removing recipe from collection:", error);
-    throw new Error(error.message || "Failed to remove recipe");
+    return { success: false, message: error.message || "Failed to remove recipe" };
   }
 }
 
 // Get recipes based on pantry ingredients
-export async function getRecipesByPantryIngredients() {
+export async function getRecipesByPantryIngredients(diet = "all") {
   try {
     const user = await checkUser();
     if (!user) {
@@ -504,12 +504,19 @@ export async function getRecipesByPantryIngredients() {
 
     console.log("🥘 Finding recipes for ingredients:", ingredients);
 
+    const dietRestriction = diet === "veg" 
+      ? "Strictly Vegetarian (no meat, no fish, no poultry)." 
+      : diet === "non-veg" 
+        ? "Non-Vegetarian (must include meat, poultry, or seafood)." 
+        : "Any (can be vegetarian or non-vegetarian).";
+
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
 You are a professional chef. Given these available ingredients: ${ingredients}
+DIETARY RESTRICTION: ${dietRestriction}
 
-Suggest 5 recipes that can be made primarily with these ingredients. It's okay if the recipes need 1-2 common pantry staples (salt, pepper, oil, etc.) that aren't listed.
+Suggest 5 recipes that can be made primarily with these ingredients and strictly follow the DIETARY RESTRICTION. It's okay if the recipes need 1-2 common pantry staples (salt, pepper, oil, etc.) that aren't listed.
 
 Return ONLY a valid JSON array (no markdown, no explanations):
 [
@@ -559,7 +566,7 @@ Rules:
     };
   } catch (error) {
     console.error("❌ Error in getRecipesByPantryIngredients:", error);
-    throw new Error(error.message || "Failed to get recipe suggestions");
+    return { success: false, recipes: [], message: error.message || "Failed to get recipe suggestions" };
   }
 }
 
@@ -600,6 +607,61 @@ export async function getSavedRecipes() {
     };
   } catch (error) {
     console.error("Error fetching saved recipes:", error);
-    throw new Error(error.message || "Failed to load saved recipes");
+    return { 
+      success: false, 
+      recipes: [], 
+      count: 0, 
+      message: error.message || "Failed to load saved recipes" 
+    };
+  }
+}
+
+export async function updateUserPreference(preference) {
+  try {
+    const user = await checkUser();
+    if (!user) {
+      throw new Error("User not authenticated");
+    }
+
+    const response = await fetch(`${STRAPI_URL}/api/users/${user.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${STRAPI_API_TOKEN}`,
+      },
+      // Note: Verify if your Strapi field is 'dietaryPreference' or 'dietary_preference'
+      // Standard Strapi API for users typically expects fields at the root level.
+      body: JSON.stringify({ 
+        dietaryPreference: preference 
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ Error updating preference:", errorText);
+      throw new Error("Failed to update dietary preference");
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ Error in updateUserPreference:", error);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getUserPreference() {
+  try {
+    const user = await checkUser();
+    if (!user) return { success: false, preference: "all" };
+    
+    // Return the saved preference from the database
+    return { 
+      success: true, 
+      preference: user.dietaryPreference || "all" 
+    };
+  } catch (error) {
+    console.error("❌ Error fetching user preference:", error);
+    // Return the error so the UI knows not to overwrite local state with "all"
+    return { success: false, preference: "all", error: error.message };
   }
 }

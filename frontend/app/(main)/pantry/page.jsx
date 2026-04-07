@@ -1,10 +1,15 @@
 "use client";
 
 import {
+  clearAllPantryItems,
   deletePantryItem,
   getPantryItems,
   updatePantryItem,
 } from "@/actions/pantry.actions";
+import {
+  getUserPreference,
+  updateUserPreference,
+} from "@/actions/recipe.actions";
 import AddToPantryModal from "@/components/extras/AddToPantryModal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +33,20 @@ export default function PantryPage() {
   const [items, setItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({ name: "", quantity: "" });
+  const [dietaryPreference, setDietaryPreference] = useState("all");
+
+  // User preference actions
+  const {
+    loading: loadingPref,
+    data: prefData,
+    fn: fetchPref,
+  } = useFetch(getUserPreference);
+
+  const {
+    loading: updatingPref,
+    data: updatePrefData,
+    fn: updatePrefAction,
+  } = useFetch(updateUserPreference);
 
   // Fetch pantry items
   const {
@@ -53,12 +72,22 @@ export default function PantryPage() {
   // Load items on mount
   useEffect(() => {
     fetchItems();
+    fetchPref();
   }, []);
+
+  // Set initial preference from database
+  useEffect(() => {
+    if (prefData?.success) {
+      setDietaryPreference(prefData.preference);
+    }
+  }, [prefData]);
 
   // Update items when data arrives
   useEffect(() => {
     if (itemsData?.success) {
       setItems(itemsData.items);
+    } else if (itemsData && !itemsData.success && !loadingItems) {
+      toast.error(itemsData.message || "Failed to load pantry items");
     }
   }, [itemsData]);
 
@@ -69,6 +98,19 @@ export default function PantryPage() {
     await deleteItem(formData);
   };
 
+  // Clear All action
+  const {
+    loading: clearing,
+    data: clearData,
+    fn: clearAll,
+  } = useFetch(clearAllPantryItems);
+
+  const handleClearAll = async () => {
+    if (window.confirm("Are you sure you want to clear ALL ingredients? This cannot be undone.")) {
+      await clearAll();
+    }
+  };
+
   // Refresh after delete
   useEffect(() => {
     if (deleteData?.success && !deleting) {
@@ -76,6 +118,14 @@ export default function PantryPage() {
       fetchItems();
     }
   }, [deleteData]);
+
+  // Refresh after clear all
+  useEffect(() => {
+    if (clearData?.success && !clearing) {
+      toast.success(clearData.message);
+      fetchItems();
+    }
+  }, [clearData]);
 
   // Refresh after update
   useEffect(() => {
@@ -85,6 +135,19 @@ export default function PantryPage() {
       fetchItems();
     }
   }, [updateData]);
+
+  // Handle feedback after updating dietary preference
+  useEffect(() => {
+    if (updatePrefData) {
+      if (updatePrefData.success) {
+        toast.success("Dietary preference updated successfully");
+        // Re-fetch to ensure local state is in sync with database
+        fetchPref();
+      } else {
+        toast.error(updatePrefData.message || "Failed to save preference");
+      }
+    }
+  }, [updatePrefData]);
 
   // Start editing
   const startEdit = (item) => {
@@ -102,6 +165,11 @@ export default function PantryPage() {
     formData.append("name", editValues.name);
     formData.append("quantity", editValues.quantity);
     await updateItem(formData);
+  };
+
+  // Handle preference change and save to DB
+  const handlePreferenceChange = async (pref) => {
+    await updatePrefAction(pref);
   };
 
   // Cancel edit
@@ -132,32 +200,82 @@ export default function PantryPage() {
                 </p>
               </div>
             </div>
-            {/* Add to Pantry Button - Desktop */}
+            <div className="hidden md:flex gap-2">
+              {items.length > 0 && (
+                <Button
+                  onClick={handleClearAll}
+                  variant="destructive"
+                  className="bg-red-600 hover:bg-red-700 text-white gap-2"
+                  size="lg"
+                  disabled={clearing}
+                >
+                  {clearing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                  Clear All
+                </Button>
+              )}
+              {/* Add to Pantry Button - Desktop */}
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                size="lg"
+              >
+                <Plus className="w-5 h-5" />
+                Add to Pantry
+              </Button>
+            </div>
+          </div>
+
+          {/* Add to Pantry Button - Mobile (Full Width) */}
+          <div className="md:hidden space-y-2 mb-4">
+            {items.length > 0 && (
+              <Button
+                onClick={handleClearAll}
+                className="w-full bg-red-600 hover:bg-red-700 text-white gap-2"
+                size="lg"
+                disabled={clearing}
+              >
+                {clearing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                Clear All
+              </Button>
+            )}
             <Button
               onClick={() => setIsModalOpen(true)}
-              className="hidden md:flex bg-green-600 hover:bg-green-700 text-white gap-2"
+              className="w-full bg-green-600 hover:bg-green-700 text-white gap-2"
               size="lg"
             >
               <Plus className="w-5 h-5" />
               Add to Pantry
             </Button>
           </div>
-
-          {/* Add to Pantry Button - Mobile (Full Width) */}
-          <Button
-            onClick={() => setIsModalOpen(true)}
-            className="md:hidden w-full bg-green-600 hover:bg-green-700 text-white gap-2 mb-4"
-            size="lg"
-          >
-            <Plus className="w-5 h-5" />
-            Add to Pantry
-          </Button>
         </div>
 
         {/* Quick Action Card - Find Recipes */}
 
         {items.length > 0 && (
-          <Link href="/pantry/recipes" className="block mb-8">
+          <div className="mb-8 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 border-2 border-stone-200">
+              <div className="flex items-center gap-2">
+                <span className="text-stone-700 font-bold">Dietary Preference:</span>
+              </div>
+              <div className="flex bg-stone-100 p-1 rounded-md border border-stone-200">
+                {["all", "veg", "non-veg"].map((pref) => (
+                  <button
+                    key={pref}
+                    onClick={() => handlePreferenceChange(pref)}
+                    disabled={updatingPref}
+                    className={`px-6 py-1.5 rounded-sm text-xs font-black uppercase tracking-wider transition-all ${
+                      dietaryPreference === pref
+                        ? "bg-green-800 text-white shadow-sm"
+                        : "text-stone-500 hover:text-stone-800"
+                    }`}
+                  >
+                    {pref}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <Link href={`/pantry/recipes?diet=${dietaryPreference}`} className="block">
             <div className=" bg-green-600 text-white p-6 border-2 border-emerald-700 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group">
               <div className="flex items-center gap-4">
                 <div className="bg-white/20 p-3 border-2 border-white/30 group-hover:bg-white/30 transition-colors">
@@ -169,8 +287,8 @@ export default function PantryPage() {
                     What Can I Cook Today?
                   </h3>
                   <p className="text-green-100 text-sm font-light">
-                    Get AI-powered recipe suggestions from your {items.length}{" "}
-                    ingredients
+                    Get AI-powered {dietaryPreference !== "all" ? `${dietaryPreference} ` : ""}recipe suggestions from your{" "}
+                    {items.length} ingredients
                   </p>
                 </div>
 
@@ -182,6 +300,7 @@ export default function PantryPage() {
               </div>
             </div>
           </Link>
+          </div>
         )}
 
         {/* Loading State */}

@@ -25,7 +25,7 @@ export default async function DashboardPage() {
     <div className={"min-h-screen bg-stone-50 py-16 px-4"}>
       <div className={"max-w-6xl mx-auto"}>
         {/* Header */}
-        <div className={"mb-5"}>
+        {/* <div className={"mb-5"}>
           <h1 className={"text-5xl md:text-7xl font-bold text-stone-900 mb-4 tracking-tight leading-tight"}>
             Fresh Recipes, Servd Daily 🔥
           </h1>
@@ -33,14 +33,43 @@ export default async function DashboardPage() {
             Discover thousands of recipes from around the world. Cook, create,
             and savor.
           </p>
-        </div>
+        </div> */}
+
+        {/* Browse by Categories */}
+        <section className={"mb-24"}>
+          <div className={"mb-8"}>
+            <h2 className={"text-4xl md:text-5xl font-bold text-stone-900 mb-2"}>
+              Browse by Category
+            </h2>
+            <p className={"text-stone-600 text-lg font-light"}>
+              Find recipes that match your mood
+            </p>
+          </div>
+
+          <div className={"grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4"}>
+            {categories.map((category) => (
+              <Link
+                key={category.strCategory}
+                href={`/recipes/category/${category.strCategory.toLowerCase()}`}
+              >
+                <div className={"bg-white p-6 border-2 border-stone-200 hover:border-green-800 hover:shadow-lg transition-all text-center group cursor-pointer"}>
+                  <div className={"text-4xl mb-3"}>
+                    {getCategoryEmoji(category.strCategory)}
+                  </div>
+                  <h3 className={"font-bold text-stone-900 group-hover:text-green-800 transition-colors text-sm"}>
+                    {category.strCategory}
+                  </h3>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         {/* Recipe of the Day - Hero Section */}
         {recipeOfTheDay && (
           <section className={"mb-24 relative"}>
             <div className={"flex items-center gap-2 mb-6"}>
-              <Flame className={"w-6 h-6 text-green-800"} />
-              <h2 className={"text-3xl font-bold text-stone-900"}>
+              <h2 className={"text-4xl md:text-5xl font-bold text-stone-900 mb-2"}>
                 Recipe of the Day
               </h2>
             </div>
@@ -124,36 +153,6 @@ export default async function DashboardPage() {
             </Link>
           </section>
         )}
-
-        {/* Browse by Categories */}
-        <section className={"mb-24"}>
-          <div className={"mb-8"}>
-            <h2 className={"text-4xl md:text-5xl font-bold text-stone-900 mb-2"}>
-              Browse by Category
-            </h2>
-            <p className={"text-stone-600 text-lg font-light"}>
-              Find recipes that match your mood
-            </p>
-          </div>
-
-          <div className={"grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4"}>
-            {categories.map((category) => (
-              <Link
-                key={category.strCategory}
-                href={`/recipes/category/${category.strCategory.toLowerCase()}`}
-              >
-                <div className={"bg-white p-6 border-2 border-stone-200 hover:border-green-800 hover:shadow-lg transition-all text-center group cursor-pointer"}>
-                  <div className={"text-4xl mb-3"}>
-                    {getCategoryEmoji(category.strCategory)}
-                  </div>
-                  <h3 className={"font-bold text-stone-900 group-hover:text-green-800 transition-colors text-sm"}>
-                    {category.strCategory}
-                  </h3>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
 
         {/* Browse by Cuisine */}
         <section className={"pb-12"}>

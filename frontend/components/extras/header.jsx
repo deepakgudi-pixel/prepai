@@ -8,7 +8,7 @@ import {
 import { Button } from "../ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { Cookie, Refrigerator } from "lucide-react";
+import { Cookie, Refrigerator, Home } from "lucide-react";
 import UserDropdown from "./UserDropdown";
 import { checkUser } from "@/lib/checkUser";
 
@@ -27,18 +27,19 @@ async function Header() {
           "container mx-auto px-4 h-16 flex items-center justify-between"
         }
       >
-        <Link href={user ? "/dashboard" : "/"}>
-          <Image
-            src={"/prep-ai-logo.png"}
-            alt={"prepAI Logo"}
-            width={60}
-            height={60}
-            className={"w-16"}
-          />
+        <Link href={user ? "/dashboard" : "/"} className={"hover:text-green-800 transition-colors flex gap-1.5 items-center"}>
+          Dashboard
         </Link>
 
         {/* Navigation Links */}
         <div className={"hidden md:flex items-center space-x-8 text-sm font-medium text-stone-600"}>
+          <Link
+            href={"/"}
+            className={"hover:text-green-800 transition-colors flex gap-1.5 items-center"}
+          >
+            <Home className={"w-4 h-4"} />
+            Home
+          </Link>
           <Link
             href={"/recipes"}
             className={"hover:text-green-800 transition-colors flex gap-1.5 items-center"}
