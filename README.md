@@ -109,5 +109,3 @@ The most interesting discovery was the balance between AI creativity and databas
 
 ---
 
-*Developed with ❤️ by [Your Name]*
-*Focused on UX, Engineering Quality, and the Future of AI.*
