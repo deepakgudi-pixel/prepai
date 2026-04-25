@@ -1,21 +1,17 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Clock, Users, ChefHat } from "lucide-react";
+import { Clock3, Users, ChefHat, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
+const getMatchTone = (percentage) => {
+  if (percentage >= 90) return "bg-emerald-900 text-white";
+  if (percentage >= 75) return "bg-amber-500 text-stone-950";
+  return "bg-stone-800 text-white";
+};
 
 export default function RecipeCard({ recipe, variant = "default" }) {
-  // Handle different recipe data structures
   const getRecipeData = () => {
-    // For MealDB recipes (category/cuisine pages)
     if (recipe.strMeal) {
       return {
         title: recipe.strMeal,
@@ -25,7 +21,6 @@ export default function RecipeCard({ recipe, variant = "default" }) {
       };
     }
 
-    // For AI-generated pantry recipes
     if (recipe.matchPercentage) {
       return {
         title: recipe.title,
@@ -37,13 +32,12 @@ export default function RecipeCard({ recipe, variant = "default" }) {
         servings: recipe.servings,
         matchPercentage: recipe.matchPercentage,
         missingIngredients: recipe.missingIngredients || [],
-        image: recipe.imageUrl, // Add image support
+        image: recipe.imageUrl,
         href: `/recipe?cook=${encodeURIComponent(recipe.title)}`,
-        showImage: !!recipe.imageUrl, // Show if image exists
+        showImage: !!recipe.imageUrl,
       };
     }
 
-    // For Strapi recipes (saved recipes, search results)
     if (recipe) {
       return {
         title: recipe.title,
@@ -63,171 +57,127 @@ export default function RecipeCard({ recipe, variant = "default" }) {
   };
 
   const data = getRecipeData();
+  const totalTime =
+    parseInt(data.prepTime || 0, 10) + parseInt(data.cookTime || 0, 10);
 
-  // Variant: grid (for category/cuisine pages with images)
   if (variant === "grid") {
     return (
-      <Link href={data.href}>
-        <Card className={"rounded-none overflow-hidden border-stone-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group pt-0"}>
-          {/* Image */}
-          {data.showImage ? (
-            <div className={"relative aspect-square"}>
+      <Link href={data.href} className="group">
+        <article className="panel-surface overflow-hidden pt-0 hover:-translate-y-1">
+          <div className="relative aspect-[0.9] overflow-hidden">
+            {data.showImage ? (
               <Image
                 src={data.image}
                 alt={data.title}
                 fill
-                className={"object-cover"}
-                sizes={"(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
               />
-
-              {/* Hover Overlay */}
-              <div className={"absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"}>
-                <div className={"absolute bottom-0 left-0 right-0 p-4"}>
-                  <p className={"text-white text-sm font-medium"}>
-                    Click to view recipe
-                  </p>
-                </div>
+            ) : (
+              <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,#20493f,#e39d37)]">
+                <ChefHat className="size-16 text-white/40" />
               </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-5">
+              <p className="text-xs uppercase tracking-[0.22em] text-stone-200">
+                recipe
+              </p>
+              <h3 className="mt-2 font-display text-4xl leading-none text-white">
+                {data.title}
+              </h3>
             </div>
-          ) : (
-            // Fallback gradient background when no image
-            <div className={"relative aspect-square bg-gradient-to-br from-green-400 via-amber-400 to-yellow-400 flex items-center justify-center"}>
-              <ChefHat className={"w-20 h-20 text-white/30"} />
-              <div className={"absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"} />
-            </div>
-          )}
-
-          {/* Title */}
-          <CardHeader>
-            <CardTitle className={"text-lg font-bold text-stone-900 group-hover:text-green-800 transition-colors line-clamp-2"}>
-              {data.title}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+          </div>
+        </article>
       </Link>
     );
   }
 
-  // Variant: pantry (for AI-generated suggestions with match percentage)
   if (variant === "pantry") {
     return (
-      <Card className={"rounded-none border-stone-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"}>
-        {/* Image at top (if available) */}
+      <article className="panel-surface flex h-full flex-col overflow-hidden pt-0">
         {data.showImage && (
-          <div className={"relative aspect-video"}>
+          <div className="relative aspect-[16/10] overflow-hidden">
             <Image
               src={data.image}
               alt={data.title}
               fill
-              className={"object-cover"}
-              sizes={"(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
-            {/* Match Percentage Badge on Image */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
             {data.matchPercentage && (
-              <div className={"absolute top-4 right-4"}>
-                <Badge
-                  className={`${
-                    data.matchPercentage >= 90
-                      ? "bg-green-600"
-                      : data.matchPercentage >= 75
-                      ? "bg-green-800"
-                      : "bg-stone-600"
-                  } text-white text-lg px-3 py-1.5 shadow-lg`}
-                >
-                  {data.matchPercentage}% Match
-                </Badge>
-              </div>
+              <Badge
+                className={`absolute right-4 top-4 rounded-full px-4 py-2 ${getMatchTone(
+                  data.matchPercentage,
+                )}`}
+              >
+                {data.matchPercentage}% match
+              </Badge>
             )}
           </div>
         )}
 
-        <CardHeader>
-          <div className={"flex justify-between items-start"}>
-            <div className={"flex-1"}>
-              <div className={"flex flex-wrap gap-2 mb-3"}>
-                {data.cuisine && (
-                  <Badge
-                    variant={"outline"}
-                    className={"text-green-800 border-green-200 capitalize"}
-                  >
-                    {data.cuisine}
-                  </Badge>
-                )}
-                {data.category && (
-                  <Badge
-                    variant={"outline"}
-                    className={"text-stone-600 border-stone-200 capitalize"}
-                  >
-                    {data.category}
-                  </Badge>
-                )}
-              </div>
-            </div>
-            {/* Match Percentage Badge (if no image) */}
+        <div className="flex flex-1 flex-col p-6">
+          <div className="flex flex-wrap gap-2">
+            {data.cuisine && (
+              <Badge variant="outline" className="rounded-full capitalize">
+                {data.cuisine}
+              </Badge>
+            )}
+            {data.category && (
+              <Badge
+                variant="outline"
+                className="rounded-full border-stone-900/10 capitalize"
+              >
+                {data.category}
+              </Badge>
+            )}
             {!data.showImage && data.matchPercentage && (
-              <div className={"flex flex-col items-end gap-1"}>
-                <Badge
-                  className={`${
-                    data.matchPercentage >= 90
-                      ? "bg-green-600"
-                      : data.matchPercentage >= 75
-                      ? "bg-green-800"
-                      : "bg-stone-600"
-                  } text-white text-lg px-3 py-1`}
-                >
-                  {data.matchPercentage}%
-                </Badge>
-                <span className={"text-xs text-stone-500"}>Match</span>
-              </div>
+              <Badge className={`rounded-full px-4 py-2 ${getMatchTone(data.matchPercentage)}`}>
+                {data.matchPercentage}% match
+              </Badge>
             )}
           </div>
 
-          <CardTitle className={"text-2xl font-serif font-bold text-stone-900"}>
+          <h3 className="mt-5 font-display text-4xl leading-none text-stone-950">
             {data.title}
-          </CardTitle>
+          </h3>
 
           {data.description && (
-            <CardDescription className={"text-stone-600 leading-relaxed mt-2"}>
+            <p className="mt-4 text-base leading-7 text-stone-700">
               {data.description}
-            </CardDescription>
+            </p>
           )}
-        </CardHeader>
 
-        <CardContent className={"space-y-4 flex-1"}>
-          {/* Time & Servings */}
-          {(data.prepTime || data.cookTime || data.servings) && (
-            <div className={"flex gap-4 text-sm text-stone-500"}>
-              {(data.prepTime || data.cookTime) && (
-                <div className={"flex items-center gap-1"}>
-                  <Clock className={"w-4 h-4"} />
-                  <span>
-                    {parseInt(data.prepTime || 0) +
-                      parseInt(data.cookTime || 0)}{" "}
-                    mins
-                  </span>
-                </div>
+          {(totalTime || data.servings) && (
+            <div className="mt-5 flex flex-wrap gap-3 text-sm text-stone-600">
+              {totalTime > 0 && (
+                <span className="nav-pill flex items-center gap-2">
+                  <Clock3 className="size-4" />
+                  {totalTime} mins
+                </span>
               )}
               {data.servings && (
-                <div className={"flex items-center gap-1"}>
-                  <Users className={"w-4 h-4"} />
-                  <span>{data.servings} servings</span>
-                </div>
+                <span className="nav-pill flex items-center gap-2">
+                  <Users className="size-4" />
+                  {data.servings} servings
+                </span>
               )}
             </div>
           )}
 
-          {/* Missing Ingredients */}
           {data.missingIngredients && data.missingIngredients.length > 0 && (
-            <div className={"p-4 bg-green-50 border border-green-100"}>
-              <h4 className={"text-sm font-semibold text-green-900 mb-2"}>
-                You&apos;ll need:
-              </h4>
-              <div className={"flex flex-wrap gap-2"}>
-                {data.missingIngredients.map((ingredient, i) => (
+            <div className="mt-6 rounded-[20px] border border-stone-900/8 bg-stone-950/[0.03] p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-stone-500">
+                You&apos;ll need
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {data.missingIngredients.map((ingredient, index) => (
                   <Badge
-                    key={i}
-                    variant={"outline"}
-                    className={"text-green-700 border-green-200 bg-white"}
+                    key={`${ingredient}-${index}`}
+                    variant="outline"
+                    className="rounded-full bg-white/75"
                   >
                     {ingredient}
                   </Badge>
@@ -235,130 +185,113 @@ export default function RecipeCard({ recipe, variant = "default" }) {
               </div>
             </div>
           )}
-        </CardContent>
 
-        <CardFooter>
-          <Link href={data.href} className={"w-full"}>
-            <Button className={"w-full bg-green-600 hover:bg-green-700 text-white gap-2"}>
-              <ChefHat className={"w-4 h-4"} />
-              View Full Recipe
-            </Button>
-          </Link>
-        </CardFooter>
-      </Card>
+          <div className="mt-6">
+            <Link href={data.href}>
+              <Button variant="primary" className="w-full">
+                View Full Recipe
+                <ArrowRight className="size-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </article>
     );
   }
 
-  // Variant: list (for saved recipes, search results)
   if (variant === "list") {
     return (
-      <Link href={data.href}>
-        <Card className={"rounded-none border-stone-200 hover:shadow-lg hover:border-green-200 transition-all cursor-pointer group overflow-hidden py-0"}>
-          <div className={"flex flex-col md:flex-row"}>
-            {/* Image (if available) */}
-            {data.showImage ? (
-              <div className={"relative w-full md:w-48 aspect-video md:aspect-square flex-shrink-0"}>
+      <Link href={data.href} className="group">
+        <article className="panel-surface overflow-hidden pt-0 hover:-translate-y-1">
+          <div className="flex flex-col md:flex-row">
+            <div className="relative aspect-[16/10] w-full overflow-hidden md:w-56 md:aspect-square">
+              {data.showImage ? (
                 <Image
                   src={data.image}
                   alt={data.title}
                   fill
-                  className={"object-cover group-hover:scale-105 transition-transform duration-500"}
-                  sizes={"(max-width: 768px) 100vw, 192px"}
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 224px"
                 />
-              </div>
-            ) : (
-              // Fallback gradient when no image
-              <div className={"relative w-full md:w-48 aspect-video md:aspect-square flex-shrink-0 bg-gradient-to-br from-green-400 to-amber-400 flex items-center justify-center"}>
-                <ChefHat className={"w-12 h-12 text-white/30"} />
-              </div>
-            )}
+              ) : (
+                <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,#20493f,#e39d37)]">
+                  <ChefHat className="size-12 text-white/40" />
+                </div>
+              )}
+            </div>
 
-            {/* Content */}
-            <div className={"flex-1 py-5"}>
-              <CardHeader>
-                <div className={"flex flex-wrap gap-2 mb-2"}>
-                  {data.cuisine && (
-                    <Badge
-                      variant={"outline"}
-                      className={"text-green-800 border-green-200 capitalize"}
-                    >
-                      {data.cuisine}
-                    </Badge>
+            <div className="flex flex-1 flex-col p-6">
+              <div className="flex flex-wrap gap-2">
+                {data.cuisine && (
+                  <Badge variant="outline" className="rounded-full capitalize">
+                    {data.cuisine}
+                  </Badge>
+                )}
+                {data.category && (
+                  <Badge
+                    variant="outline"
+                    className="rounded-full border-stone-900/10 capitalize"
+                  >
+                    {data.category}
+                  </Badge>
+                )}
+              </div>
+
+              <h3 className="mt-5 font-display text-4xl leading-none text-stone-950">
+                {data.title}
+              </h3>
+              {data.description && (
+                <p className="mt-4 line-clamp-2 text-base leading-7 text-stone-700">
+                  {data.description}
+                </p>
+              )}
+
+              {(totalTime || data.servings) && (
+                <div className="mt-5 flex flex-wrap gap-3 text-sm text-stone-600">
+                  {totalTime > 0 && (
+                    <span className="nav-pill flex items-center gap-2">
+                      <Clock3 className="size-4" />
+                      {totalTime} mins
+                    </span>
                   )}
-                  {data.category && (
-                    <Badge
-                      variant={"outline"}
-                      className={"text-stone-600 border-stone-200 capitalize"}
-                    >
-                      {data.category}
-                    </Badge>
+                  {data.servings && (
+                    <span className="nav-pill flex items-center gap-2">
+                      <Users className="size-4" />
+                      {data.servings} servings
+                    </span>
                   )}
                 </div>
-
-                <CardTitle className={"text-xl font-bold text-stone-900 group-hover:text-green-800 transition-colors"}>
-                  {data.title}
-                </CardTitle>
-
-                {data.description && (
-                  <CardDescription className={"line-clamp-2"}>
-                    {data.description}
-                  </CardDescription>
-                )}
-              </CardHeader>
-
-              {(data.prepTime || data.cookTime || data.servings) && (
-                <CardContent>
-                  <div className={"flex gap-4 text-sm text-stone-500 pt-4"}>
-                    {(data.prepTime || data.cookTime) && (
-                      <div className={"flex items-center gap-1"}>
-                        <Clock className={"w-4 h-4"} />
-                        <span>
-                          {parseInt(data.prepTime || 0) +
-                            parseInt(data.cookTime || 0)}{" "}
-                          mins
-                        </span>
-                      </div>
-                    )}
-                    {data.servings && (
-                      <div className={"flex items-center gap-1"}>
-                        <Users className={"w-4 h-4"} />
-                        <span>{data.servings} servings</span>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
               )}
             </div>
           </div>
-        </Card>
+        </article>
       </Link>
     );
   }
 
-  // Default variant (fallback)
   return (
     <Link href={data.href}>
-      <Card className={"rounded-none border-stone-200 hover:shadow-lg transition-all cursor-pointer overflow-hidden py-0"}>
+      <article className="panel-surface overflow-hidden pt-0">
         {data.showImage && (
-          <div className={"relative aspect-video"}>
+          <div className="relative aspect-video">
             <Image
               src={data.image}
               alt={data.title}
               fill
-              className={"object-cover"}
-              sizes={"(max-width: 768px) 100vw, 400px"}
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 400px"
             />
           </div>
         )}
-        <CardHeader>
-          <CardTitle className={"text-lg"}>{data.title}</CardTitle>
+        <div className="p-6">
+          <h3 className="font-display text-3xl leading-none text-stone-950">
+            {data.title}
+          </h3>
           {data.description && (
-            <CardDescription className={"line-clamp-2"}>
-              {data.description}
-            </CardDescription>
+            <p className="mt-3 line-clamp-2 text-stone-700">{data.description}</p>
           )}
-        </CardHeader>
-      </Card>
+        </div>
+      </article>
     </Link>
   );
 }

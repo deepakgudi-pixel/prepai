@@ -3,84 +3,67 @@ import {
   SignUpButton,
   SignedIn,
   SignedOut,
-  UserButton,
 } from "@clerk/nextjs";
-import { Button } from "../ui/button";
+import { Sparkles, Soup, BookHeart, Package2 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
-import { Cookie, Refrigerator, Home } from "lucide-react";
 import UserDropdown from "./UserDropdown";
-import { checkUser } from "@/lib/checkUser";
+import { Button } from "../ui/button";
+
+const navItems = [
+  { href: "/", label: "Home", icon: Sparkles },
+  { href: "/recipes", label: "Saved", icon: BookHeart },
+  { href: "/pantry", label: "Pantry", icon: Package2 },
+];
 
 async function Header() {
-  const user = await checkUser();
-
   return (
-    <header
-      className={
-        "fixed top-0 w-full border-b border-stone-200 bg-stone-50/80 backdrop-blur-md z-50 supports-backdrop-filter:bg-stone-50/60"
-      }
-    >
-      {/* Show the sign-in and sign-up buttons when the user is signed out */}
-      <nav
-        className={
-          "container mx-auto px-4 h-16 flex items-center justify-between"
-        }
-      >
-        <Link href={user ? "/dashboard" : "/"} className={"hover:text-green-800 transition-colors flex gap-1.5 items-center"}>
-          Dashboard
-        </Link>
-
-        {/* Navigation Links */}
-        <div className={"hidden md:flex items-center space-x-8 text-sm font-medium text-stone-600"}>
+    <header className="fixed inset-x-0 top-0 z-50">
+      <nav className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 border-b border-white/60 bg-[rgba(255,249,241,0.82)] px-4 py-3 shadow-[0_12px_40px_rgba(48,37,24,0.08)] backdrop-blur-xl sm:px-6 lg:px-8">
           <Link
-            href={"/"}
-            className={"hover:text-green-800 transition-colors flex gap-1.5 items-center"}
+            href="/"
+            className="group flex items-center gap-3"
           >
-            <Home className={"w-4 h-4"} />
-            Home
+            <span className="flex size-11 items-center justify-center rounded-full bg-stone-950 text-stone-50 shadow-[0_14px_30px_rgba(24,22,18,0.25)]">
+              <Soup className="size-5" />
+            </span>
+            <div>
+              <p className="font-display text-2xl leading-none text-stone-950">
+                PrepAI
+              </p>
+              <p className="text-[0.68rem] uppercase tracking-[0.22em] text-stone-500">
+                Intelligent kitchen studio
+              </p>
+            </div>
           </Link>
-          <Link
-            href={"/recipes"}
-            className={"hover:text-green-800 transition-colors flex gap-1.5 items-center"}
-          >
-            <Cookie className={"w-4 h-4"} />
-            My Recipes
-          </Link>
-          <Link
-            href={"/pantry"}
-            className={"hover:text-green-800 transition-colors flex gap-1.5 items-center"}
-          >
-            <Refrigerator className={"w-4 h-4"} />
-            My Pantry
-          </Link>
-        </div>
 
-        {/* {signIn / singUp} */}
-        <div className={"flex items-center space-x-4"}>
-          {/* Show the user button when the user is signed in */}
-          <SignedIn>
-            <UserDropdown />
-          </SignedIn>
+          <div className="hidden items-center justify-center gap-2 md:flex">
+            {navItems.map(({ href, label, icon: Icon }) => (
+              <Link key={href} href={href} className="nav-pill flex items-center gap-2 hover:-translate-y-0.5 hover:border-emerald-900/20 hover:text-emerald-900">
+                <Icon className="size-4" />
+                <span>{label}</span>
+              </Link>
+            ))}
+          </div>
 
-          <SignedOut>
-            <SignInButton mode={"modal"}>
-              <Button
-                className={
-                  "bg-transparent hover:bg-transparent transition-colors text-stone-600 hover:text-green-800 font-medium "
-                }
-              >
-                Sign In
-              </Button>
-            </SignInButton>
-            <SignUpButton mode={"modal"}>
-              <Button variant={"primary"} className={"rounded-md px-6"}>
-                Get Started
-              </Button>
-            </SignUpButton>
-          </SignedOut>
-        </div>
-      </nav>
+          <div className="flex items-center justify-end gap-3">
+            <SignedIn>
+              <UserDropdown />
+            </SignedIn>
+
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button variant="ghost" className="rounded-full px-5 text-stone-700">
+                  Sign In
+                </Button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <Button variant="primary" className="rounded-full px-5">
+                  Start Free
+                </Button>
+              </SignUpButton>
+            </SignedOut>
+          </div>
+        </nav>
     </header>
   );
 }

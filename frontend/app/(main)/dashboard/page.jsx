@@ -1,5 +1,5 @@
 import React from "react";
-import { Globe, ArrowRight, Flame } from "lucide-react";
+import { Globe2, ArrowRight, Flame, Sparkles } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import {
 import { getCategoryEmoji, getCountryFlag } from "@/lib/data";
 
 export default async function DashboardPage() {
-  // Fetch data server-side
   const recipeData = await getRecipeOfTheDay();
   const categoriesData = await getCategories();
   const areasData = await getAreas();
@@ -22,172 +21,156 @@ export default async function DashboardPage() {
   const areas = areasData?.areas || [];
 
   return (
-    <div className={"min-h-screen bg-stone-50 py-16 px-4"}>
-      <div className={"max-w-6xl mx-auto"}>
-        {/* Header */}
-        {/* <div className={"mb-5"}>
-          <h1 className={"text-5xl md:text-7xl font-bold text-stone-900 mb-4 tracking-tight leading-tight"}>
-            Fresh Recipes, Servd Daily 🔥
-          </h1>
-          <p className={"text-xl text-stone-600 font-light max-w-2xl"}>
-            Discover thousands of recipes from around the world. Cook, create,
-            and savor.
-          </p>
-        </div> */}
+    <div className="space-y-8">
+      <section className="page-frame">
+        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="section-shell px-6 py-8 sm:px-8 sm:py-10">
+            <p className="eyebrow">
+              <Sparkles className="size-3.5" />
+              Curated discovery
+            </p>
+            <h1 className="display-title mt-6 max-w-3xl">
+              Fresh ideas for the kitchen you actually have.
+            </h1>
+            <p className="section-copy mt-6">
+              Browse by mood, cuisine, or category and let the app feel more like a
+              curated food journal than a utility dashboard.
+            </p>
 
-        {/* Browse by Categories */}
-        <section className={"mb-24"}>
-          <div className={"mb-8"}>
-            <h2 className={"text-4xl md:text-5xl font-bold text-stone-900 mb-2"}>
-              Browse by Category
-            </h2>
-            <p className={"text-stone-600 text-lg font-light"}>
-              Find recipes that match your mood
+            <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              <div className="stat-card">
+                <p className="text-xs uppercase tracking-[0.22em] text-stone-500">Collections</p>
+                <p className="mt-3 font-display text-5xl leading-none text-stone-950">
+                  {categories.length}
+                </p>
+                <p className="mt-2 text-sm text-stone-600">recipe categories</p>
+              </div>
+              <div className="stat-card">
+                <p className="text-xs uppercase tracking-[0.22em] text-stone-500">Destinations</p>
+                <p className="mt-3 font-display text-5xl leading-none text-stone-950">
+                  {areas.length}
+                </p>
+                <p className="mt-2 text-sm text-stone-600">world cuisines</p>
+              </div>
+              <div className="stat-card">
+                <p className="text-xs uppercase tracking-[0.22em] text-stone-500">Today</p>
+                <p className="mt-3 font-display text-5xl leading-none text-stone-950">01</p>
+                <p className="mt-2 text-sm text-stone-600">featured editor&apos;s pick</p>
+              </div>
+            </div>
+          </div>
+
+          {recipeOfTheDay && (
+            <Link
+              href={`/recipe?cook=${encodeURIComponent(recipeOfTheDay.strMeal)}`}
+              className="hero-media min-h-[560px] group"
+            >
+              <Image
+                src={recipeOfTheDay.strMealThumb}
+                alt={recipeOfTheDay.strMeal}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                sizes="(max-width: 1024px) 100vw, 48vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+              <div className="absolute left-5 top-5">
+                <Badge className="rounded-full bg-white/15 px-4 py-2 text-white backdrop-blur">
+                  <Flame className="mr-2 size-4" />
+                  Recipe of the day
+                </Badge>
+              </div>
+              <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
+                <div className="panel-surface bg-white/88 p-6">
+                  <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-stone-500">
+                    <span>{recipeOfTheDay.strCategory}</span>
+                    <span>/</span>
+                    <span>{recipeOfTheDay.strArea}</span>
+                  </div>
+                  <h2 className="mt-3 font-display text-5xl leading-none text-stone-950">
+                    {recipeOfTheDay.strMeal}
+                  </h2>
+                  <p className="mt-4 line-clamp-3 text-base leading-7 text-stone-700">
+                    {recipeOfTheDay.strInstructions}
+                  </p>
+                  <div className="mt-6">
+                    <Button variant="primary">
+                      View Full Recipe
+                      <ArrowRight className="size-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )}
+        </div>
+      </section>
+
+      <section className="page-frame">
+        <div className="section-shell px-6 py-8 sm:px-8">
+          <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="eyebrow">Categories</p>
+              <h2 className="section-title mt-4">Browse by category.</h2>
+            </div>
+            <p className="section-copy">
+              Jump into a visual shelf of dishes that feels curated, fast, and tactile.
             </p>
           </div>
 
-          <div className={"grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4"}>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-7">
             {categories.map((category) => (
               <Link
                 key={category.strCategory}
                 href={`/recipes/category/${category.strCategory.toLowerCase()}`}
+                className="panel-surface group flex min-h-36 flex-col justify-between p-5 hover:-translate-y-1"
               >
-                <div className={"bg-white p-6 border-2 border-stone-200 hover:border-green-800 hover:shadow-lg transition-all text-center group cursor-pointer"}>
-                  <div className={"text-4xl mb-3"}>
-                    {getCategoryEmoji(category.strCategory)}
-                  </div>
-                  <h3 className={"font-bold text-stone-900 group-hover:text-green-800 transition-colors text-sm"}>
+                <span className="text-4xl">{getCategoryEmoji(category.strCategory)}</span>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.22em] text-stone-500">
+                    collection
+                  </p>
+                  <h3 className="mt-2 text-lg font-semibold text-stone-950 group-hover:text-emerald-900">
                     {category.strCategory}
                   </h3>
                 </div>
               </Link>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Recipe of the Day - Hero Section */}
-        {recipeOfTheDay && (
-          <section className={"mb-24 relative"}>
-            <div className={"flex items-center gap-2 mb-6"}>
-              <h2 className={"text-4xl md:text-5xl font-bold text-stone-900 mb-2"}>
-                Recipe of the Day
-              </h2>
+      <section className="page-frame pb-4">
+        <div className="panel-dark px-6 py-8 sm:px-8">
+          <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="eyebrow border-white/10 bg-white/5 text-stone-200">
+                World cuisine
+              </p>
+              <h2 className="section-title mt-4 text-white">Explore world cuisines.</h2>
             </div>
-
-            <div className={"absolute top-20 left-5 z-10 flex items-center gap-3 mb-6"}>
-              <Badge
-                variant={"outline"}
-                className={"border-2 border-green-800 text-green-700 bg-green-50 font-bold uppercase tracking-wide"}
-              >
-                <Flame className={"mr-1 w-4 h-4"} />
-                Today&apos;s Special
-              </Badge>
-            </div>
-
-            <Link
-              href={`/recipe?cook=${encodeURIComponent(
-                recipeOfTheDay.strMeal
-              )}`}
-            >
-              <div className={"relative bg-white border-2 border-stone-900 overflow-hidden hover:border-green-800 hover:shadow-lg transition-all duration-300 group cursor-pointer"}>
-                <div className={"grid md:grid-cols-2 gap-0"}>
-                  {/* Image */}
-                  <div className={"relative aspect-4/3 md:aspect-auto border-b-2 md:border-b-0 md:border-r-2 border-stone-900"}>
-                    <Image
-                      src={recipeOfTheDay.strMealThumb}
-                      alt={recipeOfTheDay.strMeal}
-                      fill
-                      className={"object-cover"}
-                    />
-                  </div>
-
-                  {/* Content */}
-                  <div className={"p-8 md:p-12 flex flex-col justify-center"}>
-                    <div className={"flex flex-wrap gap-2 mb-6"}>
-                      <Badge
-                        variant={"outline"}
-                        className={"border-2 border-green-800 text-green-700 bg-green-50 font-bold"}
-                      >
-                        {recipeOfTheDay.strCategory}
-                      </Badge>
-                      <Badge
-                        variant={"outline"}
-                        className={"border-2 border-stone-900 text-stone-700 bg-stone-50 font-bold"}
-                      >
-                        <Globe className={"w-3 h-3 mr-1"} />
-                        {recipeOfTheDay.strArea}
-                      </Badge>
-                    </div>
-
-                    <h3 className={"text-4xl md:text-5xl font-bold text-stone-900 mb-4 group-hover:text-green-800 transition-colors leading-tight"}>
-                      {recipeOfTheDay.strMeal}
-                    </h3>
-
-                    <p className={"text-stone-600 mb-6 line-clamp-3 font-light text-lg"}>
-                      {recipeOfTheDay.strInstructions?.substring(0, 200)}...
-                    </p>
-
-                    {recipeOfTheDay.strTags && (
-                      <div className={"flex flex-wrap gap-2 mb-6"}>
-                        {recipeOfTheDay.strTags
-                          .split(",")
-                          .slice(0, 3)
-                          .map((tag, i) => (
-                            <Badge
-                              key={i}
-                              variant={"secondary"}
-                              className={"bg-stone-100 text-stone-600 border border-stone-200 font-mono text-xs uppercase"}
-                            >
-                              {tag.trim()}
-                            </Badge>
-                          ))}
-                      </div>
-                    )}
-
-                    <Button className={"w-fit bg-green-800 hover:bg-green-700 text-white font-bold border-2 border-green-700 px-6 py-5"}>
-                      Start Cooking <ArrowRight className={"w-5 h-5 ml-2"} />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </section>
-        )}
-
-        {/* Browse by Cuisine */}
-        <section className={"pb-12"}>
-          <div className={"mb-8"}>
-            <h2 className={"text-4xl md:text-5xl font-bold text-stone-900 mb-2"}>
-              Explore World Cuisines
-            </h2>
-            <p className={"text-stone-600 text-lg font-light"}>
-              Travel the globe through food
+            <p className="max-w-2xl text-base leading-7 text-stone-300">
+              Pick a country and move through the menu like you’re flipping through a
+              premium food atlas.
             </p>
           </div>
 
-          <div className={"grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"}>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-6">
             {areas.map((area) => (
               <Link
                 key={area.strArea}
-                href={`/recipes/cuisine/${area.strArea
-                  .toLowerCase()
-                  .replace(/\s+/g, "-")}`}
+                href={`/recipes/cuisine/${area.strArea.toLowerCase().replace(/\s+/g, "-")}`}
+                className="rounded-[22px] border border-white/10 bg-white/6 p-5 hover:-translate-y-1 hover:bg-white/10"
               >
-                <div className={"bg-stone-50 p-5 border-2 border-stone-200 hover:border-green-800 hover:shadow-lg transition-all group cursor-pointer"}>
-                  <div className={"flex items-center gap-3"}>
-                    <span className={"text-3xl"}>
-                      {getCountryFlag(area.strArea)}
-                    </span>
-                    <span className={"font-bold text-stone-900 group-hover:text-green-800 transition-colors text-sm"}>
-                      {area.strArea}
-                    </span>
-                  </div>
+                <p className="text-3xl">{getCountryFlag(area.strArea)}</p>
+                <div className="mt-6 flex items-center justify-between gap-3">
+                  <h3 className="text-base font-semibold text-white">{area.strArea}</h3>
+                  <Globe2 className="size-4 text-stone-400" />
                 </div>
               </Link>
             ))}
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   );
 }

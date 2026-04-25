@@ -8,7 +8,6 @@ import useFetch from "@/hooks/use-fetch";
 import { getSavedRecipes } from "@/actions/recipe.actions";
 import { Button } from "@/components/ui/button";
 
-
 export default function SavedRecipesPage() {
   const {
     loading,
@@ -23,71 +22,64 @@ export default function SavedRecipesPage() {
   const recipes = recipesData?.recipes || [];
 
   return (
-    <div className="min-h-screen bg-stone-50 pt-24 pb-16 px-4">
-      <div className="container mx-auto max-w-7xl">
-        {/* Header */}
-        <div className="flex items-center gap-1 mb-8">
-          <Bookmark className="w-25 h-25 text-green-600 " />
+    <div className="page-frame space-y-8">
+      <section className="section-shell px-6 py-8 sm:px-8 sm:py-10">
+        <div className="flex items-start gap-4">
+          <span className="flex size-16 items-center justify-center rounded-full bg-stone-950 text-white shadow-[0_16px_34px_rgba(24,22,18,0.22)]">
+            <Bookmark className="size-8" />
+          </span>
           <div>
-            <h1 className="text-4xl md:text-6xl font-bold text-stone-900 tracking-tight leading-tight">
-              My Saved Recipes
-            </h1>
-            <p className="text-stone-600">
-              Your personal collection of favorite recipes
+            <p className="eyebrow">Saved recipes</p>
+            <h1 className="section-title mt-4">Your personal cookbook.</h1>
+            <p className="section-copy mt-4">
+              Keep the recipes worth returning to in a cleaner, calmer archive.
             </p>
           </div>
         </div>
+      </section>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="w-12 h-12 text-green-600 animate-spin mb-6" />
-            <p className="text-stone-600">Loading your saved recipes...</p>
-          </div>
-        )}
+      {loading && (
+        <section className="section-shell flex flex-col items-center justify-center px-6 py-20">
+          <Loader2 className="size-10 animate-spin text-emerald-900" />
+          <p className="mt-4 text-stone-600">Loading your saved recipes...</p>
+        </section>
+      )}
 
-        {/* Recipes Grid */}
-        {!loading && recipes.length > 0 && (
-          <div className="grid md:grid-cols-2 gap-6">
-            {recipes.map((recipe) => (
-              <RecipeCard
-                key={recipe.documentId}
-                recipe={recipe}
-                variant="list"
-              />
-            ))}
-          </div>
-        )}
+      {!loading && recipes.length > 0 && (
+        <section className="grid gap-6 md:grid-cols-2">
+          {recipes.map((recipe) => (
+            <RecipeCard key={recipe.documentId} recipe={recipe} variant="list" />
+          ))}
+        </section>
+      )}
 
-        {/* Empty State */}
-        {!loading && recipes.length === 0 && (
-          <div className="bg-white rounded-3xl p-12 text-center border-2 border-dashed border-stone-200">
-            <div className="bg-green-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Bookmark className="w-10 h-10 text-green-600" />
-            </div>
-            <h3 className="text-2xl font-bold text-stone-900 mb-2">
-              No Saved Recipes Yet
-            </h3>
-            <p className="text-stone-600 mb-8 max-w-md mx-auto">
-              Start exploring recipes and save your favorites to build your
-              personal cookbook!
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/dashboard">
-                <Button className="bg-green-600 hover:bg-green-700 text-white gap-2">
-                  <ChefHat className="w-4 h-4" />
-                  Explore Recipes
-                </Button>
-              </Link>
-              <Link href="/pantry">
-                <Button variant="outline" className="border-stone-300 gap-2">
-                  Check Your Pantry
-                </Button>
-              </Link>
-            </div>
+      {!loading && recipes.length === 0 && (
+        <section className="section-shell px-6 py-20 text-center sm:px-8">
+          <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-emerald-950 text-white shadow-[0_18px_36px_rgba(20,97,78,0.2)]">
+            <Bookmark className="size-10" />
           </div>
-        )}
-      </div>
+          <h2 className="mt-8 font-display text-5xl leading-none text-stone-950">
+            No saved recipes yet.
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
+            Explore recipes and start building a collection that feels more like a
+            journal than a bookmark list.
+          </p>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link href="/dashboard">
+              <Button variant="primary" size="lg">
+                <ChefHat className="size-4" />
+                Explore Recipes
+              </Button>
+            </Link>
+            <Link href="/pantry">
+              <Button variant="outline" size="lg">
+                Check Pantry
+              </Button>
+            </Link>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

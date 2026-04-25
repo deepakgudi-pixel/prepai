@@ -20,6 +20,17 @@ function normalizeTitle(title) {
     .join(" ");
 }
 
+function normalizeCuisineValue(cuisine) {
+  const value = cuisine?.toLowerCase()?.trim();
+
+  if (!value) return "other";
+  if (value === "middle-eastern" || value === "middle eastern") {
+    return "middle - eastern";
+  }
+
+  return value;
+}
+
 // Helper function to fetch image from Unsplash
 async function fetchRecipeImage(recipeName) {
   try {
@@ -252,14 +263,15 @@ Guidelines:
       "moroccan",
       "brazilian",
       "caribbean",
-      "middle-eastern",
+      "middle - eastern",
       "british",
       "german",
       "portuguese",
       "other",
     ];
-    const cuisine = validCuisines.includes(recipeData.cuisine?.toLowerCase())
-      ? recipeData.cuisine.toLowerCase()
+    const normalizedCuisine = normalizeCuisineValue(recipeData.cuisine);
+    const cuisine = validCuisines.includes(normalizedCuisine)
+      ? normalizedCuisine
       : "other";
 
     // Step 3: Fetch image from Unsplash
@@ -282,7 +294,6 @@ Guidelines:
         tips: recipeData.tips,
         substitutions: recipeData.substitutions,
         imageUrl: imageUrl || "",
-        author: user.id,
       },
     };
 
@@ -293,23 +304,28 @@ Guidelines:
 
     console.log("Payload going to Strapi:", JSON.stringify(strapiRecipeData, null, 2));
 
-    const createRecipeResponse = await fetch(`${STRAPI_URL}/api/recipes`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${STRAPI_API_TOKEN}`,
-      },
-      body: JSON.stringify(strapiRecipeData),
-    });
+    let createdRecipe = null;
 
-    if (!createRecipeResponse.ok) {
-      const errorText = await createRecipeResponse.text();
-      console.error("❌ Failed to save recipe:", errorText);
-      throw new Error("Failed to save recipe to database");
+    try {
+      const createRecipeResponse = await fetch(`${STRAPI_URL}/api/recipes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${STRAPI_API_TOKEN}`,
+        },
+        body: JSON.stringify(strapiRecipeData),
+      });
+
+      if (!createRecipeResponse.ok) {
+        const errorText = await createRecipeResponse.text();
+        console.error("❌ Failed to save recipe:", errorText);
+      } else {
+        createdRecipe = await createRecipeResponse.json();
+        console.log("✅ Recipe saved to database:", createdRecipe.data.id);
+      }
+    } catch (saveError) {
+      console.error("❌ Error saving generated recipe:", saveError);
     }
-
-    const createdRecipe = await createRecipeResponse.json();
-    console.log("✅ Recipe saved to database:", createdRecipe.data.id);
 
     return {
       success: true,
@@ -320,10 +336,13 @@ Guidelines:
         cuisine,
         imageUrl: imageUrl || "",
       },
-      recipeId: createdRecipe.data.id,
+      recipeId: createdRecipe?.data?.id ?? null,
       isSaved: false,
       fromDatabase: false,
-      message: "Recipe generated and saved successfully!",
+      persisted: Boolean(createdRecipe?.data?.id),
+      message: createdRecipe?.data?.id
+        ? "Recipe generated and saved successfully!"
+        : "Recipe generated successfully, but could not be saved to the database.",
     };
   } catch (error) {
     console.error("❌ Error in getOrGenerateRecipe:", error);

@@ -1,9 +1,15 @@
 import { getUpcomingRecipe } from "@/actions/mealdb.actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { FEATURES, HOW_IT_WORKS_STEPS, SITE_STATS } from "@/lib/data";
-import { ArrowRight, Clock, Flame, Star, Users } from "lucide-react";
+import {
+  ArrowRight,
+  Clock3,
+  Flame,
+  Sparkles,
+  Star,
+  Users,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -12,238 +18,198 @@ export default async function Home() {
   const upcoming = upcomingData?.recipe;
 
   return (
-    <div className={"min-h-screen bg-stonee-50 text-stone-900"}>
-      <section className={"pt-32 pb-20 px-4"}>
-        <div className={"max-w-6xl mx-auto"}>
-          <div
-            className={
-              "flex flex-col md:flex-row items-center gap-12 md:gap-20"
-            }
-          >
-            <div className={"flex-1 text-center md:text-left"}>
-              <Badge
-                className={
-                  "border-2 border-green-800 text-green-800 bg-green-50 text-sm font-bold mb-6 uppercase tracking-wide"
-                }
-              >
-                <Flame className={"mr-1"} />
-                Personal AI Chef
-              </Badge>
+    <div className="space-y-8 pb-12">
+      <section className="page-frame pt-4 sm:pt-8">
+        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="section-shell px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
+            <Badge className="eyebrow border-0 bg-transparent px-0 py-0 shadow-none">
+              <Sparkles className="size-3.5" />
+              Site-grade kitchen intelligence
+            </Badge>
 
-              <h1
-                className={
-                  "text-6xl md:text-8xl font-bold mb-6 leading-[0.9] tracking-tight"
-                }
-              >
-                Turn your{" "}
-                <span
-                  className={
-                    "italic underline decoration-4 decoration-green-600"
-                  }
-                >
-                  leftovers
-                </span>{" "}
-                into <br />
-                masterpieces.
-              </h1>
+            <h1 className="display-title mt-6 max-w-4xl">
+              The pantry app that looks like a magazine cover and cooks like a chef.
+            </h1>
 
-              <p
-                className={
-                  "text-xl md:text-2xl text-stone-600 mb-10 max-w-lg mx-auto md:mx-0 font-light"
-                }
-              >
-                Snap a photo of your fridge. We&apos;ll tell you what to cook.
-                Save money, reduce waste, and eat better tonight.
-              </p>
+            <p className="section-copy mt-6 max-w-2xl">
+              PrepAI turns overlooked ingredients into beautiful, usable dinner ideas.
+              Scan what you have, get tailored recipes, and keep your kitchen feeling
+              inspired instead of improvised.
+            </p>
 
-              <Link href={"/dashboard"}>
-                <Button
-                  size={"xl"}
-                  variant={"primary"}
-                  className={"px-8 py-6 text-lg"}
-                >
-                  Start Cooking Free <ArrowRight className={"ml-2 w-5 h-5"} />
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link href="/dashboard">
+                <Button size="xl" variant="primary" className="w-full sm:w-auto">
+                  Enter the Kitchen
+                  <ArrowRight className="size-5" />
                 </Button>
               </Link>
-
-              <p className={"mt-6 text-sm text-stone-500"}>
-                <span className={"font-bold text-stone-900"}>10k+ cooks</span>{" "}
-                joined last month
-              </p>
+              <Link href="/pantry">
+                <Button size="xl" variant="outline" className="w-full sm:w-auto">
+                  Explore Pantry Flow
+                </Button>
+              </Link>
             </div>
 
-            <Card
-              className={
-                "w-full md:w-1/2 lg:w-[500px] flex-shrink-0 relative aspect-square md:aspect-4/5 border-4 border-stone-900 bg-stone-200 overflow-hidden py-0"
-              }
-            >
-              <Image
-                src={upcoming?.strMealThumb || "/pics/image-one.jpg"}
-                alt={upcoming?.strMeal || "Delicious vegetarian dish"}
-                fill
-                sizes="(max-width: 768px) 100vw, 500px"
-                className={"object-cover"}
-              />
+            <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              <div className="stat-card">
+                <p className="text-xs uppercase tracking-[0.22em] text-stone-500">
+                  Loved by
+                </p>
+                <p className="mt-2 text-3xl font-semibold text-stone-950">10k+</p>
+                <p className="mt-1 text-sm text-stone-600">home cooks this month</p>
+              </div>
+              <div className="stat-card">
+                <p className="text-xs uppercase tracking-[0.22em] text-stone-500">
+                  Time saved
+                </p>
+                <p className="mt-2 text-3xl font-semibold text-stone-950">25 min</p>
+                <p className="mt-1 text-sm text-stone-600">average weeknight decision</p>
+              </div>
+              <div className="stat-card">
+                <p className="text-xs uppercase tracking-[0.22em] text-stone-500">
+                  Waste cut
+                </p>
+                <p className="mt-2 text-3xl font-semibold text-stone-950">31%</p>
+                <p className="mt-1 text-sm text-stone-600">for active households</p>
+              </div>
+            </div>
+          </div>
 
-              {/* Floating Card */}
-              <Card
-                className={
-                  "absolute bottom-8 left-8 right-8 bg-white/95 backdrop-blur-sm border-2 border-stone-900 py-0"
-                }
-              >
-                <CardContent className={"p-4"}>
-                  <div className={"flex justify-between items-start mb-2"}>
-                    <div>
-                      <h3 className={"font-bold text-lg"}>
-                        {upcoming?.strMeal}
-                      </h3>
-                      <div className={"flex gap-0.5 mt-1"}>
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={"w-3 h-3 fill-green-500 text-green-500"}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <Badge
-                      variant={"outline"}
-                      className={
-                        "border-2 border-green-700 bg-green-50 text-green-700 font-bold"
-                      }
-                    >
-                      98% MATCH
-                    </Badge>
+          <div className="hero-media min-h-[540px]">
+            <Image
+              src={upcoming?.strMealThumb || "/pics/image-one.jpg"}
+              alt={upcoming?.strMeal || "Featured recipe"}
+              fill
+              sizes="(max-width: 1024px) 100vw, 44vw"
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
+              <div className="panel-surface bg-white/85 p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.22em] text-stone-500">
+                      Tonight&apos;s spotlight
+                    </p>
+                    <h2 className="mt-2 font-display text-4xl leading-none text-stone-950">
+                      {upcoming?.strMeal || "Vegetable tart with herb butter"}
+                    </h2>
                   </div>
-                  <div
-                    className={"flex gap-4 text-xs text-stone-500 font-medium"}
-                  >
-                    <span className={"flex items-center gap-1"}>
-                      <Clock className={"w-3 h-3"} /> 25 mins
-                    </span>
-                    <span className={"flex items-center gap-1"}>
-                      <Users className={"w-3 h-3"} /> 2 servings
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            </Card>
+                  <Badge className="rounded-full bg-emerald-900 px-4 py-2 text-white">
+                    98% match
+                  </Badge>
+                </div>
+
+                <div className="mt-5 flex flex-wrap gap-3 text-sm text-stone-600">
+                  <span className="nav-pill flex items-center gap-2">
+                    <Clock3 className="size-4" />
+                    25 min
+                  </span>
+                  <span className="nav-pill flex items-center gap-2">
+                    <Users className="size-4" />2 servings
+                  </span>
+                  <span className="nav-pill flex items-center gap-2">
+                    <Flame className="size-4" />
+                    zero-waste favorite
+                  </span>
+                </div>
+
+                <div className="mt-5 flex items-center gap-1 text-amber-500">
+                  {[...Array(5)].map((_, index) => (
+                    <Star key={index} className="size-4 fill-current" />
+                  ))}
+                  <span className="ml-2 text-sm text-stone-600">Rated by tonight&apos;s hungry crowd</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className={"py-12 border-y-2 border-stone-900 bg-stone-900"}>
-        <div
-          className={
-            "max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center px-4"
-          }
-        >
-          {SITE_STATS.map((stat, i) => (
-            <div key={i}>
-              <div className={"text-4xl font-bold mb-1 text-stone-50"}>
-                {stat.val}
-              </div>
-              <Badge
-                variant={"secondary"}
-                className={
-                  "bg-transparent text-green-500 text-sm uppercase tracking-wider font-medium border-none"
-                }
-              >
+      <section className="page-frame">
+        <div className="panel-dark grid gap-4 px-6 py-8 sm:grid-cols-2 lg:grid-cols-4 sm:px-8">
+          {SITE_STATS.map((stat) => (
+            <div key={stat.label} className="border-b border-white/10 pb-4 last:border-b-0 sm:border-b-0 sm:border-r sm:pr-4 last:sm:border-r-0">
+              <p className="text-xs uppercase tracking-[0.22em] text-stone-400">
                 {stat.label}
-              </Badge>
+              </p>
+              <p className="mt-3 font-display text-5xl leading-none text-white">
+                {stat.val}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Features */}
-      <section className={"py-24 px-4"}>
-        <div className={"max-w-6xl mx-auto"}>
-          <div className={"mb-16"}>
-            <h2 className={"text-5xl md:text-6xl font-bold mb-4"}>
-              Your Smart Kitchen
-            </h2>
-            <p className={"text-stone-600 text-xl font-light"}>
-              Everything you need to master your meal prep.
+      <section className="page-frame">
+        <div className="section-shell px-6 py-8 sm:px-8 sm:py-10">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="eyebrow">Capabilities</p>
+              <h2 className="section-title mt-4">A better-looking workflow for everyday cooking.</h2>
+            </div>
+            <p className="section-copy">
+              Every tool in the product is designed to feel crisp, cinematic, and genuinely useful,
+              from scan to save to recipe handoff.
             </p>
           </div>
 
-          <div className={"grid md:grid-cols-2 gap-6"}>
+          <div className="mt-10 grid gap-5 lg:grid-cols-2">
             {FEATURES.map((feature, index) => {
-              const IconComponent = feature.icon;
+              const Icon = feature.icon;
               return (
-                <Card
-                  key={index}
-                  className={
-                    "border-2 border-stone-200 bg-white hover:border-green-600 hover:shadow-lg transition-all group py-0"
-                  }
+                <div
+                  key={feature.title}
+                  className="panel-surface flex flex-col gap-5 p-6 hover:-translate-y-1"
                 >
-                  <CardContent className={"p-8"}>
-                    <div className={"flex justify-between items-start mb-6"}>
-                      <div
-                        className={
-                          "border-2 border-stone-200 bg-green-50 p-3 group-hover:border-green-600 group-hover:bg-green-100 transition-colors"
-                        }
-                      >
-                        <IconComponent className={"w-6 h-6"} />
-                      </div>
-                      <Badge
-                        variant={"secondary"}
-                        className={
-                          "text-xs font-mono bg-stone-100 text-stone-600 uppercase tracking-wide border border-stone-200"
-                        }
-                      >
-                        {feature.limit}
-                      </Badge>
-                    </div>
-                    <h3 className={"text-2xl font-bold mb-3"}>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="flex size-12 items-center justify-center rounded-full bg-emerald-950 text-white shadow-[0_16px_32px_rgba(20,97,78,0.2)]">
+                      <Icon className="size-5" />
+                    </span>
+                    <span className="text-xs uppercase tracking-[0.22em] text-stone-500">
+                      0{index + 1} / {feature.limit}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="font-display text-4xl leading-none text-stone-950">
                       {feature.title}
                     </h3>
-                    <p className={"text-stone-600 text-lg font-light"}>
+                    <p className="mt-3 text-base leading-7 text-stone-700">
                       {feature.description}
                     </p>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               );
             })}
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section
-        className={
-          "py-24 px-4 border-y-2 border-stone-200 bg-stone-900 text-stone-50"
-        }
-      >
-        <div className={"max-w-5xl mx-auto"}>
-          <h2 className={"text-5xl md:text-6xl font-bold mb-16"}>
-            Cook in 3 Steps
-          </h2>
+      <section className="page-frame">
+        <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr]">
+          <div className="panel-dark px-6 py-8 sm:px-8">
+            <p className="eyebrow border-white/10 bg-white/5 text-stone-200">
+              Process
+            </p>
+            <h2 className="section-title mt-4 text-white">From ingredients to plated dinner in three moves.</h2>
+            <p className="mt-4 max-w-md text-base leading-7 text-stone-300">
+              The flow stays lightweight, but it never feels bare. That’s the whole point:
+              utility with presence.
+            </p>
+          </div>
 
-          <div className={"space-y-12"}>
-            {HOW_IT_WORKS_STEPS.map((item, i) => (
-              <div key={i}>
-                <div className={"flex gap-6 items-start"}>
-                  <Badge
-                    variant={"outline"}
-                    className={
-                      "text-6xl font-bold text-green-500 border-none bg-transparent p-0 h-auto"
-                    }
-                  >
-                    {item.step}
-                  </Badge>
-                  <div>
-                    <h3 className={"text-2xl font-bold mb-3"}>{item.title}</h3>
-                    <p className={"text-lg text-stone-400 font-light"}>
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-                {i < HOW_IT_WORKS_STEPS.length - 1 && (
-                  <hr className={"my-8 bg-stone-700"} />
-                )}
+          <div className="section-shell grid gap-4 px-6 py-6 sm:px-8 sm:py-8 md:grid-cols-3">
+            {HOW_IT_WORKS_STEPS.map((item) => (
+              <div key={item.step} className="panel-surface p-6">
+                <p className="text-xs uppercase tracking-[0.22em] text-stone-500">
+                  Step {item.step}
+                </p>
+                <h3 className="mt-4 font-display text-4xl leading-none text-stone-950">
+                  {item.title}
+                </h3>
+                <p className="mt-4 text-base leading-7 text-stone-700">{item.desc}</p>
               </div>
             ))}
           </div>

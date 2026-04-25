@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import {
@@ -35,54 +36,33 @@ export default function PantryPage() {
   const [editValues, setEditValues] = useState({ name: "", quantity: "" });
   const [dietaryPreference, setDietaryPreference] = useState("all");
 
-  // User preference actions
-  const {
-    loading: loadingPref,
-    data: prefData,
-    fn: fetchPref,
-  } = useFetch(getUserPreference);
-
+  const { loading: loadingPref, data: prefData, fn: fetchPref } =
+    useFetch(getUserPreference);
   const {
     loading: updatingPref,
     data: updatePrefData,
     fn: updatePrefAction,
   } = useFetch(updateUserPreference);
+  const { loading: loadingItems, data: itemsData, fn: fetchItems } =
+    useFetch(getPantryItems);
+  const { loading: deleting, data: deleteData, fn: deleteItem } =
+    useFetch(deletePantryItem);
+  const { loading: updating, data: updateData, fn: updateItem } =
+    useFetch(updatePantryItem);
+  const { loading: clearing, data: clearData, fn: clearAll } =
+    useFetch(clearAllPantryItems);
 
-  // Fetch pantry items
-  const {
-    loading: loadingItems,
-    data: itemsData,
-    fn: fetchItems,
-  } = useFetch(getPantryItems);
-
-  // Delete item
-  const {
-    loading: deleting,
-    data: deleteData,
-    fn: deleteItem,
-  } = useFetch(deletePantryItem);
-
-  // Update item
-  const {
-    loading: updating,
-    data: updateData,
-    fn: updateItem,
-  } = useFetch(updatePantryItem);
-
-  // Load items on mount
   useEffect(() => {
     fetchItems();
     fetchPref();
   }, []);
 
-  // Set initial preference from database
   useEffect(() => {
     if (prefData?.success) {
       setDietaryPreference(prefData.preference);
     }
   }, [prefData]);
 
-  // Update items when data arrives
   useEffect(() => {
     if (itemsData?.success) {
       setItems(itemsData.items);
@@ -91,27 +71,6 @@ export default function PantryPage() {
     }
   }, [itemsData]);
 
-  // Handle delete
-  const handleDelete = async (itemId) => {
-    const formData = new FormData();
-    formData.append("itemId", itemId);
-    await deleteItem(formData);
-  };
-
-  // Clear All action
-  const {
-    loading: clearing,
-    data: clearData,
-    fn: clearAll,
-  } = useFetch(clearAllPantryItems);
-
-  const handleClearAll = async () => {
-    if (window.confirm("Are you sure you want to clear ALL ingredients? This cannot be undone.")) {
-      await clearAll();
-    }
-  };
-
-  // Refresh after delete
   useEffect(() => {
     if (deleteData?.success && !deleting) {
       toast.success("Item removed from pantry");
@@ -119,7 +78,6 @@ export default function PantryPage() {
     }
   }, [deleteData]);
 
-  // Refresh after clear all
   useEffect(() => {
     if (clearData?.success && !clearing) {
       toast.success(clearData.message);
@@ -127,7 +85,6 @@ export default function PantryPage() {
     }
   }, [clearData]);
 
-  // Refresh after update
   useEffect(() => {
     if (updateData?.success) {
       toast.success("Item updated successfully");
@@ -136,12 +93,10 @@ export default function PantryPage() {
     }
   }, [updateData]);
 
-  // Handle feedback after updating dietary preference
   useEffect(() => {
     if (updatePrefData) {
       if (updatePrefData.success) {
         toast.success("Dietary preference updated successfully");
-        // Re-fetch to ensure local state is in sync with database
         fetchPref();
       } else {
         toast.error(updatePrefData.message || "Failed to save preference");
@@ -149,16 +104,27 @@ export default function PantryPage() {
     }
   }, [updatePrefData]);
 
-  // Start editing
-  const startEdit = (item) => {
-    setEditingId(item.documentId);
-    setEditValues({
-      name: item.name,
-      quantity: item.quantity,
-    });
+  const handleDelete = async (itemId) => {
+    const formData = new FormData();
+    formData.append("itemId", itemId);
+    await deleteItem(formData);
   };
 
-  // Save edit
+  const handleClearAll = async () => {
+    if (
+      window.confirm(
+        "Are you sure you want to clear ALL ingredients? This cannot be undone.",
+      )
+    ) {
+      await clearAll();
+    }
+  };
+
+  const startEdit = (item) => {
+    setEditingId(item.documentId);
+    setEditValues({ name: item.name, quantity: item.quantity });
+  };
+
   const saveEdit = async () => {
     const formData = new FormData();
     formData.append("itemId", editingId);
@@ -167,106 +133,100 @@ export default function PantryPage() {
     await updateItem(formData);
   };
 
-  // Handle preference change and save to DB
-  const handlePreferenceChange = async (pref) => {
-    await updatePrefAction(pref);
-  };
-
-  // Cancel edit
   const cancelEdit = () => {
     setEditingId(null);
     setEditValues({ name: "", quantity: "" });
   };
 
-  // Handle modal success (refresh items)
+  const handlePreferenceChange = async (pref) => {
+    await updatePrefAction(pref);
+  };
+
   const handleModalSuccess = () => {
     fetchItems();
   };
 
+  const formatCreatedAt = (value) =>
+    new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(new Date(value));
+
   return (
-    <div className="min-h-screen bg-stone-50 pt-24 pb-16 px-4">
-      <div className="container mx-auto max-w-5xl">
-        {/* Header */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Package className="w-16 h-16 text-green-800" />
-              <div>
-                <h1 className="text-4xl md:text-5xl font-bold text-stone-900 tracking-tight">
-                  My Pantry
-                </h1>
-                <p className="text-stone-600 font-light">
-                  Manage your ingredients and discover what you can cook
-                </p>
-              </div>
-            </div>
-            <div className="hidden md:flex gap-2">
-              {items.length > 0 && (
-                <Button
-                  onClick={handleClearAll}
-                  variant="destructive"
-                  className="bg-red-600 hover:bg-red-700 text-white gap-2"
-                  size="lg"
-                  disabled={clearing}
-                >
-                  {clearing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
-                  Clear All
-                </Button>
-              )}
-              {/* Add to Pantry Button - Desktop */}
-              <Button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-green-600 hover:bg-green-700 text-white gap-2"
-                size="lg"
-              >
-                <Plus className="w-5 h-5" />
-                Add to Pantry
-              </Button>
+    <div className="page-frame space-y-8">
+      <section className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
+        <div className="section-shell px-6 py-8 sm:px-8 sm:py-10">
+          <div className="flex items-start gap-4">
+            <span className="flex size-16 items-center justify-center rounded-full bg-stone-950 text-white shadow-[0_16px_34px_rgba(24,22,18,0.22)]">
+              <Package className="size-8" />
+            </span>
+            <div>
+              <p className="eyebrow">Pantry Studio</p>
+              <h1 className="section-title mt-4">Your ingredients, styled like a collection.</h1>
+              <p className="section-copy mt-4">
+                Manage what&apos;s in the kitchen, tune dietary preference, and launch
+                recipe suggestions without leaving the flow.
+              </p>
             </div>
           </div>
 
-          {/* Add to Pantry Button - Mobile (Full Width) */}
-          <div className="md:hidden space-y-2 mb-4">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              variant="primary"
+              size="lg"
+            >
+              <Plus className="size-5" />
+              Add to Pantry
+            </Button>
             {items.length > 0 && (
               <Button
                 onClick={handleClearAll}
-                className="w-full bg-red-600 hover:bg-red-700 text-white gap-2"
+                variant="outline"
                 size="lg"
                 disabled={clearing}
+                className="border-red-500/20 text-red-700 hover:bg-red-50"
               >
-                {clearing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                {clearing ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Trash2 className="size-4" />
+                )}
                 Clear All
               </Button>
             )}
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              className="w-full bg-green-600 hover:bg-green-700 text-white gap-2"
-              size="lg"
-            >
-              <Plus className="w-5 h-5" />
-              Add to Pantry
-            </Button>
           </div>
         </div>
 
-        {/* Quick Action Card - Find Recipes */}
+        <div className="panel-dark px-6 py-8 sm:px-8">
+          <p className="eyebrow border-white/10 bg-white/5 text-stone-200">
+            Recipe engine
+          </p>
+          <h2 className="mt-4 font-display text-5xl leading-none text-white">
+            What can I cook tonight?
+          </h2>
+          <p className="mt-4 text-base leading-7 text-stone-300">
+            Move straight from pantry state to AI recipe suggestions, filtered by the
+            way you actually want to eat.
+          </p>
 
-        {items.length > 0 && (
-          <div className="mb-8 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 border-2 border-stone-200">
-              <div className="flex items-center gap-2">
-                <span className="text-stone-700 font-bold">Dietary Preference:</span>
-              </div>
-              <div className="flex bg-stone-100 p-1 rounded-md border border-stone-200">
+          <div className="mt-8 rounded-[22px] border border-white/10 bg-white/7 p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm uppercase tracking-[0.2em] text-stone-300">
+                Dietary preference
+              </p>
+              <div className="flex rounded-full border border-white/10 bg-black/15 p-1">
                 {["all", "veg", "non-veg"].map((pref) => (
                   <button
                     key={pref}
                     onClick={() => handlePreferenceChange(pref)}
-                    disabled={updatingPref}
-                    className={`px-6 py-1.5 rounded-sm text-xs font-black uppercase tracking-wider transition-all ${
+                    disabled={updatingPref || loadingPref}
+                    className={`rounded-full px-4 py-2 text-xs uppercase tracking-[0.22em] ${
                       dietaryPreference === pref
-                        ? "bg-green-800 text-white shadow-sm"
-                        : "text-stone-500 hover:text-stone-800"
+                        ? "bg-white text-stone-950"
+                        : "text-stone-300"
                     }`}
                   >
                     {pref}
@@ -274,178 +234,167 @@ export default function PantryPage() {
                 ))}
               </div>
             </div>
+          </div>
 
-            <Link href={`/pantry/recipes?diet=${dietaryPreference}`} className="block">
-            <div className=" bg-green-600 text-white p-6 border-2 border-emerald-700 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group">
-              <div className="flex items-center gap-4">
-                <div className="bg-white/20 p-3 border-2 border-white/30 group-hover:bg-white/30 transition-colors">
-                  <ChefHat className="w-8 h-8" />
-                </div>
-
-                <div className="flex-1">
-                  <h3 className="font-bold text-xl mb-1">
-                    What Can I Cook Today?
-                  </h3>
-                  <p className="text-green-100 text-sm font-light">
-                    Get AI-powered {dietaryPreference !== "all" ? `${dietaryPreference} ` : ""}recipe suggestions from your{" "}
-                    {items.length} ingredients
-                  </p>
-                </div>
-
-                <div className="hidden sm:block">
-                  <Badge className="bg-white/20 text-white border-2 border-white/30 font-bold uppercase tracking-wide">
-                    {items.length} items
-                  </Badge>
-                </div>
+          <Link
+            href={`/pantry/recipes?diet=${dietaryPreference}`}
+            className="mt-6 block rounded-[24px] border border-emerald-400/20 bg-[linear-gradient(135deg,rgba(28,80,66,0.88),rgba(213,144,50,0.7))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.26)]"
+          >
+            <div className="flex items-center gap-4">
+              <span className="flex size-14 items-center justify-center rounded-full border border-white/15 bg-white/10">
+                <ChefHat className="size-7 text-white" />
+              </span>
+              <div className="flex-1">
+                <h3 className="font-display text-4xl leading-none text-white">
+                  Launch recipe suggestions
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-white/80">
+                  Build ideas from {items.length || "your"} ingredient
+                  {items.length === 1 ? "" : "s"} with the current dietary mode.
+                </p>
               </div>
-            </div>
-          </Link>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {loadingItems && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="w-12 h-12 text-green-700 animate-spin mb-4" />
-            <p className="text-stone-500">Loading your pantry...</p>
-          </div>
-        )}
-
-        {/* Pantry Items Grid */}
-        {!loadingItems && items.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-stone-900">
-                Your Ingredients
-              </h2>
-              <Badge
-                variant="outline"
-                className="text-stone-600 border-2 border-stone-900 font-bold uppercase tracking-wide"
-              >
-                {items.length} {items.length === 1 ? "item" : "items"}
+              <Badge className="rounded-full bg-white/15 px-4 py-2 text-white">
+                {items.length} items
               </Badge>
             </div>
+          </Link>
+        </div>
+      </section>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {items.map((item) => (
-                <div
-                  key={item.documentId}
-                  className="bg-white p-5 border-2 border-stone-200 hover:border-green-600 hover:shadow-lg transition-all"
-                >
-                  {editingId === item.documentId ? (
-                    // Edit Mode
-                    <div className="space-y-3">
-                      <input
-                        type="text"
-                        value={editValues.name}
-                        onChange={(e) =>
-                          setEditValues({ ...editValues, name: e.target.value })
-                        }
-                        className="w-full px-3 py-2 border-2 border-stone-200 focus:outline-none focus:border-green-600 text-sm"
-                        placeholder="Ingredient name"
-                      />
-                      <input
-                        type="text"
-                        value={editValues.quantity}
-                        onChange={(e) =>
-                          setEditValues({
-                            ...editValues,
-                            quantity: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border-2 border-stone-200 focus:outline-none focus:border-green-600 text-sm"
-                        placeholder="Quantity"
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          onClick={saveEdit}
-                          disabled={updating}
-                          className="flex-1 bg-green-600 hover:bg-green-700 border-2 border-green-700"
+      {loadingItems && (
+        <section className="section-shell flex flex-col items-center justify-center px-6 py-20">
+          <Loader2 className="size-10 animate-spin text-emerald-900" />
+          <p className="mt-4 text-stone-600">Loading your pantry...</p>
+        </section>
+      )}
+
+      {!loadingItems && items.length > 0 && (
+        <section className="section-shell px-6 py-8 sm:px-8">
+          <div className="mb-8 flex items-center justify-between gap-4">
+            <div>
+              <p className="eyebrow">Inventory</p>
+              <h2 className="section-title mt-4">Your ingredients.</h2>
+            </div>
+            <Badge variant="outline" className="rounded-full px-4 py-2">
+              {items.length} {items.length === 1 ? "item" : "items"}
+            </Badge>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {items.map((item) => (
+              <div key={item.documentId} className="panel-surface p-5">
+                {editingId === item.documentId ? (
+                  <div className="space-y-3">
+                    <input
+                      type="text"
+                      value={editValues.name}
+                      onChange={(e) =>
+                        setEditValues({ ...editValues, name: e.target.value })
+                      }
+                      className="w-full rounded-[18px] border border-stone-900/10 bg-white/80 px-4 py-3 text-sm"
+                      placeholder="Ingredient name"
+                    />
+                    <input
+                      type="text"
+                      value={editValues.quantity}
+                      onChange={(e) =>
+                        setEditValues({
+                          ...editValues,
+                          quantity: e.target.value,
+                        })
+                      }
+                      className="w-full rounded-[18px] border border-stone-900/10 bg-white/80 px-4 py-3 text-sm"
+                      placeholder="Quantity"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={saveEdit}
+                        disabled={updating}
+                        variant="primary"
+                        className="flex-1"
+                      >
+                        {updating ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                          <Check className="size-4" />
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={cancelEdit}
+                        disabled={updating}
+                        className="flex-1"
+                      >
+                        <X className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.22em] text-stone-500">
+                          Pantry item
+                        </p>
+                        <h3 className="mt-3 font-display text-4xl leading-none text-stone-950">
+                          {item.name}
+                        </h3>
+                        <p className="mt-3 text-sm text-stone-600">{item.quantity}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => startEdit(item)}
+                          className="flex size-10 items-center justify-center rounded-full border border-stone-900/10 bg-white/65 text-stone-700 hover:text-emerald-900"
                         >
-                          {updating ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Check className="w-4 h-4" />
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={cancelEdit}
-                          disabled={updating}
-                          className="flex-1 border-2 border-stone-900 hover:bg-stone-900 hover:text-white"
+                          <Edit2 className="size-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item.documentId)}
+                          disabled={deleting}
+                          className="flex size-10 items-center justify-center rounded-full border border-stone-900/10 bg-white/65 text-stone-700 hover:text-red-700"
                         >
-                          <X className="w-4 h-4" />
-                        </Button>
+                          <Trash2 className="size-4" />
+                        </button>
                       </div>
                     </div>
-                  ) : (
-                    // View Mode
-                    <div>
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <h3 className="font-bold text-lg text-stone-900 mb-1">
-                            {item.name}
-                          </h3>
-                          <p className="text-stone-500 text-sm font-light">
-                            {item.quantity}
-                          </p>
-                        </div>
-                        <div className="flex gap-1">
-                          <button
-                            onClick={() => startEdit(item)}
-                            className="p-2 border-2 border-transparent hover:border-green-600 hover:bg-green-50 transition-all text-stone-600 hover:text-green-600"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(item.documentId)}
-                            disabled={deleting}
-                            className="p-2 border-2 border-transparent hover:border-red-600 hover:bg-red-50 transition-all text-stone-600 hover:text-red-600"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
 
-                      <div className="text-xs text-stone-400">
-                        Added {new Date(item.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                    <p className="mt-8 text-xs uppercase tracking-[0.18em] text-stone-400">
+                      Added {formatCreatedAt(item.createdAt)}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-        )}
+        </section>
+      )}
 
-        {/* Empty State */}
-        {!loadingItems && items.length === 0 && (
-          <div className="bg-white p-12 text-center border-2 border-dashed border-stone-200">
-            <div className="bg-green-50 w-20 h-20 border-2 border-green-200 flex items-center justify-center mx-auto mb-6">
-              <Package className="w-10 h-10 text-green-600" />
-            </div>
-            <h3 className="text-2xl font-bold text-stone-900 mb-2">
-              Your Pantry is Empty
-            </h3>
-            <p className="text-stone-600 mb-8 max-w-md mx-auto font-light">
-              Start by scanning your pantry with AI or adding ingredients
-              manually to discover amazing recipes!
-            </p>
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-green-600 hover:bg-green-700 text-white gap-2"
-              size="lg"
-            >
-              <Plus className="w-5 h-5" />
-              Add Your First Item
-            </Button>
+      {!loadingItems && items.length === 0 && (
+        <section className="section-shell px-6 py-20 text-center sm:px-8">
+          <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-emerald-950 text-white shadow-[0_18px_36px_rgba(20,97,78,0.2)]">
+            <Package className="size-10" />
           </div>
-        )}
-      </div>
+          <h2 className="mt-8 font-display text-5xl leading-none text-stone-950">
+            Your pantry is empty.
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
+            Start with a scan or add a few ingredients manually to bring the recipe
+            engine to life.
+          </p>
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            variant="primary"
+            size="lg"
+            className="mt-8"
+          >
+            <Plus className="size-5" />
+            Add Your First Item
+          </Button>
+        </section>
+      )}
 
-      {/* Add to Pantry Modal */}
       <AddToPantryModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

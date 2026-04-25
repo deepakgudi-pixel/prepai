@@ -130,21 +130,21 @@ function AddToPantryModal({ isOpen, onClose, onSuccess }) {
     setScannedIngredients(scannedIngredients.filter((_, i) => i !== index));
   };
 
-  
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto rounded-none">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold tracking-tight">
-            Add to Pantry
-          </DialogTitle>
-          <DialogDescription>
-            Scan your pantry with AI or add items manually
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto border-white/60 bg-[rgba(255,249,241,0.94)] p-0 shadow-[0_28px_90px_rgba(48,37,24,0.18)] backdrop-blur-xl">
+        <div className="p-6 sm:p-8">
+          <DialogHeader>
+            <DialogTitle className="font-display text-5xl leading-none tracking-normal text-stone-950">
+              Add to Pantry
+            </DialogTitle>
+            <DialogDescription className="mt-3 text-base leading-7 text-stone-600">
+              Scan your pantry with AI or add items manually
+            </DialogDescription>
+          </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-2 rounded-full border border-stone-900/10 bg-white/70 p-1">
             <TabsTrigger value="scan" className="gap-2">
               <Camera className="w-4 h-4" />
               AI Scan
@@ -168,7 +168,8 @@ function AddToPantryModal({ isOpen, onClose, onSuccess }) {
                 {selectedImage && !scanning && (
                   <Button
                     onClick={handleScan}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-lg"
+                    className="h-12 w-full text-lg"
+                    variant="primary"
                     disabled={scanning}
                   >
                     {scanning ? (
@@ -216,7 +217,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess }) {
                   {scannedIngredients.map((ingredient, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-3 p-4 bg-stone-50 rounded-xl border border-stone-200"
+                      className="flex items-center gap-3 rounded-[20px] border border-stone-900/8 bg-white/75 p-4"
                     >
                       <div className="flex-1">
                         <div className="font-medium text-stone-900">
@@ -229,7 +230,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess }) {
                       {ingredient.confidence && (
                         <Badge
                           variant="outline"
-                          className="text-xs text-green-700 border-green-200"
+                          className="rounded-full text-xs text-green-700 border-green-200"
                         >
                           {Math.round(ingredient.confidence * 100)}%
                         </Badge>
@@ -250,7 +251,8 @@ function AddToPantryModal({ isOpen, onClose, onSuccess }) {
                 <Button
                   onClick={handleSaveScanned}
                   disabled={saving || scannedIngredients.length === 0}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white h-12 w-full"
+                  variant="primary"
+                  className="h-12 w-full flex-1"
                 >
                   {saving ? (
                     <>
@@ -272,7 +274,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess }) {
           <TabsContent value="manual" className="mt-6">
             <form onSubmit={handleAddManual} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-stone-700">
                   Ingredient Name
                 </label>
                 <input
@@ -282,13 +284,13 @@ function AddToPantryModal({ isOpen, onClose, onSuccess }) {
                     setManualItem({ ...manualItem, name: e.target.value })
                   }
                   placeholder="e.g., Chicken breast"
-                  className="w-full px-4 py-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full rounded-[18px] border border-stone-900/10 bg-white/80 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
                   disabled={adding}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-stone-700">
                   Quantity
                 </label>
                 <input
@@ -298,7 +300,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess }) {
                     setManualItem({ ...manualItem, quantity: e.target.value })
                   }
                   placeholder="e.g., 500g, 2 cups, 3 pieces"
-                  className="w-full px-4 py-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full rounded-[18px] border border-stone-900/10 bg-white/80 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"
                   disabled={adding}
                 />
               </div>
@@ -306,7 +308,8 @@ function AddToPantryModal({ isOpen, onClose, onSuccess }) {
               <Button
                 type="submit"
                 disabled={adding}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white h-12 w-full"
+                variant="primary"
+                className="h-12 w-full flex-1"
               >
                 {adding ? (
                   <>
@@ -323,6 +326,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess }) {
             </form>
           </TabsContent>
         </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );
