@@ -147,9 +147,6 @@ export default async function Home() {
                 <p className="mt-4 text-sm leading-7 text-stone-600">
                   {feature.description}
                 </p>
-                <p className="mt-8 text-xs uppercase tracking-[0.2em] text-stone-500">
-                  {feature.limit}
-                </p>
               </div>
             );
           })}
