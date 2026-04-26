@@ -35,14 +35,11 @@ export default function PantryPage() {
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({ name: "", quantity: "" });
   const [dietaryPreference, setDietaryPreference] = useState("all");
-  const [pendingPreference, setPendingPreference] = useState(null);
-  const [previousPreference, setPreviousPreference] = useState("all");
 
   const { loading: loadingPref, data: prefData, fn: fetchPref } =
     useFetch(getUserPreference);
   const {
     loading: updatingPref,
-    data: updatePrefData,
     fn: updatePrefAction,
   } = useFetch(updateUserPreference);
   const { loading: loadingItems, data: itemsData, fn: fetchItems } =
@@ -62,7 +59,6 @@ export default function PantryPage() {
   useEffect(() => {
     if (prefData?.success) {
       setDietaryPreference(prefData.preference);
-      setPreviousPreference(prefData.preference);
     }
   }, [prefData]);
 
@@ -95,23 +91,6 @@ export default function PantryPage() {
       fetchItems();
     }
   }, [updateData]);
-
-  useEffect(() => {
-    if (updatePrefData) {
-      if (updatePrefData.success) {
-        toast.success("Dietary preference updated successfully");
-        setPendingPreference(null);
-        setPreviousPreference(dietaryPreference);
-        fetchPref();
-      } else {
-        if (pendingPreference) {
-          setDietaryPreference(previousPreference);
-          setPendingPreference(null);
-        }
-        toast.error(updatePrefData.message || "Failed to save preference");
-      }
-    }
-  }, [updatePrefData]);
 
   const handleDelete = async (itemId) => {
     const formData = new FormData();
@@ -150,10 +129,18 @@ export default function PantryPage() {
   const handlePreferenceChange = async (pref) => {
     if (pref === dietaryPreference || updatingPref) return;
 
-    setPreviousPreference(dietaryPreference);
-    setPendingPreference(pref);
+    const previousPreference = dietaryPreference;
     setDietaryPreference(pref);
-    await updatePrefAction(pref);
+
+    const result = await updatePrefAction(pref);
+
+    if (result?.success) {
+      toast.success("Dietary preference updated successfully");
+      return;
+    }
+
+    setDietaryPreference(previousPreference);
+    toast.error(result?.message || "Failed to save preference");
   };
 
   const handleModalSuccess = () => {
