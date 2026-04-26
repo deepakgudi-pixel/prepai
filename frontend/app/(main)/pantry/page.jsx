@@ -35,6 +35,8 @@ export default function PantryPage() {
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({ name: "", quantity: "" });
   const [dietaryPreference, setDietaryPreference] = useState("all");
+  const [pendingPreference, setPendingPreference] = useState(null);
+  const [previousPreference, setPreviousPreference] = useState("all");
 
   const { loading: loadingPref, data: prefData, fn: fetchPref } =
     useFetch(getUserPreference);
@@ -60,6 +62,7 @@ export default function PantryPage() {
   useEffect(() => {
     if (prefData?.success) {
       setDietaryPreference(prefData.preference);
+      setPreviousPreference(prefData.preference);
     }
   }, [prefData]);
 
@@ -97,8 +100,14 @@ export default function PantryPage() {
     if (updatePrefData) {
       if (updatePrefData.success) {
         toast.success("Dietary preference updated successfully");
+        setPendingPreference(null);
+        setPreviousPreference(dietaryPreference);
         fetchPref();
       } else {
+        if (pendingPreference) {
+          setDietaryPreference(previousPreference);
+          setPendingPreference(null);
+        }
         toast.error(updatePrefData.message || "Failed to save preference");
       }
     }
@@ -139,6 +148,11 @@ export default function PantryPage() {
   };
 
   const handlePreferenceChange = async (pref) => {
+    if (pref === dietaryPreference || updatingPref) return;
+
+    setPreviousPreference(dietaryPreference);
+    setPendingPreference(pref);
+    setDietaryPreference(pref);
     await updatePrefAction(pref);
   };
 
