@@ -158,14 +158,16 @@ export default function PantryPage() {
   return (
     <div className="page-frame space-y-8">
       <section className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
-        <div className="section-shell px-6 py-8 sm:px-8 sm:py-10">
-          <div className="flex items-start gap-4">
-            <span className="flex size-16 items-center justify-center rounded-full bg-stone-950 text-white shadow-[0_16px_34px_rgba(24,22,18,0.22)]">
+        <div className="section-shell px-5 py-7 sm:px-8 sm:py-10">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+            <span className="flex size-14 items-center justify-center rounded-full bg-stone-950 text-white shadow-[0_16px_34px_rgba(24,22,18,0.22)] sm:size-16">
               <Package className="size-8" />
             </span>
             <div>
               <p className="eyebrow">Pantry Studio</p>
-              <h1 className="section-title mt-4">Your ingredients, styled like a collection.</h1>
+              <h1 className="section-title mt-4 max-w-2xl">
+                Your ingredients, styled like a collection.
+              </h1>
               <p className="section-copy mt-4">
                 Manage what&apos;s in the kitchen, tune dietary preference, and launch
                 recipe suggestions without leaving the flow.
@@ -201,11 +203,11 @@ export default function PantryPage() {
           </div>
         </div>
 
-        <div className="panel-dark px-6 py-8 sm:px-8">
+        <div className="panel-dark px-5 py-7 sm:px-8 sm:py-8">
           <p className="eyebrow border-white/10 bg-white/5 text-stone-200">
             Recipe engine
           </p>
-          <h2 className="mt-4 font-display text-5xl leading-none text-white">
+          <h2 className="mt-4 max-w-md font-display text-4xl leading-none text-white sm:text-5xl">
             What can I cook tonight?
           </h2>
           <p className="mt-4 text-base leading-7 text-stone-300">
@@ -218,13 +220,13 @@ export default function PantryPage() {
               <p className="text-sm uppercase tracking-[0.2em] text-stone-300">
                 Dietary preference
               </p>
-              <div className="flex rounded-full border border-white/10 bg-black/15 p-1">
+              <div className="grid w-full grid-cols-3 rounded-full border border-white/10 bg-black/15 p-1 sm:w-auto">
                 {["all", "veg", "non-veg"].map((pref) => (
                   <button
                     key={pref}
                     onClick={() => handlePreferenceChange(pref)}
                     disabled={updatingPref || loadingPref}
-                    className={`rounded-full px-4 py-2 text-xs uppercase tracking-[0.22em] ${
+                    className={`min-w-0 rounded-full px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] sm:px-4 sm:text-xs sm:tracking-[0.22em] ${
                       dietaryPreference === pref
                         ? "bg-white text-stone-950"
                         : "text-stone-300"
@@ -241,12 +243,12 @@ export default function PantryPage() {
             href={`/pantry/recipes?diet=${dietaryPreference}`}
             className="mt-6 block rounded-[24px] border border-emerald-400/20 bg-[linear-gradient(135deg,rgba(28,80,66,0.88),rgba(213,144,50,0.7))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.26)]"
           >
-            <div className="flex items-center gap-4">
-              <span className="flex size-14 items-center justify-center rounded-full border border-white/15 bg-white/10">
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+              <span className="flex size-14 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10">
                 <ChefHat className="size-7 text-white" />
               </span>
               <div className="flex-1">
-                <h3 className="font-display text-4xl leading-none text-white">
+                <h3 className="max-w-sm font-display text-3xl leading-none text-white sm:text-4xl">
                   Launch recipe suggestions
                 </h3>
                 <p className="mt-3 text-sm leading-6 text-white/80">
@@ -270,8 +272,8 @@ export default function PantryPage() {
       )}
 
       {!loadingItems && items.length > 0 && (
-        <section className="section-shell px-6 py-8 sm:px-8">
-          <div className="mb-8 flex items-center justify-between gap-4">
+        <section className="section-shell px-5 py-7 sm:px-8 sm:py-8">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="eyebrow">Inventory</p>
               <h2 className="section-title mt-4">Your ingredients.</h2>
@@ -339,7 +341,7 @@ export default function PantryPage() {
                         <p className="text-xs uppercase tracking-[0.22em] text-stone-500">
                           Pantry item
                         </p>
-                        <h3 className="mt-3 font-display text-4xl leading-none text-stone-950">
+                        <h3 className="mt-3 break-words font-display text-3xl leading-none text-stone-950 sm:text-4xl">
                           {item.name}
                         </h3>
                         <p className="mt-3 text-sm text-stone-600">{item.quantity}</p>
@@ -373,7 +375,7 @@ export default function PantryPage() {
       )}
 
       {!loadingItems && items.length === 0 && (
-        <section className="section-shell px-6 py-20 text-center sm:px-8">
+        <section className="section-shell px-5 py-16 text-center sm:px-8 sm:py-20">
           <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-emerald-950 text-white shadow-[0_18px_36px_rgba(20,97,78,0.2)]">
             <Package className="size-10" />
           </div>
