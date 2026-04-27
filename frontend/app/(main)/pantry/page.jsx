@@ -183,25 +183,27 @@ export default function PantryPage() {
 
   return (
     <div className="page-frame space-y-8">
-      <section className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
-        <div className="section-shell px-5 py-7 sm:px-8 sm:py-10">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-            <span className="flex size-14 items-center justify-center rounded-full bg-stone-950 text-white shadow-[0_16px_34px_rgba(24,22,18,0.22)] sm:size-16">
-              <Package className="size-8" />
-            </span>
-            <div>
-              <p className="eyebrow">Pantry Studio</p>
-              <h1 className="section-title mt-4 max-w-2xl">
-                Your ingredients, styled like a collection.
-              </h1>
-              <p className="section-copy mt-4">
-                Manage what&apos;s in the kitchen, tune dietary preference, and launch
-                recipe suggestions without leaving the flow.
-              </p>
+      <section className="grid items-stretch gap-6 lg:grid-cols-[1fr_0.95fr]">
+        <div className="section-shell flex h-full flex-col justify-between px-5 py-7 sm:px-8 sm:py-10">
+          <div className="space-y-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+              <span className="flex size-14 items-center justify-center rounded-full bg-stone-950 text-white shadow-[0_16px_34px_rgba(24,22,18,0.22)] sm:size-16">
+                <Package className="size-8" />
+              </span>
+              <div className="max-w-2xl">
+                <p className="eyebrow">Pantry Studio</p>
+                <h1 className="section-title mt-4">
+                  Your ingredients, styled like a collection.
+                </h1>
+                <p className="section-copy mt-4">
+                  Manage what&apos;s in the kitchen, tune dietary preference, and
+                  launch recipe suggestions without leaving the flow.
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <Button
               onClick={() => setIsModalOpen(true)}
               variant="primary"
@@ -229,45 +231,49 @@ export default function PantryPage() {
           </div>
         </div>
 
-        <div className="panel-dark px-5 py-7 sm:px-8 sm:py-8">
-          <p className="eyebrow border-white/10 bg-white/5 text-stone-200">
-            Recipe engine
-          </p>
-          <h2 className="mt-4 max-w-md font-display text-4xl leading-none text-white sm:text-5xl">
-            What can I cook tonight?
-          </h2>
-          <p className="mt-4 text-base leading-7 text-stone-300">
-            Move straight from pantry state to AI recipe suggestions, filtered by the
-            way you actually want to eat.
-          </p>
-
-          <div className="mt-8 rounded-[22px] border border-white/10 bg-white/7 p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm uppercase tracking-[0.2em] text-stone-300">
-                Dietary preference
+        <div className="panel-dark flex h-full flex-col justify-between px-5 py-7 sm:px-8 sm:py-8">
+          <div className="space-y-8">
+            <div className="max-w-lg">
+              <p className="eyebrow border-white/10 bg-white/5 text-stone-200">
+                Recipe engine
               </p>
-              <div className="grid w-full grid-cols-3 rounded-full border border-white/10 bg-black/15 p-1 sm:w-auto">
-                {["all", "veg", "non-veg"].map((pref) => (
-                  <button
-                    key={pref}
-                    onClick={() => handlePreferenceChange(pref)}
-                    disabled={updatingPref || loadingPref}
-                    className={`min-w-0 rounded-full px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] sm:px-4 sm:text-xs sm:tracking-[0.22em] ${
-                      dietaryPreference === pref
-                        ? "bg-white text-stone-950"
-                        : "text-stone-300"
-                    }`}
-                  >
-                    {pref}
-                  </button>
-                ))}
+              <h2 className="mt-4 max-w-md font-display text-4xl leading-none text-white sm:text-5xl">
+                What can I cook tonight?
+              </h2>
+              <p className="mt-4 max-w-xl text-base leading-7 text-stone-300">
+                Move straight from pantry state to AI recipe suggestions, filtered by
+                the way you actually want to eat.
+              </p>
+            </div>
+
+            <div className="rounded-[22px] border border-white/10 bg-white/7 p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm uppercase tracking-[0.2em] text-stone-300">
+                  Dietary preference
+                </p>
+                <div className="grid w-full grid-cols-3 rounded-full border border-white/10 bg-black/15 p-1 sm:w-auto">
+                  {["all", "veg", "non-veg"].map((pref) => (
+                    <button
+                      key={pref}
+                      onClick={() => handlePreferenceChange(pref)}
+                      disabled={updatingPref || loadingPref}
+                      className={`min-w-0 rounded-full px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] sm:px-4 sm:text-xs sm:tracking-[0.22em] ${
+                        dietaryPreference === pref
+                          ? "bg-white text-stone-950"
+                          : "text-stone-300"
+                      }`}
+                    >
+                      {pref}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
           <Link
             href={`/pantry/recipes?diet=${dietaryPreference}`}
-            className="mt-6 block rounded-[24px] border border-emerald-400/20 bg-[linear-gradient(135deg,rgba(28,80,66,0.88),rgba(213,144,50,0.7))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.26)]"
+            className="mt-8 block rounded-[24px] border border-emerald-400/20 bg-[linear-gradient(135deg,rgba(28,80,66,0.88),rgba(213,144,50,0.7))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.26)]"
           >
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               <span className="flex size-14 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10">
