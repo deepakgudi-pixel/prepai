@@ -55,6 +55,9 @@ function PantryRecipesContent() {
 
   const recipes = recipesData?.recipes || [];
   const ingredientsUsed = recipesData?.ingredientsUsed || "";
+  const emptyMessage =
+    recipesData?.message ||
+    "Add ingredients so we can generate relevant recipe suggestions instead of generic inspiration.";
 
   return (
     <div className="page-frame space-y-8">
@@ -161,11 +164,12 @@ function PantryRecipesContent() {
             <AlertCircle className="size-10" />
           </div>
           <h2 className="mt-8 font-display text-5xl leading-none text-stone-950">
-            Your pantry needs a few ingredients first.
+            {recipesData?.message === "User not authenticated"
+              ? "Sign in to generate recipe suggestions."
+              : "Your pantry needs a few ingredients first."}
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
-            Add ingredients so we can generate relevant recipe suggestions instead of
-            generic inspiration.
+            {emptyMessage}
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/pantry">
