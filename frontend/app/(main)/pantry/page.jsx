@@ -276,7 +276,7 @@ export default function PantryPage() {
                       key={pref}
                       onClick={() => handlePreferenceChange(pref)}
                       disabled={updatingPref || loadingPref}
-                      className={`min-w-0 rounded-full px-3 py-2 text-[0.68rem] uppercase tracking-[0.18em] sm:px-4 sm:text-xs sm:tracking-[0.22em] ${
+                      className={`min-w-0 whitespace-nowrap rounded-full px-2 py-2 text-[0.62rem] uppercase tracking-[0.12em] sm:px-4 sm:text-xs sm:tracking-[0.22em] ${
                         dietaryPreference === pref
                           ? "bg-white text-stone-950"
                           : "text-stone-300"
