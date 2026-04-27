@@ -1,6 +1,8 @@
 const app = require("./app");
 const { env } = require("./config/env");
 
-app.listen(env.port, "127.0.0.1", () => {
-  console.log(`PrepAI backend listening on http://127.0.0.1:${env.port}`);
+app.listen(env.port, () => {
+  console.log(`PrepAI backend listening on port ${env.port}`);
 });
+
+module.exports = app;
