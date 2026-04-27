@@ -1,3 +1,5 @@
+"use client";
+
 import {
   SignInButton,
   SignUpButton,
@@ -16,7 +18,7 @@ const navItems = [
   { href: "/pantry", label: "Pantry", icon: Package2 },
 ];
 
-async function Header() {
+function Header() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-stone-200 bg-[rgba(250,250,248,0.94)] backdrop-blur-xl">
       <div className="page-frame grid h-20 grid-cols-[1fr_auto_1fr] items-center gap-4">

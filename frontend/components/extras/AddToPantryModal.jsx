@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import ImageUploader from "./ImageUploader";
 import { Badge } from "../ui/badge";
 
-function AddToPantryModal({ isOpen, onClose, onSuccess }) {
+function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
   const [activeTab, setActiveTab] = useState("scan");
   const [selectedImage, setSelectedImage] = useState(null);
   const [scannedIngredients, setScannedIngredients] = useState([]);
@@ -58,8 +58,13 @@ function AddToPantryModal({ isOpen, onClose, onSuccess }) {
   // Scan image
   const handleScan = async () => {
     if (!selectedImage) return;
+    if (!authUser) {
+      toast.error("Please sign in to scan and save pantry items");
+      return;
+    }
     const formData = new FormData();
     formData.append("image", selectedImage);
+    formData.append("authUser", JSON.stringify(authUser));
     await scanImage(formData);
   };
 
@@ -80,6 +85,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess }) {
 
     const formData = new FormData();
     formData.append("ingredients", JSON.stringify(scannedIngredients));
+    formData.append("authUser", JSON.stringify(authUser));
     await saveScannedItems(formData);
   };
 
@@ -112,6 +118,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess }) {
     const formData = new FormData();
     formData.append("name", manualItem.name);
     formData.append("quantity", manualItem.quantity);
+    formData.append("authUser", JSON.stringify(authUser));
     await addManualItem(formData);
   };
 

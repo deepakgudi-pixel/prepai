@@ -1,179 +1,44 @@
-import { currentUser } from "@clerk/nextjs/server";
+const BACKEND_API_URL =
+  process.env.BACKEND_API_URL || "http://127.0.0.1:4000/api";
+const BACKEND_INTERNAL_API_KEY =
+  process.env.BACKEND_INTERNAL_API_KEY || "prepai-internal-dev-key";
 
-const STRAPI_URL =
-  process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
-const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
-const USER_CACHE_TTL_MS = 5 * 60 * 1000;
+export const checkUser = async (user) => user || null;
 
-const userCache = new Map();
-let authenticatedRoleCache = null;
+export const getBackendAuthHeaders = async (user) => {
+  const authUser = await checkUser(user);
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const fetchWithRetry = async (url, options, retries = 2, delay = 350) => {
-  let lastResponse;
-  let lastError;
-
-  for (let attempt = 0; attempt <= retries; attempt += 1) {
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 4500);
-
-      lastResponse = await fetch(url, {
-        ...options,
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
-
-      if (lastResponse.ok || (lastResponse.status >= 400 && lastResponse.status < 500)) {
-        return lastResponse;
-      }
-    } catch (error) {
-      lastError = error;
-    }
-
-    if (attempt < retries) {
-      await sleep(delay * (attempt + 1));
-    }
-  }
-
-  if (lastError) {
-    throw lastError;
-  }
-
-  return lastResponse;
-};
-
-const getCachedUser = (clerkId) => {
-  const entry = userCache.get(clerkId);
-
-  if (!entry) return null;
-  if (Date.now() > entry.expiresAt) {
-    userCache.delete(clerkId);
+  if (!authUser?.id) {
     return null;
   }
 
-  return entry.user;
-};
-
-const setCachedUser = (clerkId, user) => {
-  userCache.set(clerkId, {
-    user,
-    expiresAt: Date.now() + USER_CACHE_TTL_MS,
-  });
-};
-
-const getAuthenticatedRoleId = async () => {
-  if (authenticatedRoleCache) {
-    return authenticatedRoleCache;
-  }
-
-  const rolesResponse = await fetchWithRetry(
-    `${STRAPI_URL}/api/users-permissions/roles`,
-    {
-      headers: {
-        Authorization: `Bearer ${STRAPI_API_TOKEN}`,
-      },
-      cache: "no-store",
-    },
-  );
-
-  if (!rolesResponse?.ok) {
-    const status = rolesResponse?.status ?? "Unknown";
-    throw new Error(`Failed to fetch authenticated role (${status})`);
-  }
-
-  const rolesData = await rolesResponse.json();
-  const authenticatedRole = rolesData?.roles?.find(
-    (role) => role.type === "authenticated",
-  );
-
-  if (!authenticatedRole) {
-    throw new Error("Authenticated role not found");
-  }
-
-  authenticatedRoleCache = authenticatedRole.id;
-  return authenticatedRoleCache;
-};
-
-export const checkUser = async () => {
-  const clerkUser = await currentUser();
-
-  if (!clerkUser) {
-    return null;
-  }
-
-  if (!STRAPI_API_TOKEN || !STRAPI_URL) {
-    throw new Error("Backend service configuration missing");
-  }
-
-  const cachedUser = getCachedUser(clerkUser.id);
-  if (cachedUser) {
-    return cachedUser;
-  }
-
-  const lookupResponse = await fetchWithRetry(
-    `${STRAPI_URL}/api/users?filters[clerkId][$eq]=${clerkUser.id}`,
-    {
-      headers: {
-        Authorization: `Bearer ${STRAPI_API_TOKEN}`,
-      },
-      cache: "no-store",
-    },
-  );
-
-  if (!lookupResponse) {
-    throw new Error("Pantry service is temporarily unavailable. Please try again.");
-  }
-
-  if (lookupResponse.ok) {
-    const contentType = lookupResponse.headers.get("content-type");
-    if (contentType?.includes("application/json")) {
-      const existingUsers = await lookupResponse.json();
-      if (Array.isArray(existingUsers) && existingUsers.length > 0) {
-        setCachedUser(clerkUser.id, existingUsers[0]);
-        return existingUsers[0];
-      }
-    }
-  } else {
-    const errorText = await lookupResponse.text().catch(() => "");
-    console.error("Strapi user lookup failed:", lookupResponse.status, errorText);
-    throw new Error("Pantry service is temporarily unavailable. Please try again.");
-  }
-
-  const authenticatedRoleId = await getAuthenticatedRoleId();
-  const userData = {
-    username:
-      clerkUser.username ||
-      clerkUser.emailAddresses[0].emailAddress.split("@")[0],
-    email: clerkUser.emailAddresses[0].emailAddress,
-    password: `clerk_managed_${clerkUser.id}_${Date.now()}`,
-    confirmed: true,
-    blocked: false,
-    role: authenticatedRoleId,
-    clerkId: clerkUser.id,
-    firstName: clerkUser.firstName || "",
-    lastName: clerkUser.lastName || "",
-    imageUrl: clerkUser.imageUrl || "",
-    dietaryPreference: "all",
+  return {
+    "x-internal-api-key": BACKEND_INTERNAL_API_KEY,
+    "x-clerk-user-id": authUser.id,
+    "x-user-email": authUser.email || "",
+    "x-user-username":
+      authUser.username || authUser.email?.split("@")[0] || "",
+    "x-user-first-name": authUser.firstName || "",
+    "x-user-last-name": authUser.lastName || "",
+    "x-user-image-url": authUser.imageUrl || "",
   };
+};
 
-  const createResponse = await fetchWithRetry(`${STRAPI_URL}/api/users`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${STRAPI_API_TOKEN}`,
-    },
-    body: JSON.stringify(userData),
-  });
+export const backendFetch = async (path, user, options = {}) => {
+  const headers = await getBackendAuthHeaders(user);
 
-  if (!createResponse?.ok) {
-    const errorText = await createResponse?.text().catch(() => "");
-    console.error("Error creating user:", createResponse?.status, errorText);
-    throw new Error("Failed to sync your profile with the pantry service.");
+  if (!headers) {
+    return null;
   }
 
-  const newUser = await createResponse.json();
-  setCachedUser(clerkUser.id, newUser);
-  return newUser;
+  const response = await fetch(`${BACKEND_API_URL}${path}`, {
+    ...options,
+    headers: {
+      ...headers,
+      ...(options.headers || {}),
+    },
+    cache: "no-store",
+  });
+
+  return response;
 };

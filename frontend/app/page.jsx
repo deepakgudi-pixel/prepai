@@ -1,4 +1,3 @@
-import { getUpcomingRecipe } from "@/actions/mealdb.actions";
 import { Button } from "@/components/ui/button";
 import { FEATURES, HOW_IT_WORKS_STEPS, SITE_STATS } from "@/lib/data";
 import {
@@ -11,10 +10,12 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 
-export default async function Home() {
-  const upcomingData = await getUpcomingRecipe();
-  const upcoming = upcomingData?.recipe;
+const featuredRecipe = {
+  title: "Tomato Basil Pasta",
+  image: "/pics/image-one.jpg",
+};
 
+export default function Home() {
   return (
     <div className="pb-12">
       <section className="border-b border-stone-200 bg-white">
@@ -63,8 +64,8 @@ export default async function Home() {
 
           <div className="hero-media min-h-[520px]">
             <Image
-              src={upcoming?.strMealThumb || "/pics/image-one.jpg"}
-              alt={upcoming?.strMeal || "Featured recipe"}
+              src={featuredRecipe.image}
+              alt={featuredRecipe.title}
               fill
               sizes="(max-width: 1024px) 100vw, 48vw"
               className="object-cover"
@@ -101,7 +102,7 @@ export default async function Home() {
                       Tonight&apos;s spotlight
                     </p>
                     <h2 className="mt-3 font-display text-4xl leading-none text-stone-950">
-                      {upcoming?.strMeal || "Vegetable tart"}
+                      {featuredRecipe.title}
                     </h2>
                   </div>
                   <span className="border border-stone-200 bg-stone-50 px-3 py-2 text-xs uppercase tracking-[0.2em] text-stone-600">

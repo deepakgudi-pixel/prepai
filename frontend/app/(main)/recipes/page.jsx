@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { useUser } from "@clerk/nextjs";
 import { Bookmark, Loader2, ChefHat } from "lucide-react";
 import Link from "next/link";
 import RecipeCard from "@/components/extras/RecipeCard";
@@ -9,15 +10,36 @@ import { getSavedRecipes } from "@/actions/recipe.actions";
 import { Button } from "@/components/ui/button";
 
 export default function SavedRecipesPage() {
+  const { user, isLoaded } = useUser();
   const {
     loading,
     data: recipesData,
     fn: fetchSavedRecipes,
   } = useFetch(getSavedRecipes);
 
+  const authUser = useMemo(() => {
+    if (!user) {
+      return null;
+    }
+
+    return {
+      id: user.id,
+      email: user.primaryEmailAddress?.emailAddress || "",
+      username:
+        user.username || user.primaryEmailAddress?.emailAddress?.split("@")[0] || "",
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      imageUrl: user.imageUrl || "",
+    };
+  }, [user]);
+
   useEffect(() => {
-    fetchSavedRecipes();
-  }, []);
+    if (!isLoaded || !authUser) {
+      return;
+    }
+
+    fetchSavedRecipes(authUser);
+  }, [isLoaded, authUser]);
 
   const recipes = recipesData?.recipes || [];
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { getRecipesByPantryIngredients } from "@/actions/recipe.actions";
+import { useUser } from "@clerk/nextjs";
 import RecipeCard from "@/components/extras/RecipeCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,18 +16,42 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import React, { useEffect, useMemo } from "react";
 
 export default function PantryRecipesPage() {
+  const { user, isLoaded } = useUser();
+  const searchParams = useSearchParams();
+  const diet = searchParams.get("diet") || "all";
   const {
     loading,
     data: recipesData,
     fn: fetchSuggestions,
   } = useFetch(getRecipesByPantryIngredients);
 
+  const authUser = useMemo(() => {
+    if (!user) {
+      return null;
+    }
+
+    return {
+      id: user.id,
+      email: user.primaryEmailAddress?.emailAddress || "",
+      username:
+        user.username || user.primaryEmailAddress?.emailAddress?.split("@")[0] || "",
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      imageUrl: user.imageUrl || "",
+    };
+  }, [user]);
+
   useEffect(() => {
-    fetchSuggestions();
-  }, []);
+    if (!isLoaded || !authUser) {
+      return;
+    }
+
+    fetchSuggestions(authUser, diet);
+  }, [isLoaded, authUser, diet]);
 
   const recipes = recipesData?.recipes || [];
   const ingredientsUsed = recipesData?.ingredientsUsed || "";
@@ -109,7 +134,7 @@ export default function PantryRecipesPage() {
 
           <div className="text-center">
             <Button
-              onClick={() => fetchSuggestions(new FormData())}
+              onClick={() => fetchSuggestions(authUser, diet)}
               variant="outline"
               size="lg"
               disabled={loading}

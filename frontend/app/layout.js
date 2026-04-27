@@ -1,19 +1,8 @@
-import { Manrope, Sora } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/extras/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/themes";
 import { Toaster } from "@/components/ui/sonner";
-
-const manrope = Manrope({
-  subsets: ["latin"],
-  variable: "--font-manrope",
-});
-
-const sora = Sora({
-  subsets: ["latin"],
-  variable: "--font-display",
-});
 
 export const metadata = {
   title: "PrepAI",
@@ -48,7 +37,7 @@ export default function RootLayout({ children }) {
       }}
     >
       <html lang="en">
-        <body className={`${manrope.variable} ${sora.variable} app-shell`}>
+        <body className="app-shell">
           <Header />
           <main className="min-h-screen pt-20">{children}</main>
           <Toaster richColors />

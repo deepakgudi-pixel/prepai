@@ -1,36 +1,21 @@
 {
-  "name": "backend",
-  "version": "0.1.0",
+  "name": "prepai-backend",
+  "version": "1.0.0",
   "private": true,
-  "description": "A Strapi application",
+  "description": "Express backend for PrepAI",
   "scripts": {
-    "build": "strapi build",
-    "console": "strapi console",
-    "deploy": "strapi deploy",
-    "dev": "strapi develop",
-    "develop": "strapi develop",
-    "start": "strapi start",
-    "strapi": "strapi",
-    "upgrade": "npx @strapi/upgrade latest",
-    "upgrade:dry": "npx @strapi/upgrade latest --dry"
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "migrate": "node src/scripts/migrate.js"
   },
   "dependencies": {
-    "@strapi/plugin-cloud": "5.36.1",
-    "@strapi/plugin-users-permissions": "5.36.1",
-    "@strapi/strapi": "5.36.1",
-    "pg": "8.8.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-router-dom": "^6.0.0",
-    "styled-components": "^6.0.0"
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "pg": "^8.8.0"
   },
-  "devDependencies": {},
   "engines": {
     "node": ">=20.0.0 <=24.x.x",
-    "npm": ">=6.0.0"
-  },
-  "strapi": {
-    "uuid": "933e01cb-f16c-4f7b-8f0a-efa39a007a4c",
-    "installId": "45097621a21aff355bcf8f45f1bf6c9e7bdda613d23ea9c983a12d1143767879"
+    "npm": ">=10.0.0"
   }
 }

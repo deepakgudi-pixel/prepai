@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import useFetch from "@/hooks/use-fetch";
+import { useUser } from "@clerk/nextjs";
 import {
   getOrGenerateRecipe,
   removeRecipeFromCollection,
@@ -31,8 +32,10 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import { Badge } from "@/components/ui/badge";
 import { RecipePDF } from "@/components/extras/RecipePDF";
 import Image from "next/image";
+import { useMemo } from "react";
 
 function RecipeContent() {
+  const { user, isLoaded } = useUser();
   const searchParams = useSearchParams();
   const router = useRouter();
   const recipeName = searchParams.get("cook");
@@ -48,13 +51,38 @@ function RecipeContent() {
   const { loading: removing, data: removeData, fn: removeFromCollection } =
     useFetch(removeRecipeFromCollection);
 
+  const authUser = useMemo(() => {
+    if (!user) {
+      return null;
+    }
+
+    return {
+      id: user.id,
+      email: user.primaryEmailAddress?.emailAddress || "",
+      username:
+        user.username || user.primaryEmailAddress?.emailAddress?.split("@")[0] || "",
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      imageUrl: user.imageUrl || "",
+    };
+  }, [user]);
+
   useEffect(() => {
-    if (recipeName && !recipe) {
+    if (!isLoaded || !recipeName || recipe) {
+      return;
+    }
+
+    if (!authUser) {
+      toast.error("Please sign in to generate and save recipes");
+      return;
+    }
+
+    if (recipeName) {
       const formData = new FormData();
       formData.append("recipeName", recipeName);
-      fetchRecipe(formData);
+      fetchRecipe(authUser, formData);
     }
-  }, [recipeName]);
+  }, [isLoaded, recipeName, recipe, authUser]);
 
   useEffect(() => {
     if (recipeData?.success) {
@@ -97,9 +125,9 @@ function RecipeContent() {
     formData.append("recipeId", recipeId);
 
     if (isSaved) {
-      await removeFromCollection(formData);
+      await removeFromCollection(authUser, formData);
     } else {
-      await saveToCollection(formData);
+      await saveToCollection(authUser, formData);
     }
   };
 

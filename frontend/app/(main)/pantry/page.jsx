@@ -15,6 +15,7 @@ import AddToPantryModal from "@/components/extras/AddToPantryModal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import useFetch from "@/hooks/use-fetch";
+import { useUser } from "@clerk/nextjs";
 import {
   Check,
   ChefHat,
@@ -26,10 +27,11 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 export default function PantryPage() {
+  const { user, isLoaded } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [items, setItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
@@ -51,10 +53,30 @@ export default function PantryPage() {
   const { loading: clearing, data: clearData, fn: clearAll } =
     useFetch(clearAllPantryItems);
 
+  const authUser = useMemo(() => {
+    if (!user) {
+      return null;
+    }
+
+    return {
+      id: user.id,
+      email: user.primaryEmailAddress?.emailAddress || "",
+      username:
+        user.username || user.primaryEmailAddress?.emailAddress?.split("@")[0] || "",
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      imageUrl: user.imageUrl || "",
+    };
+  }, [user]);
+
   useEffect(() => {
-    fetchItems();
-    fetchPref();
-  }, []);
+    if (!isLoaded) {
+      return;
+    }
+
+    fetchItems(authUser);
+    fetchPref(authUser);
+  }, [isLoaded, authUser]);
 
   useEffect(() => {
     if (prefData?.success) {
@@ -73,28 +95,29 @@ export default function PantryPage() {
   useEffect(() => {
     if (deleteData?.success && !deleting) {
       toast.success("Item removed from pantry");
-      fetchItems();
+      fetchItems(authUser);
     }
-  }, [deleteData]);
+  }, [deleteData, deleting, authUser]);
 
   useEffect(() => {
     if (clearData?.success && !clearing) {
       toast.success(clearData.message);
-      fetchItems();
+      fetchItems(authUser);
     }
-  }, [clearData]);
+  }, [clearData, clearing, authUser]);
 
   useEffect(() => {
     if (updateData?.success) {
       toast.success("Item updated successfully");
       setEditingId(null);
-      fetchItems();
+      fetchItems(authUser);
     }
-  }, [updateData]);
+  }, [updateData, authUser]);
 
   const handleDelete = async (itemId) => {
     const formData = new FormData();
     formData.append("itemId", itemId);
+    formData.append("authUser", JSON.stringify(authUser));
     await deleteItem(formData);
   };
 
@@ -104,7 +127,9 @@ export default function PantryPage() {
         "Are you sure you want to clear ALL ingredients? This cannot be undone.",
       )
     ) {
-      await clearAll();
+      const formData = new FormData();
+      formData.append("authUser", JSON.stringify(authUser));
+      await clearAll(formData);
     }
   };
 
@@ -118,6 +143,7 @@ export default function PantryPage() {
     formData.append("itemId", editingId);
     formData.append("name", editValues.name);
     formData.append("quantity", editValues.quantity);
+    formData.append("authUser", JSON.stringify(authUser));
     await updateItem(formData);
   };
 
@@ -132,7 +158,7 @@ export default function PantryPage() {
     const previousPreference = dietaryPreference;
     setDietaryPreference(pref);
 
-    const result = await updatePrefAction(pref);
+    const result = await updatePrefAction(authUser, pref);
 
     if (result?.success) {
       toast.success("Dietary preference updated successfully");
@@ -144,7 +170,7 @@ export default function PantryPage() {
   };
 
   const handleModalSuccess = () => {
-    fetchItems();
+    fetchItems(authUser);
   };
 
   const formatCreatedAt = (value) =>
@@ -268,6 +294,21 @@ export default function PantryPage() {
         <section className="section-shell flex flex-col items-center justify-center px-6 py-20">
           <Loader2 className="size-10 animate-spin text-emerald-900" />
           <p className="mt-4 text-stone-600">Loading your pantry...</p>
+        </section>
+      )}
+
+      {isLoaded && !authUser && !loadingItems && (
+        <section className="section-shell px-6 py-20 text-center sm:px-8">
+          <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-stone-950 text-white">
+            <Package className="size-10" />
+          </div>
+          <h2 className="mt-8 font-display text-5xl leading-none text-stone-950">
+            Sign in to use your pantry.
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
+            Your ingredients, dietary preference, and recipe suggestions are tied to
+            your account.
+          </p>
         </section>
       )}
 
@@ -402,6 +443,7 @@ export default function PantryPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleModalSuccess}
+        authUser={authUser}
       />
     </div>
   );

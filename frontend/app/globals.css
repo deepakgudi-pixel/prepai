@@ -48,6 +48,8 @@
 }
 
 :root {
+  --font-manrope: "Inter", "SF Pro Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
   --radius: 0.5rem;
   --background: oklch(0.985 0.002 95);
   --foreground: oklch(0.19 0.01 260);
