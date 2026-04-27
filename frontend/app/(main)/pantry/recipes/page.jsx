@@ -17,9 +17,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useMemo } from "react";
+import React, { Suspense, useEffect, useMemo } from "react";
 
-export default function PantryRecipesPage() {
+function PantryRecipesContent() {
   const { user, isLoaded } = useUser();
   const searchParams = useSearchParams();
   const diet = searchParams.get("diet") || "all";
@@ -177,5 +177,27 @@ export default function PantryRecipesPage() {
         </section>
       )}
     </div>
+  );
+}
+
+export default function PantryRecipesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="page-frame">
+          <section className="section-shell flex flex-col items-center justify-center px-6 py-20 text-center">
+            <Loader2 className="size-10 animate-spin text-emerald-900" />
+            <h2 className="mt-5 font-display text-5xl leading-none text-stone-950">
+              Finding perfect recipes
+            </h2>
+            <p className="mt-4 text-stone-600">
+              Our AI chef is analyzing your ingredients.
+            </p>
+          </section>
+        </div>
+      }
+    >
+      <PantryRecipesContent />
+    </Suspense>
   );
 }
