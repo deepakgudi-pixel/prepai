@@ -65,7 +65,10 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
     const formData = new FormData();
     formData.append("image", selectedImage);
     formData.append("authUser", JSON.stringify(authUser));
-    await scanImage(formData);
+    const result = await scanImage(formData);
+    if (result?.success === false) {
+      toast.error(result.message || "Failed to scan image");
+    }
   };
 
   // Update scanned ingredients when scan completes
@@ -82,11 +85,18 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
       toast.error("No ingredients to save");
       return;
     }
+    if (!authUser) {
+      toast.error("Please sign in to save pantry items");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("ingredients", JSON.stringify(scannedIngredients));
     formData.append("authUser", JSON.stringify(authUser));
-    await saveScannedItems(formData);
+    const result = await saveScannedItems(formData);
+    if (result?.success === false) {
+      toast.error(result.message || "Failed to save items");
+    }
   };
 
   // Reset modal state
@@ -110,6 +120,10 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
   // Handle manual add
   const handleAddManual = async (e) => {
     e.preventDefault();
+    if (!authUser) {
+      toast.error("Please sign in to add pantry items");
+      return;
+    }
     if (!manualItem.name.trim() || !manualItem.quantity.trim()) {
       toast.error("Please fill in all fields");
       return;
@@ -119,7 +133,10 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
     formData.append("name", manualItem.name);
     formData.append("quantity", manualItem.quantity);
     formData.append("authUser", JSON.stringify(authUser));
-    await addManualItem(formData);
+    const result = await addManualItem(formData);
+    if (result?.success === false) {
+      toast.error(result.message || "Failed to add item");
+    }
   };
 
   // Handle manual add success

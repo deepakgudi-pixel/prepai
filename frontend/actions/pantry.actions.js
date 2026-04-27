@@ -79,7 +79,11 @@ Rules:
     };
   } catch (error) {
     console.error("Error scanning pantry:", error);
-    throw new Error(error.message || "Failed to scan image");
+    return {
+      success: false,
+      ingredients: [],
+      message: error.message || "Failed to scan image",
+    };
   }
 }
 
@@ -117,7 +121,11 @@ export async function saveToPantry(formData) {
     return data;
   } catch (error) {
     console.error("Error saving to pantry:", error);
-    throw new Error(error.message || "Failed to save items");
+    return {
+      success: false,
+      savedItems: [],
+      message: error.message || "Failed to save items",
+    };
   }
 }
 
@@ -158,7 +166,10 @@ export async function addPantryItemManually(formData) {
     return data;
   } catch (error) {
     console.error("Error adding item manually:", error);
-    throw new Error(error.message || "Failed to add item");
+    return {
+      success: false,
+      message: error.message || "Failed to add item",
+    };
   }
 }
 
