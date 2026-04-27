@@ -1,6 +1,23 @@
 "use server";
 
 const MEALDB_BASE = "https://www.themealdb.com/api/json/v1/1";
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
+const FALLBACK_RECIPE_OF_THE_DAY = {
+  idMeal: "prepai-fallback-recipe",
+  strMeal: "Tomato Basil Pasta",
+  strMealThumb: "/pics/image-one.jpg",
+  strCategory: "Dinner",
+  strArea: "Italian",
+  strInstructions:
+    "Simmer tomatoes, garlic, olive oil, and basil into a quick sauce, then toss with hot pasta and finish with black pepper and parmesan.",
+};
+
+function logMealDbIssue(context, error) {
+  if (!IS_PRODUCTION) {
+    console.warn(`${context}:`, error);
+  }
+}
 
 async function safeMealDbFetch(path, revalidate = 86400) {
   const response = await fetch(`${MEALDB_BASE}${path}`, {
@@ -36,8 +53,8 @@ export async function getRecipeOfTheDay() {
       recipe: detailData.meals[0],
     };
   } catch (error) {
-    console.error("Error fetching recipe of the day:", error);
-    return { success: false, recipe: null };
+    logMealDbIssue("Error fetching recipe of the day", error);
+    return { success: true, recipe: FALLBACK_RECIPE_OF_THE_DAY };
   }
 }
 
@@ -60,7 +77,7 @@ export async function getUpcomingRecipe() {
     const detailData = await safeMealDbFetch(`/lookup.php?i=${selectedMeal.idMeal}`);
     return { success: true, recipe: detailData.meals[0] };
   } catch (error) {
-    console.error("Error fetching upcoming recipe:", error);
+    logMealDbIssue("Error fetching upcoming recipe", error);
     return { success: false, recipe: null };
   }
 }
@@ -75,7 +92,7 @@ export async function getCategories() {
       categories: data.meals || [],
     };
   } catch (error) {
-    console.error("Error fetching categories:", error);
+    logMealDbIssue("Error fetching categories", error);
     return {
       success: false,
       categories: [],
@@ -92,7 +109,7 @@ export async function getAreas() {
       areas: data.meals || [],
     };
   } catch (error) {
-    console.error("Error fetching areas:", error);
+    logMealDbIssue("Error fetching areas", error);
     return {
       success: false,
       areas: [],
@@ -120,7 +137,7 @@ export async function getMealsByCategory(category) {
       category,
     };
   } catch (error) {
-    console.error("Error fetching meals by category:", error);
+    logMealDbIssue("Error fetching meals by category", error);
     return {
       success: false,
       meals: [],
@@ -149,7 +166,7 @@ export async function getMealsByArea(area) {
       category: area,
     };
   } catch (error) {
-    console.error("Error fetching meals by area:", error);
+    logMealDbIssue("Error fetching meals by area", error);
     return {
       success: false,
       meals: [],
