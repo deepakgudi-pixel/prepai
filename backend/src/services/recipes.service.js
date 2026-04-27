@@ -4,6 +4,16 @@ const { env } = require("../config/env");
 
 const genAI = env.geminiApiKey ? new GoogleGenerativeAI(env.geminiApiKey) : null;
 
+function toUserFacingAiError(error) {
+  const message = error?.message || "";
+
+  if (message.includes("429") || message.toLowerCase().includes("quota")) {
+    return "AI recipe generation is temporarily unavailable. Please try again in a little while.";
+  }
+
+  return "We couldn't generate recipes right now. Please try again shortly.";
+}
+
 function normalizeTitle(title) {
   return title
     .trim()
@@ -215,9 +225,14 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no expla
 }
 `;
 
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  const text = response.text();
+  let text = "";
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    text = response.text();
+  } catch (error) {
+    throw new Error(toUserFacingAiError(error));
+  }
 
   let recipeData;
   try {
@@ -354,9 +369,14 @@ Return ONLY a valid JSON array (no markdown, no explanations):
 ]
 `;
 
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  const text = response.text();
+  let text = "";
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    text = response.text();
+  } catch (error) {
+    throw new Error(toUserFacingAiError(error));
+  }
 
   let recipeSuggestions;
   try {
