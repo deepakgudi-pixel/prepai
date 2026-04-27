@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import useFetch from "@/hooks/use-fetch";
-import { useUser } from "@clerk/nextjs";
+import { SignUpButton, useUser } from "@clerk/nextjs";
 import {
   getOrGenerateRecipe,
   removeRecipeFromCollection,
@@ -43,6 +43,7 @@ function RecipeContent() {
   const [recipe, setRecipe] = useState(null);
   const [recipeId, setRecipeId] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
+  const [loadError, setLoadError] = useState("");
 
   const { loading: loadingRecipe, data: recipeData, fn: fetchRecipe } =
     useFetch(getOrGenerateRecipe);
@@ -73,7 +74,7 @@ function RecipeContent() {
     }
 
     if (!authUser) {
-      toast.error("Please sign in to generate and save recipes");
+      setLoadError("Please sign up or sign in to generate and save recipes.");
       return;
     }
 
@@ -86,6 +87,7 @@ function RecipeContent() {
 
   useEffect(() => {
     if (recipeData?.success) {
+      setLoadError("");
       setRecipe(recipeData.recipe);
       setRecipeId(recipeData.recipeId);
       setIsSaved(recipeData.isSaved);
@@ -97,6 +99,11 @@ function RecipeContent() {
       } else {
         toast.success("New recipe generated and saved!");
       }
+      return;
+    }
+
+    if (recipeData && recipeData.success === false) {
+      setLoadError(recipeData.message || "Failed to load recipe.");
     }
   }, [recipeData]);
 
@@ -185,13 +192,20 @@ function RecipeContent() {
             Failed to load recipe.
           </h2>
           <p className="mt-4 text-stone-600">
-            Something went wrong while loading the recipe. Please try again.
+            {loadError || "Something went wrong while loading the recipe. Please try again."}
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button onClick={() => router.back()} variant="outline" size="lg">
               <ArrowLeft className="size-4" />
               Go Back
             </Button>
+            {!authUser && (
+              <SignUpButton mode="modal">
+                <Button variant="primary" size="lg">
+                  Sign up to continue
+                </Button>
+              </SignUpButton>
+            )}
             <Button onClick={() => window.location.reload()} variant="primary" size="lg">
               Retry
             </Button>
