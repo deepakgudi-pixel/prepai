@@ -203,16 +203,8 @@ export default function PantryPage() {
             </div>
           </div>
 
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              variant="primary"
-              size="lg"
-            >
-              <Plus className="size-5" />
-              Add to Pantry
-            </Button>
-            {items.length > 0 && (
+          {items.length > 0 && (
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <Button
                 onClick={handleClearAll}
                 variant="outline"
@@ -227,8 +219,8 @@ export default function PantryPage() {
                 )}
                 Clear All
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="panel-dark flex h-full flex-col justify-between px-5 py-7 sm:px-8 sm:py-8">
