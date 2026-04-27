@@ -201,6 +201,33 @@ export default function PantryPage() {
                 </p>
               </div>
             </div>
+
+            <div className="grid gap-px border border-stone-200 bg-stone-200 sm:grid-cols-3">
+              <div className="bg-stone-50 p-4">
+                <p className="text-[0.68rem] uppercase tracking-[0.2em] text-stone-500">
+                  Ingredients
+                </p>
+                <p className="mt-3 font-display text-3xl leading-none text-stone-950">
+                  {items.length}
+                </p>
+              </div>
+              <div className="bg-stone-50 p-4">
+                <p className="text-[0.68rem] uppercase tracking-[0.2em] text-stone-500">
+                  Dietary mode
+                </p>
+                <p className="mt-3 font-display text-3xl leading-none capitalize text-stone-950">
+                  {dietaryPreference}
+                </p>
+              </div>
+              <div className="bg-stone-50 p-4">
+                <p className="text-[0.68rem] uppercase tracking-[0.2em] text-stone-500">
+                  Status
+                </p>
+                <p className="mt-3 font-display text-3xl leading-none text-stone-950">
+                  {items.length > 0 ? "Ready" : "Empty"}
+                </p>
+              </div>
+            </div>
           </div>
 
           {items.length > 0 && (
