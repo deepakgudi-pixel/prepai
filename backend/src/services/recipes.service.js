@@ -231,6 +231,7 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no expla
     const response = await result.response;
     text = response.text();
   } catch (error) {
+    console.error("Gemini recipe generation error:", error);
     throw new Error(toUserFacingAiError(error));
   }
 
@@ -375,6 +376,7 @@ Return ONLY a valid JSON array (no markdown, no explanations):
     const response = await result.response;
     text = response.text();
   } catch (error) {
+    console.error("Gemini recipe suggestion error:", error);
     throw new Error(toUserFacingAiError(error));
   }
 

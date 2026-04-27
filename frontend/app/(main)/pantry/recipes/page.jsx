@@ -58,6 +58,12 @@ function PantryRecipesContent() {
   const emptyMessage =
     recipesData?.message ||
     "Add ingredients so we can generate relevant recipe suggestions instead of generic inspiration.";
+  const isAuthError = recipesData?.message === "User not authenticated";
+  const normalizedMessage = emptyMessage.toLowerCase();
+  const isAiUnavailable =
+    normalizedMessage.includes("ai recipe generation is temporarily unavailable") ||
+    normalizedMessage.includes("we couldn't generate recipes right now") ||
+    normalizedMessage.includes("failed to generate recipe suggestions");
 
   return (
     <div className="page-frame space-y-8">
@@ -164,9 +170,11 @@ function PantryRecipesContent() {
             <AlertCircle className="size-10" />
           </div>
           <h2 className="mt-8 font-display text-5xl leading-none text-stone-950">
-            {recipesData?.message === "User not authenticated"
+            {isAuthError
               ? "Sign in to generate recipe suggestions."
-              : "Your pantry needs a few ingredients first."}
+              : isAiUnavailable
+                ? "AI recipe suggestions are temporarily unavailable."
+                : "Your pantry needs a few ingredients first."}
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
             {emptyMessage}
@@ -174,7 +182,7 @@ function PantryRecipesContent() {
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/pantry">
               <Button variant="primary" size="lg">
-                Add Ingredients
+                {isAiUnavailable ? "Back to Pantry" : "Add Ingredients"}
               </Button>
             </Link>
           </div>
