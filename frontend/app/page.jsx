@@ -1,14 +1,7 @@
-import { Button } from "@/components/ui/button";
+import HomePrimaryCta from "@/components/extras/HomePrimaryCta";
 import { FEATURES, HOW_IT_WORKS_STEPS, SITE_STATS } from "@/lib/data";
-import {
-  ArrowRight,
-  Clock3,
-  Flame,
-  Sparkles,
-  Users,
-} from "lucide-react";
+import { Clock3, Flame, Sparkles, Users } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 
 const featuredRecipe = {
   title: "Tomato Basil Pasta",
@@ -35,17 +28,7 @@ export default function Home() {
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/dashboard">
-                <Button size="xl" variant="primary" className="w-full sm:w-auto">
-                  Open the product
-                  <ArrowRight className="size-5" />
-                </Button>
-              </Link>
-              <Link href="/pantry">
-                <Button size="xl" variant="outline" className="w-full sm:w-auto">
-                  Go to pantry
-                </Button>
-              </Link>
+              <HomePrimaryCta />
             </div>
 
             <div className="mt-12 grid gap-4 sm:grid-cols-3">
