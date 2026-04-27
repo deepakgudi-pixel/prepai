@@ -1,5 +1,5 @@
 import HomePrimaryCta from "@/components/extras/HomePrimaryCta";
-import { FEATURES, HOW_IT_WORKS_STEPS, SITE_STATS } from "@/lib/data";
+import { FEATURES, HOW_IT_WORKS_STEPS } from "@/lib/data";
 import { Clock3, Flame, Sparkles, Users } from "lucide-react";
 import Image from "next/image";
 
@@ -31,18 +31,6 @@ export default function Home() {
               <HomePrimaryCta />
             </div>
 
-            <div className="mt-12 grid gap-4 sm:grid-cols-3">
-              {SITE_STATS.map((stat) => (
-                <div key={stat.label} className="border border-stone-200 bg-stone-50 p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-stone-500">
-                    {stat.label}
-                  </p>
-                  <p className="mt-3 font-display text-4xl leading-none text-stone-950">
-                    {stat.val}
-                  </p>
-                </div>
-              ))}
-            </div>
           </div>
 
           <div className="hero-media min-h-[520px]">
