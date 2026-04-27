@@ -1,11 +1,7 @@
 "use server";
 
 import { backendFetch, checkUser } from "@/lib/checkUser";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+import { createOpenRouterVisionCompletion } from "@/lib/openrouter";
 
 export async function scanPantryImage(formData) {
   try {
@@ -24,8 +20,6 @@ export async function scanPantryImage(formData) {
     const bytes = await imageFile.arrayBuffer();
     const buffer = Buffer.from(bytes);
     const base64Image = buffer.toString("base64");
-
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `You are a professional chef and ingredient recognition expert. Analyze this image of a pantry/fridge and identify all visible food ingredients.
 
@@ -46,18 +40,11 @@ Rules:
 - Maximum 20 items
 - Common pantry staples are acceptable (salt, pepper, oil)`;
 
-    const result = await model.generateContent([
+    const text = await createOpenRouterVisionCompletion({
       prompt,
-      {
-        inlineData: {
-          mimeType: imageFile.type,
-          data: base64Image,
-        },
-      },
-    ]);
-
-    const response = await result.response;
-    const text = response.text();
+      base64Data: base64Image,
+      mimeType: imageFile.type,
+    });
 
     let ingredients;
     try {
@@ -78,7 +65,7 @@ Rules:
       message: `Found ${ingredients.length} ingredients!`,
     };
   } catch (error) {
-    console.error("Error scanning pantry:", error);
+    console.error("OpenRouter pantry scan error:", error);
     return {
       success: false,
       ingredients: [],

@@ -1,111 +1,172 @@
-# PrepAI: The Intelligent Culinary Assistant
+# PrepAI
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![Gemini AI](https://img.shields.io/badge/Google_Gemini-AI-blue?style=for-the-badge&logo=google-gemini)](https://deepmind.google/technologies/gemini/)
-[![Strapi](https://img.shields.io/badge/Strapi-CMS-blueviolet?style=for-the-badge&logo=strapi)](https://strapi.io/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![OpenRouter](https://img.shields.io/badge/OpenRouter-AI-orange?style=for-the-badge)](https://openrouter.ai/)
+[![Railway](https://img.shields.io/badge/Railway-Backend-111827?style=for-the-badge)](https://railway.app/)
+[![Neon](https://img.shields.io/badge/Neon-Postgres-00E699?style=for-the-badge)](https://neon.tech/)
+[![Clerk](https://img.shields.io/badge/Clerk-Auth-6C47FF?style=for-the-badge)](https://clerk.com/)
 
-PrepAI is a sophisticated full-stack application that transforms kitchen management into an AI-driven experience. By combining **Computer Vision**, **Generative AI**, and a **Headless Architecture**, PrepAI allows users to scan their physical pantry, manage inventory, and generate chef-quality recipes tailored to their exact dietary needs and available ingredients.
+PrepAI is an AI-powered pantry and recipe app. Users can scan pantry images, manage ingredients, save preferences, generate recipe suggestions, and open full recipe detail pages from the ingredients they already have.
 
----
+The app now runs on a much simpler product-focused stack:
+- `Next.js` frontend on Vercel
+- `Express` backend on Railway
+- `Neon Postgres` for data
+- `Clerk` for auth
+- `OpenRouter` for pantry vision + recipe generation
 
-## 🗺️ User Journey Visualization
+## Architecture
 
 ```mermaid
 graph TD
-    A[📸 Capture Pantry Image] --> B{🧠 Gemini Vision API}
-    B -->|Identify Items| C[🗃️ Smart Inventory Management]
-    C --> D[🔍 Recipe Discovery]
-    D -->|Existing| E[📖 View Curated MealDB Recipe]
-    D -->|Unique Combo| F{🤖 Gemini Pro Generation}
-    F --> G[🍳 Custom Recipe Created]
-    G --> H[💾 Save to Collection]
-    H --> I[🖼️ Unsplash Image Enrichment]
+    A["User"] --> B["Next.js Frontend (Vercel)"]
+    B --> C["Clerk Auth"]
+    B --> D["Express API (Railway)"]
+    B --> E["OpenRouter Vision<br/>Pantry Image Scan"]
+    D --> F["Neon Postgres"]
+    D --> G["OpenRouter Text Models<br/>Recipe Suggestions + Full Recipes"]
+    D --> H["Unsplash<br/>Recipe Images"]
 ```
 
----
+## Product Flow
 
-## 🧠 The AI Strategy: Why & How?
+```mermaid
+graph LR
+    A["Sign in with Clerk"] --> B["Open Pantry"]
+    B --> C["Add ingredients manually"]
+    B --> D["Scan pantry image"]
+    C --> E["Ingredients saved in Neon"]
+    D --> E
+    E --> F["Launch recipe suggestions"]
+    F --> G["OpenRouter generates recipe ideas"]
+    G --> H["View full recipe"]
+    H --> I["Save recipe to collection"]
+```
 
-### 1. Computer Vision for Zero-Friction Entry
-Instead of manual data entry, we utilize `gemini-2.5-flash` to analyze images. 
-*   **The Approach:** We convert image buffers to Base64 and feed them to the Vision model with a strictly defined JSON schema prompt. 
-*   **Benefit:** This removes the primary barrier to entry—typing out 20 ingredients.
+## Features
 
-### 2. Context-Aware Recipe Generation
-PrepAI doesn't just "find" recipes; it *constructs* them.
-*   **Method:** We use dynamic prompting that injects current pantry items and user-defined dietary preferences (Vegetarian, Non-Vegetarian, etc.).
-*   **Logic:** The system calculates "Match Percentages," showing users exactly what they have and what 1-2 items they might be missing.
+- Pantry inventory with add, edit, delete, and clear flows
+- Pantry image scan with structured ingredient extraction
+- Dietary preference saving per user
+- AI recipe suggestions from current pantry items
+- Full recipe generation with ingredients, steps, nutrition, and tips
+- Saved recipe collection
+- Premium-style frontend with a cleaner product UI
 
----
+## Stack
 
-## 🛠️ Engineering Approach & Coding Standards
+### Frontend
+- Next.js 16
+- React 19
+- Tailwind CSS 4
+- Clerk
+- Sonner
 
-### React Coding Methods & Patterns
-*   **Next.js Server Actions:** We've eliminated traditional API boilerplate. Files like `recipe.actions.js` use `"use server"` to handle complex logic (DB calls, AI generation, and external API fetching) securely on the server side.
-*   **Normalization Layer:** We implemented a `normalizeTitle` helper to ensure database consistency (e.g., "apple cake" vs "Apple Cake"), preventing duplicate recipe generation.
-*   **Error Boundaries & Graceful Degradation:** The Unsplash integration is designed as a "soft dependency." If the API fails or the key is missing, the recipe generation persists, ensuring a resilient user experience.
+### Backend
+- Express 5
+- pg
+- Neon Postgres
 
-### Headless Architecture
-By using **Strapi** as our backbone, we decoupled our content from our logic:
-*   **Relational Mapping:** Clean relationships between `Users`, `PantryItems`, `Recipes`, and `SavedRecipes`.
-*   **Scalability:** The architecture allows for easy expansion into mobile apps or other frontends using the same Strapi API.
+### AI + Media
+- OpenRouter
+- Unsplash
 
----
+## Monorepo Structure
 
-## 🛡️ Challenges Solved
+```text
+prepai/
+├── frontend/   # Next.js app
+├── backend/    # Express API
+└── README.md
+```
 
-### Challenge: AI Hallucinations in Data Structures
-**Problem:** Generative models often return conversational text when the application requires strict JSON.
-**Solution:** We implemented a robust parsing wrapper in `pantry.actions.js` that uses regex to strip markdown code blocks and `JSON.parse` with try-catch blocks to ensure the UI never crashes due to malformed AI output.
+## Environment
 
-### Challenge: Visual Consistency for Generated Content
-**Problem:** AI-generated recipes lack visual appeal.
-**Solution:** We integrated the **Unsplash API**. Every time a unique recipe is generated, the system performantly fetches a high-quality, relevant food image based on the recipe's title, making the AI content feel as premium as curated content.
+### Frontend (`frontend/.env`)
 
-### Challenge: Cold-Start Database Search
-**Problem:** Searching for "Spaghetti" shouldn't trigger an expensive AI call if it's already in the DB.
-**Solution:** Implemented a **Search-First pattern**. The system queries the Strapi DB with case-insensitive filters (`$eqi`) before ever invoking Gemini, reducing latency and API costs.
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 
----
+BACKEND_API_URL=http://127.0.0.1:4000/api
+BACKEND_INTERNAL_API_KEY=
 
-## 🚀 Tech Stack Deep Dive
+OPENROUTER_API_KEY=
+OPENROUTER_VISION_MODEL=openrouter/free
+```
 
-*   **Frontend:** Next.js 15, Tailwind CSS, Lucide React
-*   **Backend:** Strapi CMS (PostgreSQL)
-*   **Intelligence:** Google Gemini AI (Vision & Pro)
-*   **Images:** Unsplash API & MealDB API
-*   **Authentication:** Clerk (or custom middleware via `checkUser`)
+### Backend (`backend/.env`)
 
----
+```env
+PORT=4000
+DATABASE_URL=
+BACKEND_INTERNAL_API_KEY=
 
-## 📖 Developer Journal: Reflections
+OPENROUTER_API_KEY=
+OPENROUTER_TEXT_MODEL=openrouter/free
+UNSPLASH_ACCESS_KEY=
+```
 
-Building PrepAI was an exercise in **prompt engineering** and **asynchronous state management**. 
+## Local Development
 
-The most interesting discovery was the balance between AI creativity and database reliability. By forcing the AI to strictly adhere to specific categories (e.g., `breakfast`, `dinner`) and cuisines, we were able to build a filterable interface that feels organized despite being powered by non-deterministic models. This project demonstrates that AI is most powerful when wrapped in traditional software engineering best practices: validation, normalization, and robust error handling.
+### 1. Install dependencies
 
----
+```bash
+cd frontend && npm install
+cd ../backend && npm install
+```
 
-## 🛠️ Getting Started
+### 2. Run the database schema reset/migration
 
-1.  **Clone & Install:**
-    ```bash
-    git clone https://github.com/yourusername/prepai.git
-    npm install
-    ```
-2.  **Environment Setup:**
-    Create a `.env` file:
-    ```env
-    GEMINI_API_KEY=your_key
-    STRAPI_API_TOKEN=your_token
-    NEXT_PUBLIC_STRAPI_URL=http://localhost:1337
-    UNSPLASH_ACCESS_KEY=your_key
-    ```
-3.  **Run Development:**
-    ```bash
-    npm run dev
-    ```
+```bash
+cd backend
+npm run migrate
+```
 
----
+### 3. Start the backend
 
+```bash
+cd backend
+npm run dev
+```
+
+### 4. Start the frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+Frontend runs on [http://127.0.0.1:3000](http://127.0.0.1:3000)  
+Backend runs on `http://127.0.0.1:4000`
+
+## Deployment
+
+### Frontend
+- Host on Vercel
+- Set `BACKEND_API_URL` to your Railway backend, e.g.
+  - `https://your-service.up.railway.app/api`
+
+### Backend
+- Host on Railway
+- Root directory: `backend`
+- Start command: `npm start`
+- Healthcheck path: `/api/health`
+
+## Database Tables
+
+The app uses only four product tables:
+- `users`
+- `pantry_items`
+- `recipes`
+- `saved_recipes`
+
+Old Strapi tables were removed from the active schema.
+
+## Notes
+
+- Pantry image scan runs through OpenRouter from the frontend server action layer.
+- Recipe generation and recipe suggestions run through OpenRouter from the Express backend.
+- Clerk remains the auth source of truth; app users are created/upserted in Postgres when backend-backed flows are used.

@@ -1,13 +1,15 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { query } = require("../db");
 const { env } = require("../config/env");
-
-const genAI = env.geminiApiKey ? new GoogleGenerativeAI(env.geminiApiKey) : null;
+const { createOpenRouterChatCompletion } = require("../lib/openrouter");
 
 function toUserFacingAiError(error) {
   const message = error?.message || "";
 
   if (message.includes("429") || message.toLowerCase().includes("quota")) {
+    return "AI recipe generation is temporarily unavailable. Please try again in a little while.";
+  }
+
+  if (message.includes("503") || message.toLowerCase().includes("high demand")) {
     return "AI recipe generation is temporarily unavailable. Please try again in a little while.";
   }
 
@@ -174,12 +176,11 @@ async function generateRecipeDetails(recipeName, userId) {
     };
   }
 
-  if (!genAI) {
-    throw new Error("GEMINI_API_KEY is not configured");
+  if (!env.openrouterApiKey) {
+    throw new Error("OPENROUTER_API_KEY is not configured");
   }
 
   const normalizedTitle = normalizeTitle(recipeName);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   const prompt = `
 You are a professional chef and recipe expert. Generate a detailed recipe for: "${normalizedTitle}"
 
@@ -227,11 +228,24 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no expla
 
   let text = "";
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    text = response.text();
+    text = await createOpenRouterChatCompletion({
+      model: env.openrouterTextModel,
+      temperature: 0.2,
+      max_tokens: 1600,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a professional chef and recipe expert. Return only valid JSON with no markdown fences or commentary.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
   } catch (error) {
-    console.error("Gemini recipe generation error:", error);
+    console.error("OpenRouter recipe generation error:", error);
     throw new Error(toUserFacingAiError(error));
   }
 
@@ -335,8 +349,8 @@ async function listRecipeSuggestions(userId, diet) {
     };
   }
 
-  if (!genAI) {
-    throw new Error("GEMINI_API_KEY is not configured");
+  if (!env.openrouterApiKey) {
+    throw new Error("OPENROUTER_API_KEY is not configured");
   }
 
   const ingredients = pantryResult.rows.map((item) => item.name).join(", ");
@@ -347,7 +361,6 @@ async function listRecipeSuggestions(userId, diet) {
         ? "Non-Vegetarian (must include meat, poultry, or seafood)."
         : "Any (can be vegetarian or non-vegetarian).";
 
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   const prompt = `
 You are a professional chef. Given these available ingredients: ${ingredients}
 DIETARY RESTRICTION: ${dietRestriction}
@@ -372,11 +385,24 @@ Return ONLY a valid JSON array (no markdown, no explanations):
 
   let text = "";
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    text = response.text();
+    text = await createOpenRouterChatCompletion({
+      model: env.openrouterTextModel,
+      temperature: 0.3,
+      max_tokens: 1200,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a professional chef. Return only valid JSON with no markdown fences or commentary.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
   } catch (error) {
-    console.error("Gemini recipe suggestion error:", error);
+    console.error("OpenRouter recipe suggestion error:", error);
     throw new Error(toUserFacingAiError(error));
   }
 

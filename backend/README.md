@@ -15,5 +15,6 @@ The backend expects these values in `backend/.env`:
 - `PORT`
 - `DATABASE_URL`
 - `BACKEND_INTERNAL_API_KEY`
-
-`GEMINI_API_KEY` and `UNSPLASH_ACCESS_KEY` are loaded from `frontend/.env`.
+- `OPENROUTER_API_KEY`
+- `OPENROUTER_TEXT_MODEL` (optional, defaults to `openrouter/free`)
+- `UNSPLASH_ACCESS_KEY`

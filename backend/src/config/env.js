@@ -8,7 +8,9 @@ const env = {
   port: Number(process.env.PORT || 4000),
   databaseUrl: process.env.DATABASE_URL || "",
   internalApiKey: process.env.BACKEND_INTERNAL_API_KEY || "prepai-internal-dev-key",
-  geminiApiKey: process.env.GEMINI_API_KEY || "",
+  openrouterApiKey: process.env.OPENROUTER_API_KEY || "",
+  openrouterTextModel:
+    process.env.OPENROUTER_TEXT_MODEL || "openrouter/free",
   unsplashAccessKey: process.env.UNSPLASH_ACCESS_KEY || "",
 };
 
