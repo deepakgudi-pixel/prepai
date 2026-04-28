@@ -6,16 +6,16 @@ import {
   SignedIn,
   SignedOut,
 } from "@clerk/nextjs";
-import { BookHeart, LayoutDashboard, Package2, Sparkles, Soup } from "lucide-react";
+import { Soup } from "lucide-react";
 import Link from "next/link";
 import UserDropdown from "./UserDropdown";
 import { Button } from "../ui/button";
 
 const navItems = [
-  { href: "/", label: "Home", icon: Sparkles },
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/recipes", label: "Saved", icon: BookHeart },
-  { href: "/pantry", label: "Pantry", icon: Package2 },
+  { href: "/", label: "Home" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/recipes", label: "Saved" },
+  { href: "/pantry", label: "Pantry" },
 ];
 
 function Header() {
@@ -34,17 +34,19 @@ function Header() {
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-7 md:flex">
-          {navItems.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="text-sm font-medium text-stone-600 hover:text-stone-950"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
+        <SignedIn>
+          <nav className="hidden items-center gap-7 md:flex">
+            {navItems.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="text-sm font-medium text-stone-600 hover:text-stone-950"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </SignedIn>
 
         <div className="flex items-center justify-end gap-3">
           <SignedIn>
