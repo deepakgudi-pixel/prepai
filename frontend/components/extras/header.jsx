@@ -21,7 +21,7 @@ const navItems = [
 function Header() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-stone-200 bg-[rgba(250,250,248,0.94)] backdrop-blur-xl">
-      <div className="page-frame grid h-20 grid-cols-[1fr_auto_1fr] items-center gap-4">
+      <div className="page-frame relative flex h-20 items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-3">
           <span className="flex size-11 items-center justify-center rounded-full bg-stone-950 text-white">
             <Soup className="size-5" />
@@ -34,23 +34,21 @@ function Header() {
           </div>
         </Link>
 
-        <div className="flex justify-center">
-          <SignedIn>
-            <nav className="hidden items-center gap-7 md:flex">
-              {navItems.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="text-sm font-medium text-stone-600 hover:text-stone-950"
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
-          </SignedIn>
-        </div>
+        <SignedIn>
+          <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-7 md:flex">
+            {navItems.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="text-sm font-medium text-stone-600 transition-colors hover:text-stone-950"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </SignedIn>
 
-        <div className="flex items-center justify-end gap-3">
+        <div className="ml-auto flex items-center justify-end gap-3">
           <SignedIn>
             <UserDropdown />
           </SignedIn>
