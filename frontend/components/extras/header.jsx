@@ -34,19 +34,21 @@ function Header() {
           </div>
         </Link>
 
-        <SignedIn>
-          <nav className="hidden items-center gap-7 md:flex">
-            {navItems.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className="text-sm font-medium text-stone-600 hover:text-stone-950"
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-        </SignedIn>
+        <div className="flex justify-center">
+          <SignedIn>
+            <nav className="hidden items-center gap-7 md:flex">
+              {navItems.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="text-sm font-medium text-stone-600 hover:text-stone-950"
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          </SignedIn>
+        </div>
 
         <div className="flex items-center justify-end gap-3">
           <SignedIn>
