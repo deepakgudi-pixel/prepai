@@ -12,8 +12,6 @@ import {
   updateUserPreference,
 } from "@/actions/recipe.actions";
 import AddToPantryModal from "@/components/extras/AddToPantryModal";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import useFetch from "@/hooks/use-fetch";
 import { useUser } from "@clerk/nextjs";
 import {
@@ -29,6 +27,7 @@ import {
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function PantryPage() {
   const { user, isLoaded } = useUser();
@@ -182,104 +181,98 @@ export default function PantryPage() {
     }).format(new Date(value));
 
   return (
-    <div className="page-frame space-y-8">
-      <section className="grid items-stretch gap-6 lg:grid-cols-[1fr_0.95fr]">
-        <div className="section-shell flex h-full flex-col justify-between px-5 py-7 sm:px-8 sm:py-10">
-          <div className="space-y-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-              <span className="flex size-14 items-center justify-center rounded-full bg-stone-950 text-white shadow-[0_16px_34px_rgba(24,22,18,0.22)] sm:size-16">
-                <Package className="size-8" />
-              </span>
-              <div className="max-w-2xl">
-                <p className="eyebrow">Pantry Studio</p>
-                <h1 className="section-title mt-4">
-                  Your ingredients, styled like a collection.
-                </h1>
-                <p className="section-copy mt-4">
-                  Manage what&apos;s in the kitchen, tune dietary preference, and
-                  launch recipe suggestions without leaving the flow.
-                </p>
+    <div className="bg-[#EAE8E3] min-h-screen pb-32">
+      <div className="max-w-[1400px] mx-auto px-6 sm:px-12 lg:px-20 pt-32 space-y-8">
+        
+        {/* Header Grid */}
+        <section className="grid items-stretch gap-6 lg:grid-cols-[1fr_0.95fr]">
+          <div className="glass-card flex h-full flex-col justify-between p-10 sm:p-14">
+            <div className="space-y-12">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+                <span className="flex size-16 items-center justify-center rounded-full bg-[#222] text-[#EAE8E3]">
+                  <Package className="size-8" />
+                </span>
+                <div className="max-w-lg">
+                  <p className="eyebrow mb-4">Pantry Studio</p>
+                  <h1 className="font-display text-5xl leading-none text-[#111] mb-6">
+                    Your ingredients,<br/> styled like a collection.
+                  </h1>
+                  <p className="text-[#555] font-light leading-relaxed">
+                    Manage what&apos;s in the kitchen, tune dietary preference, and
+                    launch recipe suggestions without leaving the flow.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-12">
+                <div>
+                  <p className="text-[0.68rem] uppercase tracking-[0.2em] text-[#777]">
+                    Ingredients
+                  </p>
+                  <p className="mt-3 font-display text-4xl leading-none text-[#111]">
+                    {items.length}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[0.68rem] uppercase tracking-[0.2em] text-[#777]">
+                    Dietary mode
+                  </p>
+                  <p className="mt-3 font-display text-4xl leading-none capitalize text-[#111]">
+                    {dietaryPreference}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="grid gap-px border border-stone-200 bg-stone-200 sm:grid-cols-3">
-              <div className="bg-stone-50 p-4">
-                <p className="text-[0.68rem] uppercase tracking-[0.2em] text-stone-500">
-                  Ingredients
-                </p>
-                <p className="mt-3 font-display text-3xl leading-none text-stone-950">
-                  {items.length}
-                </p>
+            {items.length > 0 && (
+              <div className="mt-12 flex gap-4">
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="glass-pill bg-[#222] text-white px-6 py-3 text-xs uppercase tracking-[0.2em] hover:bg-[#111] transition-colors flex items-center gap-2"
+                >
+                  <Plus className="size-4" /> Add Item
+                </button>
+                <button
+                  onClick={handleClearAll}
+                  disabled={clearing}
+                  className="glass-pill px-6 py-3 text-xs uppercase tracking-[0.2em] text-[#777] hover:text-red-600 transition-colors flex items-center gap-2"
+                >
+                  {clearing ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+                  Clear All
+                </button>
               </div>
-              <div className="bg-stone-50 p-4">
-                <p className="text-[0.68rem] uppercase tracking-[0.2em] text-stone-500">
-                  Dietary mode
-                </p>
-                <p className="mt-3 font-display text-3xl leading-none capitalize text-stone-950">
-                  {dietaryPreference}
-                </p>
-              </div>
-              <div className="bg-stone-50 p-4">
-                <p className="text-[0.68rem] uppercase tracking-[0.2em] text-stone-500">
-                  Status
-                </p>
-                <p className="mt-3 font-display text-3xl leading-none text-stone-950">
-                  {items.length > 0 ? "Ready" : "Empty"}
-                </p>
-              </div>
-            </div>
+            )}
           </div>
 
-          {items.length > 0 && (
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-              <Button
-                onClick={handleClearAll}
-                variant="outline"
-                size="lg"
-                disabled={clearing}
-                className="border-red-500/20 text-red-700 hover:bg-red-50"
-              >
-                {clearing ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Trash2 className="size-4" />
-                )}
-                Clear All
-              </Button>
-            </div>
-          )}
-        </div>
-
-        <div className="panel-dark flex h-full flex-col justify-between px-5 py-7 sm:px-8 sm:py-8">
-          <div className="space-y-8">
-            <div className="max-w-lg">
-              <p className="eyebrow border-white/10 bg-white/5 text-stone-200">
-                Recipe engine
-              </p>
-              <h2 className="mt-4 max-w-md font-display text-4xl leading-none text-white sm:text-5xl">
-                What can I cook tonight?
-              </h2>
-              <p className="mt-4 max-w-xl text-base leading-7 text-stone-300">
-                Move straight from pantry state to AI recipe suggestions, filtered by
-                the way you actually want to eat.
-              </p>
-            </div>
-
-            <div className="rounded-[22px] border border-white/10 bg-white/7 p-4 sm:p-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm uppercase tracking-[0.2em] text-stone-300">
-                  Dietary preference
+          <div className="glass-card bg-[#111] border-white/10 text-white flex h-full flex-col justify-between p-10 sm:p-14">
+            <div className="space-y-12">
+              <div className="max-w-lg">
+                <p className="eyebrow border-white/10 text-[#aaa] mb-4">
+                  Recipe engine
                 </p>
-                <div className="grid w-full grid-cols-3 rounded-full border border-white/10 bg-black/15 p-1 sm:w-auto">
+                <h2 className="font-display text-5xl leading-none text-[#EAE8E3] mb-6">
+                  What can I cook tonight?
+                </h2>
+                <p className="text-[#aaa] font-light leading-relaxed">
+                  Move straight from pantry state to AI recipe suggestions, filtered by
+                  the way you actually want to eat.
+                </p>
+              </div>
+
+              <div className="rounded-full border border-white/10 bg-black/40 p-2 inline-flex items-center gap-2">
+                <span className="text-xs uppercase tracking-[0.2em] text-[#777] pl-4 pr-2">
+                  Diet:
+                </span>
+                <div className="flex gap-1">
                   {["all", "veg", "non-veg"].map((pref) => (
                     <button
                       key={pref}
                       onClick={() => handlePreferenceChange(pref)}
                       disabled={updatingPref || loadingPref}
-                      className={`min-w-0 whitespace-nowrap rounded-full px-2 py-2 text-[0.62rem] uppercase tracking-[0.12em] sm:px-4 sm:text-xs sm:tracking-[0.22em] ${
+                      className={`rounded-full px-4 py-2 text-xs uppercase tracking-[0.2em] transition-all ${
                         dietaryPreference === pref
-                          ? "bg-white text-stone-950"
-                          : "text-stone-300"
+                          ? "bg-[#EAE8E3] text-[#111]"
+                          : "text-[#777] hover:text-[#EAE8E3]"
                       }`}
                     >
                       {pref}
@@ -288,188 +281,186 @@ export default function PantryPage() {
                 </div>
               </div>
             </div>
-          </div>
 
-          <Link
-            href={`/pantry/recipes?diet=${dietaryPreference}`}
-            className="mt-8 block rounded-[24px] border border-emerald-400/20 bg-[linear-gradient(135deg,rgba(28,80,66,0.88),rgba(213,144,50,0.7))] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.26)]"
-          >
-            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <span className="flex size-14 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10">
-                <ChefHat className="size-7 text-white" />
-              </span>
-              <div className="flex-1">
-                <h3 className="max-w-sm font-display text-3xl leading-none text-white sm:text-4xl">
-                  Launch recipe suggestions
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-white/80">
-                  Build ideas from {items.length || "your"} ingredient
-                  {items.length === 1 ? "" : "s"} with the current dietary mode.
-                </p>
-              </div>
-              <Badge className="rounded-full bg-white/15 px-4 py-2 text-white">
-                {items.length} items
-              </Badge>
-            </div>
-          </Link>
-        </div>
-      </section>
-
-      {loadingItems && (
-        <section className="section-shell flex flex-col items-center justify-center px-6 py-20">
-          <Loader2 className="size-10 animate-spin text-emerald-900" />
-          <p className="mt-4 text-stone-600">Loading your pantry...</p>
-        </section>
-      )}
-
-      {isLoaded && !authUser && !loadingItems && (
-        <section className="section-shell px-6 py-20 text-center sm:px-8">
-          <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-stone-950 text-white">
-            <Package className="size-10" />
-          </div>
-          <h2 className="mt-8 font-display text-5xl leading-none text-stone-950">
-            Sign in to use your pantry.
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
-            Your ingredients, dietary preference, and recipe suggestions are tied to
-            your account.
-          </p>
-        </section>
-      )}
-
-      {!loadingItems && items.length > 0 && (
-        <section className="section-shell px-5 py-7 sm:px-8 sm:py-8">
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="eyebrow">Inventory</p>
-              <h2 className="section-title mt-4">Your ingredients.</h2>
-            </div>
-            <Badge variant="outline" className="rounded-full px-4 py-2">
-              {items.length} {items.length === 1 ? "item" : "items"}
-            </Badge>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((item) => (
-              <div key={item.documentId} className="panel-surface p-5">
-                {editingId === item.documentId ? (
-                  <div className="space-y-3">
-                    <input
-                      type="text"
-                      value={editValues.name}
-                      onChange={(e) =>
-                        setEditValues({ ...editValues, name: e.target.value })
-                      }
-                      className="w-full rounded-[18px] border border-stone-900/10 bg-white/80 px-4 py-3 text-sm"
-                      placeholder="Ingredient name"
-                    />
-                    <input
-                      type="text"
-                      value={editValues.quantity}
-                      onChange={(e) =>
-                        setEditValues({
-                          ...editValues,
-                          quantity: e.target.value,
-                        })
-                      }
-                      className="w-full rounded-[18px] border border-stone-900/10 bg-white/80 px-4 py-3 text-sm"
-                      placeholder="Quantity"
-                    />
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={saveEdit}
-                        disabled={updating}
-                        variant="primary"
-                        className="flex-1"
-                      >
-                        {updating ? (
-                          <Loader2 className="size-4 animate-spin" />
-                        ) : (
-                          <Check className="size-4" />
-                        )}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={cancelEdit}
-                        disabled={updating}
-                        className="flex-1"
-                      >
-                        <X className="size-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
+            <Link
+              href={`/pantry/recipes?diet=${dietaryPreference}`}
+              className="mt-12 block rounded-[24px] border border-emerald-400/20 bg-gradient-to-br from-[#1C5042] to-[#D59032] p-8 hover:scale-[1.02] transition-transform duration-500"
+            >
+              <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <span className="flex size-16 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10">
+                    <ChefHat className="size-8 text-[#EAE8E3]" />
+                  </span>
                   <div>
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.22em] text-stone-500">
-                          Pantry item
-                        </p>
-                        <h3 className="mt-3 break-words font-display text-3xl leading-none text-stone-950 sm:text-4xl">
-                          {item.name}
-                        </h3>
-                        <p className="mt-3 text-sm text-stone-600">{item.quantity}</p>
-                      </div>
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => startEdit(item)}
-                          className="flex size-10 items-center justify-center rounded-full border border-stone-900/10 bg-white/65 text-stone-700 hover:text-emerald-900"
-                        >
-                          <Edit2 className="size-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item.documentId)}
-                          disabled={deleting}
-                          className="flex size-10 items-center justify-center rounded-full border border-stone-900/10 bg-white/65 text-stone-700 hover:text-red-700"
-                        >
-                          <Trash2 className="size-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <p className="mt-8 text-xs uppercase tracking-[0.18em] text-stone-400">
-                      Added {formatCreatedAt(item.createdAt)}
+                    <h3 className="font-display text-3xl text-[#EAE8E3] mb-2">
+                      Launch Suggestions
+                    </h3>
+                    <p className="text-sm font-light text-white/70">
+                      Build ideas from {items.length || "your"} item{items.length === 1 ? "" : "s"}.
                     </p>
                   </div>
-                )}
+                </div>
+                <div className="rounded-full bg-white/10 border border-white/20 px-6 py-3 text-[#EAE8E3] text-sm uppercase tracking-[0.1em]">
+                  {items.length} Ready
+                </div>
               </div>
-            ))}
+            </Link>
           </div>
         </section>
-      )}
 
-      {!loadingItems && items.length === 0 && (
-        <section className="section-shell px-5 py-16 text-center sm:px-8 sm:py-20">
-          <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-emerald-950 text-white shadow-[0_18px_36px_rgba(20,97,78,0.2)]">
-            <Package className="size-10" />
-          </div>
-          <h2 className="mt-8 font-display text-5xl leading-none text-stone-950">
-            Your pantry is empty.
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
-            Start with a scan or add a few ingredients manually to bring the recipe
-            engine to life.
-          </p>
-          <Button
-            onClick={() => setIsModalOpen(true)}
-            variant="primary"
-            size="lg"
-            className="mt-8"
-          >
-            <Plus className="size-5" />
-            Add Your First Item
-          </Button>
-        </section>
-      )}
+        {/* Loading State */}
+        {loadingItems && (
+          <section className="glass-card flex flex-col items-center justify-center px-6 py-32">
+            <Loader2 className="size-10 animate-spin text-[#555]" />
+          </section>
+        )}
 
-      <AddToPantryModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={handleModalSuccess}
-        authUser={authUser}
-      />
+        {/* Signed Out State */}
+        {isLoaded && !authUser && !loadingItems && (
+          <section className="glass-card px-6 py-32 text-center">
+            <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-[#111] text-[#EAE8E3] mb-8">
+              <Package className="size-10" />
+            </div>
+            <h2 className="font-display text-6xl text-[#111] mb-6">
+              Sign in to use your pantry.
+            </h2>
+            <p className="mx-auto text-lg text-[#555] font-light max-w-xl">
+              Your ingredients, dietary preference, and recipe suggestions are tied to
+              your account.
+            </p>
+          </section>
+        )}
+
+        {/* Empty State */}
+        {!loadingItems && items.length === 0 && authUser && (
+          <section className="glass-card px-6 py-32 text-center">
+            <div className="mx-auto flex size-24 items-center justify-center rounded-full border border-[#D5D3CE] bg-white/50 mb-8">
+              <Package className="size-10 text-[#222]" />
+            </div>
+            <h2 className="font-display text-6xl text-[#111] mb-6">
+              Your pantry is empty.
+            </h2>
+            <p className="mx-auto text-lg text-[#555] font-light max-w-xl mb-12">
+              Start with a scan or add a few ingredients manually to bring the recipe
+              engine to life.
+            </p>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="glass-pill bg-[#222] text-white px-8 py-4 text-sm uppercase tracking-[0.2em] hover:bg-[#111] transition-colors inline-flex items-center gap-3"
+            >
+              <Plus className="size-5" /> Add First Item
+            </button>
+          </section>
+        )}
+
+        {/* Inventory Grid */}
+        {!loadingItems && items.length > 0 && (
+          <section className="pt-12">
+            <div className="mb-12 flex justify-between items-end">
+              <div>
+                <p className="eyebrow mb-4">Inventory</p>
+                <h2 className="font-display text-5xl">Your ingredients</h2>
+              </div>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <AnimatePresence>
+                {items.map((item, i) => (
+                  <motion.div 
+                    key={item.documentId} 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.4, delay: i * 0.05 }}
+                    className="glass-card p-8 group hover:border-[#aaa] transition-colors flex flex-col justify-between min-h-[240px]"
+                  >
+                    {editingId === item.documentId ? (
+                      <div className="space-y-4 h-full flex flex-col justify-center">
+                        <input
+                          type="text"
+                          value={editValues.name}
+                          onChange={(e) =>
+                            setEditValues({ ...editValues, name: e.target.value })
+                          }
+                          className="w-full bg-transparent border-b border-[#D5D3CE] py-2 text-2xl font-display text-[#111] placeholder:text-[#aaa] focus:border-[#222] transition-colors outline-none"
+                          placeholder="Ingredient name"
+                        />
+                        <input
+                          type="text"
+                          value={editValues.quantity}
+                          onChange={(e) =>
+                            setEditValues({ ...editValues, quantity: e.target.value })
+                          }
+                          className="w-full bg-transparent border-b border-[#D5D3CE] py-2 text-sm text-[#555] placeholder:text-[#aaa] focus:border-[#222] transition-colors outline-none"
+                          placeholder="Quantity"
+                        />
+                        <div className="flex gap-4 pt-4 mt-auto">
+                          <button
+                            onClick={saveEdit}
+                            disabled={updating}
+                            className="text-xs uppercase tracking-[0.2em] font-semibold text-[#111] hover:text-green-700 transition-colors"
+                          >
+                            {updating ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            onClick={cancelEdit}
+                            disabled={updating}
+                            className="text-xs uppercase tracking-[0.2em] font-semibold text-[#777] hover:text-[#111] transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div>
+                          <div className="flex justify-between items-start mb-6">
+                            <p className="text-[0.65rem] uppercase tracking-[0.2em] text-[#777]">
+                              Added {formatCreatedAt(item.createdAt)}
+                            </p>
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-3">
+                              <button
+                                onClick={() => startEdit(item)}
+                                className="text-[#777] hover:text-[#111] transition-colors"
+                              >
+                                <Edit2 className="size-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(item.documentId)}
+                                disabled={deleting}
+                                className="text-[#777] hover:text-red-700 transition-colors"
+                              >
+                                <Trash2 className="size-4" />
+                              </button>
+                            </div>
+                          </div>
+                          <h3 className="font-display text-4xl leading-none text-[#111] mb-4 break-words">
+                            {item.name}
+                          </h3>
+                          <p className="text-sm text-[#555] font-light">{item.quantity}</p>
+                        </div>
+                        <div className="mt-8 border-t border-[#D5D3CE] pt-6 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[#aaa]">Item details</span>
+                          <span className="size-8 rounded-full bg-[#EAE8E3] border border-[#D5D3CE] flex items-center justify-center">
+                            <Package className="size-3 text-[#555]" />
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </section>
+        )}
+
+        <AddToPantryModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={handleModalSuccess}
+          authUser={authUser}
+        />
+      </div>
     </div>
   );
 }

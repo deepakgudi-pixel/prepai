@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Bookmark, Loader2, ChefHat } from "lucide-react";
+import { Bookmark, Loader2, ChefHat, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import RecipeCard from "@/components/extras/RecipeCard";
 import useFetch from "@/hooks/use-fetch";
 import { getSavedRecipes } from "@/actions/recipe.actions";
-import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 export default function SavedRecipesPage() {
   const { user, isLoaded } = useUser();
@@ -44,64 +44,70 @@ export default function SavedRecipesPage() {
   const recipes = recipesData?.recipes || [];
 
   return (
-    <div className="page-frame space-y-8">
-      <section className="section-shell px-6 py-8 sm:px-8 sm:py-10">
-        <div className="flex items-start gap-4">
-          <span className="flex size-16 items-center justify-center rounded-full bg-stone-950 text-white shadow-[0_16px_34px_rgba(24,22,18,0.22)]">
-            <Bookmark className="size-8" />
-          </span>
-          <div>
-            <p className="eyebrow">Saved recipes</p>
-            <h1 className="section-title mt-4">Your personal cookbook.</h1>
-            <p className="section-copy mt-4">
-              Keep the recipes worth returning to in a cleaner, calmer archive.
+    <div className="bg-[#EAE8E3] min-h-screen pb-32">
+      <div className="max-w-[1400px] mx-auto px-6 sm:px-12 lg:px-20 pt-32 space-y-12">
+        
+        {/* Header */}
+        <section className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8 mb-16">
+          <div className="max-w-xl">
+            <p className="eyebrow mb-6 flex items-center gap-2">
+              <Bookmark className="size-4" /> Saved Archive
             </p>
+            <h1 className="font-display text-5xl md:text-7xl leading-none text-[#111]">
+              Your personal<br/><span className="italic text-[#777]">cookbook.</span>
+            </h1>
           </div>
-        </div>
-      </section>
-
-      {loading && (
-        <section className="section-shell flex flex-col items-center justify-center px-6 py-20">
-          <Loader2 className="size-10 animate-spin text-emerald-900" />
-          <p className="mt-4 text-stone-600">Loading your saved recipes...</p>
-        </section>
-      )}
-
-      {!loading && recipes.length > 0 && (
-        <section className="grid gap-6 md:grid-cols-2">
-          {recipes.map((recipe) => (
-            <RecipeCard key={recipe.documentId} recipe={recipe} variant="list" />
-          ))}
-        </section>
-      )}
-
-      {!loading && recipes.length === 0 && (
-        <section className="section-shell px-6 py-20 text-center sm:px-8">
-          <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-emerald-950 text-white shadow-[0_18px_36px_rgba(20,97,78,0.2)]">
-            <Bookmark className="size-10" />
-          </div>
-          <h2 className="mt-8 font-display text-5xl leading-none text-stone-950">
-            No saved recipes yet.
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-stone-600">
-            Explore recipes and start building a collection that feels more like a
-            journal than a bookmark list.
+          <p className="text-lg text-[#555] font-light max-w-sm">
+            Keep the recipes worth returning to in a cleaner, calmer archive.
           </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="/dashboard">
-              <Button variant="primary" size="lg">
-                <ChefHat className="size-4" />
-                Explore Recipes
-              </Button>
-            </Link>
-            <Link href="/pantry">
-              <Button variant="outline" size="lg">
-                Check Pantry
-              </Button>
-            </Link>
-          </div>
         </section>
-      )}
+
+        {loading && (
+          <section className="flex flex-col items-center justify-center py-32">
+            <Loader2 className="size-10 animate-spin text-[#777]" />
+            <p className="mt-6 text-[0.65rem] uppercase tracking-[0.2em] text-[#777]">Loading Archive...</p>
+          </section>
+        )}
+
+        {!loading && recipes.length > 0 && (
+          <section className="grid gap-8 md:grid-cols-2">
+            {recipes.map((recipe, i) => (
+              <motion.div
+                key={recipe.documentId}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+              >
+                <RecipeCard recipe={recipe} variant="list" />
+              </motion.div>
+            ))}
+          </section>
+        )}
+
+        {!loading && recipes.length === 0 && (
+          <section className="glass-card px-6 py-32 text-center mt-12">
+            <div className="mx-auto flex size-24 items-center justify-center rounded-full bg-[#111] text-[#EAE8E3] mb-8">
+              <Bookmark className="size-8" />
+            </div>
+            <h2 className="font-display text-5xl md:text-6xl text-[#111] mb-6">
+              No saved recipes yet.
+            </h2>
+            <p className="mx-auto text-lg text-[#555] font-light max-w-xl mb-12">
+              Explore recipes and start building a collection that feels more like a
+              journal than a bookmark list.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-6">
+              <Link href="/dashboard" className="glass-pill bg-[#222] text-white px-8 py-4 text-xs font-semibold uppercase tracking-[0.2em] hover:bg-[#111] transition-colors flex items-center gap-3">
+                <ChefHat className="size-4" />
+                Explore
+              </Link>
+              <Link href="/pantry" className="glass-pill px-8 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#222] hover:bg-white/50 transition-colors flex items-center gap-3">
+                Check Pantry <ArrowRight className="size-4" />
+              </Link>
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   );
 }
