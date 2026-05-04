@@ -47,8 +47,8 @@ export default function Home() {
               </SignUpButton>
             </SignedOut>
             <SignedIn>
-               <Link href="/dashboard" className="magnetic group flex items-center gap-4 bg-[#222] text-[#EAE8E3] px-8 py-4 rounded-full font-semibold text-sm uppercase tracking-[0.1em] hover:bg-[#111] transition-all">
-                  Open Dashboard
+               <Link href="/curated" className="magnetic group flex items-center gap-4 bg-[#222] text-[#EAE8E3] px-8 py-4 rounded-full font-semibold text-sm uppercase tracking-[0.1em] hover:bg-[#111] transition-all">
+                  Open Curated
                   <span className="flex size-8 items-center justify-center rounded-full bg-[#EAE8E3]/20 group-hover:bg-[#EAE8E3]/30 transition-colors">
                     <ArrowRight className="size-4" />
                   </span>

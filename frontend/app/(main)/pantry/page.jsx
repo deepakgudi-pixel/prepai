@@ -187,24 +187,24 @@ export default function PantryPage() {
         {/* Header Grid */}
         <section className="grid items-stretch gap-6 lg:grid-cols-[1fr_0.95fr]">
           <div className="glass-card flex h-full flex-col justify-between p-10 sm:p-14">
-            <div className="space-y-12">
-              <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-                <span className="flex size-16 items-center justify-center rounded-full bg-[#222] text-[#EAE8E3]">
-                  <Package className="size-8" />
+            <div className="space-y-5">
+              <div className="flex items-center gap-4">
+                <span className="flex size-14 items-center justify-center rounded-full bg-[#222] text-[#EAE8E3]">
+                  <Package className="size-7" />
                 </span>
-                <div className="max-w-lg">
-                  <p className="eyebrow mb-4">Pantry Studio</p>
-                  <h1 className="font-display text-5xl leading-none text-[#111] mb-6">
-                    Your ingredients,<br/> styled like a collection.
-                  </h1>
-                  <p className="text-[#555] font-light leading-relaxed">
-                    Manage what&apos;s in the kitchen, tune dietary preference, and
-                    launch recipe suggestions without leaving the flow.
-                  </p>
-                </div>
+                <p className="eyebrow">Pantry Studio</p>
+              </div>
+              <div>
+                <h1 className="font-display text-5xl leading-none text-[#111] mb-6">
+                  Your ingredients,<br/> styled like a collection.
+                </h1>
+                <p className="text-[#555] font-light leading-relaxed max-w-md">
+                  Manage what&apos;s in the kitchen, tune dietary preference, and
+                  launch recipe suggestions without leaving the flow.
+                </p>
               </div>
 
-              <div className="flex gap-12">
+              <div className="flex gap-12 pt-2">
                 <div>
                   <p className="text-[0.68rem] uppercase tracking-[0.2em] text-[#777]">
                     Ingredients
@@ -284,23 +284,23 @@ export default function PantryPage() {
 
             <Link
               href={`/pantry/recipes?diet=${dietaryPreference}`}
-              className="mt-12 block rounded-[24px] border border-emerald-400/20 bg-gradient-to-br from-[#1C5042] to-[#D59032] p-8 hover:scale-[1.02] transition-transform duration-500"
+              className="mt-12 block rounded-[24px] bg-[#EAE8E3] p-8 hover:scale-[1.02] hover:bg-white transition-all duration-500 group"
             >
               <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center justify-between">
                 <div className="flex items-center gap-6">
-                  <span className="flex size-16 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10">
-                    <ChefHat className="size-8 text-[#EAE8E3]" />
+                  <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-[#111] text-[#EAE8E3] group-hover:bg-[#222] transition-colors">
+                    <ChefHat className="size-8" />
                   </span>
                   <div>
-                    <h3 className="font-display text-3xl text-[#EAE8E3] mb-2">
+                    <h3 className="font-display text-3xl text-[#111] mb-2">
                       Launch Suggestions
                     </h3>
-                    <p className="text-sm font-light text-white/70">
+                    <p className="text-sm font-light text-[#555]">
                       Build ideas from {items.length || "your"} item{items.length === 1 ? "" : "s"}.
                     </p>
                   </div>
                 </div>
-                <div className="rounded-full bg-white/10 border border-white/20 px-6 py-3 text-[#EAE8E3] text-sm uppercase tracking-[0.1em]">
+                <div className="rounded-full border border-[#111]/20 px-6 py-3 text-[#111] text-sm uppercase tracking-[0.1em] font-semibold">
                   {items.length} Ready
                 </div>
               </div>

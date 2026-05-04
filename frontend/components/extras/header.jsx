@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+import { useLenis } from "lenis/react";
 import { SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import { Soup, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
@@ -9,24 +10,36 @@ import UserDropdown from "./UserDropdown";
 
 const navItems = [
   { href: "/", label: "Home" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/recipes", label: "Recipes" },
   { href: "/pantry", label: "Pantry" },
+  { href: "/recipes", label: "Recipes" },
+  { href: "/curated", label: "Curated" },
 ];
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    if (latest > 100) {
+      setHidden(true);
+      if (isOpen) setIsOpen(false);
+    } else {
+      setHidden(false);
+    }
+  });
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
-  // Background overlay when menu is open
+  // Stop Lenis smooth scrolling when the menu is open
+  const lenis = useLenis();
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      if (lenis) lenis.stop();
     } else {
-      document.body.style.overflow = "auto";
+      if (lenis) lenis.start();
     }
-  }, [isOpen]);
+  }, [isOpen, lenis]);
 
   return (
     <>
@@ -46,25 +59,35 @@ export default function Header() {
 
       {/* Morphing Pill Header */}
       <motion.header
-        initial={{ y: -100, opacity: 0 }}
+        initial={{ y: -50, scale: 0.8, opacity: 0, width: "64px", maxWidth: "64px" }}
         animate={{
-          y: 0,
-          opacity: 1,
-          width: "calc(100% - 3rem)",
-          maxWidth: "600px",
+          y: hidden && !isOpen ? -20 : 0,
+          scale: hidden && !isOpen ? 0.9 : 1,
+          opacity: hidden && !isOpen ? 0 : 1,
+          width: hidden && !isOpen ? "64px" : "calc(100% - 3rem)",
+          maxWidth: hidden && !isOpen ? "64px" : "600px",
           height: isOpen ? "70vh" : "64px",
           borderRadius: isOpen ? "24px" : "32px",
           backgroundColor: isOpen ? "rgba(255, 255, 255, 0.98)" : "rgba(255, 255, 255, 0.85)",
         }}
-        // Delay the shrinking animation when closing so content can fade out first
-        transition={{ duration: 0.8, delay: isOpen ? 0 : 0.3, ease: [0.76, 0, 0.24, 1] }}
-        className="fixed left-1/2 top-6 z-[100] -translate-x-1/2 flex flex-col border border-white/40 backdrop-blur-md shadow-2xl overflow-hidden px-6 py-5"
+        transition={{ 
+          duration: 1.2, 
+          ease: [0.22, 1, 0.36, 1], // Cinematic ease out
+          opacity: { delay: hidden ? 0.3 : 0, duration: 0.6 },
+          // When opening/closing menu, or showing/hiding header, stagger slightly
+          delay: isOpen ? 0 : (hidden ? 0 : 0.1)
+        }}
+        className="fixed left-1/2 top-6 z-[100] -translate-x-1/2 flex flex-col items-center border border-white/40 backdrop-blur-md shadow-2xl overflow-hidden px-6 py-5"
         style={{
-          willChange: "width, height, background-color, border-radius",
+          willChange: "width, height, background-color, border-radius, transform, opacity",
         }}
       >
         {/* Top Row (Always Visible) */}
-        <div className="flex w-full items-center justify-between shrink-0 h-[24px]">
+        <motion.div 
+          animate={{ opacity: hidden && !isOpen ? 0 : 1 }}
+          transition={{ duration: 0.3 }}
+          className="flex w-[calc(100vw-6rem)] max-w-[552px] items-center justify-between shrink-0 h-[24px]"
+        >
           {/* Left: Dynamic Action Based on Auth */}
           <div className="flex-1 flex justify-start">
             <SignedOut>
@@ -76,11 +99,11 @@ export default function Header() {
             </SignedOut>
             <SignedIn>
               <Link
-                href="/dashboard"
+                href="/curated"
                 className="text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] text-[#222] hover:text-[#555] transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Dashboard
+                Curated
               </Link>
             </SignedIn>
           </div>
@@ -97,12 +120,12 @@ export default function Header() {
                 {isOpen && (
                   <motion.div 
                     initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: 70 }}
+                    animate={{ opacity: 1, width: "auto" }}
                     exit={{ opacity: 0, width: 0 }}
-                    transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
-                    className="overflow-hidden whitespace-nowrap pl-2"
+                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden whitespace-nowrap"
                   >
-                    <span className="font-display text-xl text-[#111] pt-[2px] block">
+                    <span className="font-display text-xl text-[#111] pt-[2px] block pl-2 pr-1">
                       PrepAI
                     </span>
                   </motion.div>
@@ -139,7 +162,7 @@ export default function Header() {
               </div>
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Expanded Links */}
         <AnimatePresence>
@@ -149,7 +172,7 @@ export default function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex-1 flex flex-col mt-8"
+              className="flex-1 flex flex-col mt-8 w-[calc(100vw-6rem)] max-w-[552px]"
             >
               <nav className="flex flex-col flex-1 justify-center px-4">
                 {navItems.map((item, i) => (

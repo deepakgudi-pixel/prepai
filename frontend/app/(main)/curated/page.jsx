@@ -8,7 +8,7 @@ import {
 } from "@/actions/mealdb.actions";
 import { getCategoryEmoji } from "@/lib/data";
 
-export default async function DashboardPage() {
+export default async function CuratedPage() {
   const recipeData = await getRecipeOfTheDay();
   const categoriesData = await getCategories();
 
@@ -17,7 +17,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="bg-[#EAE8E3] pb-32">
-      {/* Dashboard Header */}
+      {/* Curated Header */}
       <section className="pt-32 pb-12 px-6 sm:px-12 lg:px-20 max-w-[1400px] mx-auto">
         <p className="eyebrow mb-6">Discovery</p>
         <h1 className="display-title mb-8">

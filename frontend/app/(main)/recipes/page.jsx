@@ -70,15 +70,16 @@ export default function SavedRecipesPage() {
         )}
 
         {!loading && recipes.length > 0 && (
-          <section className="grid gap-8 md:grid-cols-2">
+          <section className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {recipes.map((recipe, i) => (
               <motion.div
                 key={recipe.documentId}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
+                className="h-full"
               >
-                <RecipeCard recipe={recipe} variant="list" />
+                <RecipeCard recipe={recipe} variant="default" />
               </motion.div>
             ))}
           </section>
@@ -97,9 +98,9 @@ export default function SavedRecipesPage() {
               journal than a bookmark list.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <Link href="/dashboard" className="glass-pill bg-[#222] text-white px-8 py-4 text-xs font-semibold uppercase tracking-[0.2em] hover:bg-[#111] transition-colors flex items-center gap-3">
+              <Link href="/curated" className="glass-pill bg-[#222] text-white px-8 py-4 text-xs font-semibold uppercase tracking-[0.2em] hover:bg-[#111] transition-colors flex items-center gap-3">
                 <ChefHat className="size-4" />
-                Explore
+                Explore Curated
               </Link>
               <Link href="/pantry" className="glass-pill px-8 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#222] hover:bg-white/50 transition-colors flex items-center gap-3">
                 Check Pantry <ArrowRight className="size-4" />

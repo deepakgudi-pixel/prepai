@@ -10,7 +10,7 @@ export default function RecipeGrid({
   type,
   value,
   fetchAction,
-  backLink = "/dashboard",
+  backLink = "/curated",
 }) {
   const { loading, data, fn: fetchMeals } = useFetch(fetchAction);
 
@@ -32,7 +32,7 @@ export default function RecipeGrid({
           className="nav-pill inline-flex items-center gap-2 hover:-translate-y-0.5"
         >
           <ArrowLeft className="size-4" />
-          Back to Dashboard
+          Back to Curated
         </Link>
 
         <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">

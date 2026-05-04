@@ -73,7 +73,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
           <div className="p-8 flex flex-col flex-1 justify-between">
             <div>
               <p className="text-[0.65rem] uppercase tracking-[0.2em] text-[#777]">Recipe</p>
-              <h3 className="mt-4 font-display text-4xl leading-none text-[#111] group-hover:text-[#555] transition-colors">
+              <h3 className="mt-4 font-display text-4xl leading-none text-[#111] group-hover:text-[#555] transition-colors line-clamp-2">
                 {data.title}
               </h3>
             </div>
@@ -90,8 +90,8 @@ export default function RecipeCard({ recipe, variant = "default" }) {
 
   if (variant === "list") {
     return (
-      <Link href={data.href} className="group block">
-        <article className="glass-card overflow-hidden hover:border-[#aaa] transition-colors duration-500">
+      <Link href={data.href} className="group block h-full">
+        <article className="glass-card overflow-hidden hover:border-[#aaa] transition-colors duration-500 h-full">
           <div className="flex flex-col md:flex-row h-full">
             <div className="relative aspect-[16/10] w-full overflow-hidden md:w-64 md:aspect-[3/4] shrink-0 rounded-t-3xl md:rounded-l-3xl md:rounded-tr-none">
               {data.showImage ? (
@@ -124,7 +124,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
                   )}
                 </div>
 
-                <h3 className="font-display text-4xl sm:text-5xl leading-none text-[#111] group-hover:text-[#555] transition-colors">
+                <h3 className="font-display text-4xl sm:text-5xl leading-none text-[#111] group-hover:text-[#555] transition-colors line-clamp-2">
                   {data.title}
                 </h3>
                 

@@ -14,7 +14,7 @@ export default function CuisineRecipesPage() {
       type={"cuisine"}
       value={cuisine}
       fetchAction={getMealsByArea}
-      backLink={"/dashboard"}
+      backLink={"/curated"}
     />
   );
 }

@@ -151,9 +151,9 @@ function RecipeContent() {
           <h2 className="mt-8 font-display text-5xl leading-none text-[#111]">
             No recipe specified.
           </h2>
-          <p className="mt-4 text-[#555]">Please select a recipe from the dashboard.</p>
-          <Link href="/dashboard" className="mt-8 inline-block glass-pill bg-[#222] text-[#EAE8E3] px-8 py-4 text-xs uppercase tracking-[0.2em] hover:bg-[#111] transition-colors">
-            Go to Dashboard
+          <p className="mt-4 text-[#555]">Please select a recipe from the curated list.</p>
+          <Link href="/curated" className="mt-8 inline-block glass-pill bg-[#222] text-[#EAE8E3] px-8 py-4 text-xs uppercase tracking-[0.2em] hover:bg-[#111] transition-colors">
+            Go to Curated
           </Link>
         </div>
       </div>

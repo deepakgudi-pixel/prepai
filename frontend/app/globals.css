@@ -46,11 +46,16 @@
 
   html {
     scroll-behavior: initial;
+    scrollbar-gutter: stable;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
     background-color: var(--background);
+  }
+
+  body[data-scroll-locked] {
+    padding-right: 0 !important;
   }
 
   a,
