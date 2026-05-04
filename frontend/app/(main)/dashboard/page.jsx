@@ -1,23 +1,20 @@
 import React from "react";
-import { ArrowRight, Globe2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   getRecipeOfTheDay,
   getCategories,
-  getAreas,
 } from "@/actions/mealdb.actions";
-import { getCategoryEmoji, getCountryFlag } from "@/lib/data";
+import { getCategoryEmoji } from "@/lib/data";
 
 export default async function DashboardPage() {
   const recipeData = await getRecipeOfTheDay();
   const categoriesData = await getCategories();
-  const areasData = await getAreas();
 
   const recipeOfTheDay = recipeData?.recipe;
   const categories = categoriesData?.categories || [];
-  const areas = areasData?.areas || [];
 
   return (
     <div className="space-y-12 pb-8">
@@ -40,14 +37,6 @@ export default async function DashboardPage() {
                 </p>
                 <p className="mt-3 font-display text-4xl leading-none text-stone-950">
                   {categories.length}
-                </p>
-              </div>
-              <div className="stat-card">
-                <p className="text-xs uppercase tracking-[0.2em] text-stone-500">
-                  Cuisines
-                </p>
-                <p className="mt-3 font-display text-4xl leading-none text-stone-950">
-                  {areas.length}
                 </p>
               </div>
               <div className="stat-card">
@@ -128,40 +117,6 @@ export default async function DashboardPage() {
               </p>
             </Link>
           ))}
-        </div>
-      </section>
-
-      <section className="bg-stone-950 py-14 text-white">
-        <div className="page-frame">
-          <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="eyebrow text-stone-400">World cuisines</p>
-              <h2 className="section-title mt-4 text-white">Cuisines</h2>
-            </div>
-            <p className="max-w-2xl text-base leading-7 text-stone-300">
-              Browse regional starting points without the page becoming noisy or
-              over-designed.
-            </p>
-          </div>
-
-          <div className="grid gap-px border border-white/10 bg-white/10 md:grid-cols-4 lg:grid-cols-6">
-            {areas.map((area) => (
-              <Link
-                key={area.strArea}
-                href={`/recipes/cuisine/${area.strArea.toLowerCase().replace(/\s+/g, "-")}`}
-                className="bg-stone-950 p-5 hover:bg-stone-900"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-3xl">{getCountryFlag(area.strArea)}</p>
-                  <Globe2 className="size-4 text-stone-500" />
-                </div>
-                <h3 className="mt-8 text-base font-semibold text-white">{area.strArea}</h3>
-                <p className="mt-2 text-xs uppercase tracking-[0.2em] text-stone-500">
-                  Cuisine
-                </p>
-              </Link>
-            ))}
-          </div>
         </div>
       </section>
     </div>
