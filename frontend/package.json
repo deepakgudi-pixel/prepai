@@ -12,7 +12,6 @@
     "@clerk/nextjs": "^6.38.1",
     "@clerk/themes": "^2.4.55",
     "@react-pdf/renderer": "^4.3.2",
-    "@studio-freight/react-lenis": "^0.0.47",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
