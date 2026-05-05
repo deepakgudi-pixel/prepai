@@ -136,11 +136,11 @@ async function attemptWithModel({
 }
 
 const FALLBACK_MODELS = [
-  "google/gemma-3-27b-it:free",
-  "mistralai/pixtral-12b:free",
-  "qwen/qwen-2-7b-instruct:free",
-  "meta-llama/llama-3.1-8b-instruct:free",
-  "openrouter/free" // Final catch-all
+  "google/gemini-2.0-flash-lite-preview-02-05:free",
+  "google/gemini-2.0-pro-exp-02-05:free",
+  "mistralai/mistral-7b-instruct:free",
+  "google/gemma-2-9b-it:free",
+  "openrouter/free"
 ];
 
 async function createOpenRouterChatCompletion({
@@ -153,7 +153,19 @@ async function createOpenRouterChatCompletion({
     throw new Error("OPENROUTER_API_KEY is not configured");
   }
 
-  // Build list of models to try: primary first, then all fallbacks
+  // Compatibility Fix: Some free models (like Gemma) don't support 'system' messages.
+  // We'll merge the system message into the first user message.
+  const processedMessages = [...messages];
+  if (processedMessages[0]?.role === "system") {
+    const systemContent = processedMessages.shift().content;
+    if (processedMessages[0]?.role === "user") {
+      processedMessages[0].content = `Instructions: ${systemContent}\n\nUser Input: ${processedMessages[0].content}`;
+    } else {
+      processedMessages.unshift({ role: "user", content: systemContent });
+    }
+  }
+
+  // Build list of models to try
   const modelsToTry = [model];
   for (const fm of FALLBACK_MODELS) {
     if (fm !== model && !modelsToTry.includes(fm)) {
@@ -166,7 +178,7 @@ async function createOpenRouterChatCompletion({
   for (const currentModel of modelsToTry) {
     try {
       const result = await attemptWithModel({
-        messages,
+        messages: processedMessages,
         model: currentModel,
         temperature,
         max_tokens,
