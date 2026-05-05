@@ -25,7 +25,7 @@ export default function RecipeGrid({
   const displayName = value?.replace(/-/g, " ");
 
   return (
-    <div className="page-frame space-y-8">
+    <div className="page-frame pt-32 space-y-8">
       <section className="section-shell px-6 py-8 sm:px-8 sm:py-10">
         <Link
           href={backLink}
@@ -63,7 +63,7 @@ export default function RecipeGrid({
       )}
 
       {!loading && meals.length > 0 && (
-        <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {meals.map((meal) => (
             <RecipeCard key={meal.idMeal} recipe={meal} variant="grid" />
           ))}

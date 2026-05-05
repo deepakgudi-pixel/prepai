@@ -158,11 +158,11 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent 
         onPointerDownOutside={(e) => e.preventDefault()}
-        className="max-h-[90vh] max-w-2xl flex flex-col [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] border border-[#D5D3CE] bg-[#EAE8E3] p-0 shadow-2xl backdrop-blur-xl sm:rounded-[32px]"
+        className="max-h-[90vh] max-w-[calc(100%-2.5rem)] sm:max-w-2xl flex flex-col [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] border border-[#D5D3CE] bg-[#EAE8E3] p-0 shadow-2xl backdrop-blur-xl rounded-[20px] sm:rounded-[32px]"
       >
-        <div className="p-8 sm:p-12 flex flex-col flex-1 min-h-0">
-          <DialogHeader className="mb-10 text-center sm:text-left">
-            <DialogTitle className="font-display text-5xl leading-none text-[#111]">
+        <div className="p-5 sm:p-12 flex flex-col flex-1 min-h-0">
+          <DialogHeader className="mb-6 sm:mb-10 text-center sm:text-left">
+            <DialogTitle className="font-display text-3xl sm:text-5xl leading-none text-[#111]">
               Add to Pantry
             </DialogTitle>
             <DialogDescription className="mt-4 text-sm font-light text-[#555] max-w-sm">
@@ -171,10 +171,10 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
           </DialogHeader>
 
           {/* Custom Tabs */}
-          <div className="flex gap-4 mb-8 pb-4 border-b border-[#D5D3CE]">
+          <div className="flex gap-3 sm:gap-4 mb-6 sm:mb-8 pb-3 sm:pb-4 border-b border-[#D5D3CE]">
             <button
               onClick={() => setActiveTab("scan")}
-              className={`flex items-center gap-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] transition-colors relative ${
+              className={`flex items-center gap-1.5 sm:gap-2 pb-2 text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-colors relative ${
                 activeTab === "scan" ? "text-[#111]" : "text-[#aaa] hover:text-[#777]"
               }`}
             >
@@ -186,7 +186,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
             </button>
             <button
               onClick={() => setActiveTab("manual")}
-              className={`flex items-center gap-2 pb-2 text-xs font-semibold uppercase tracking-[0.2em] transition-colors relative ${
+              className={`flex items-center gap-1.5 sm:gap-2 pb-2 text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-colors relative ${
                 activeTab === "manual" ? "text-[#111]" : "text-[#aaa] hover:text-[#777]"
               }`}
             >
@@ -213,7 +213,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
                     <button
                       onClick={handleScan}
                       disabled={scanning}
-                      className="w-full glass-pill bg-[#222] text-[#EAE8E3] px-8 py-5 text-sm font-semibold uppercase tracking-[0.2em] hover:bg-[#111] transition-colors flex items-center justify-center gap-3"
+                      className="w-full glass-pill bg-[#222] text-[#EAE8E3] px-6 sm:px-8 py-4 sm:py-5 text-xs sm:text-sm font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] hover:bg-[#111] transition-colors flex items-center justify-center gap-2 sm:gap-3"
                     >
                       <Camera className="w-5 h-5" />
                       Run AI Analysis
@@ -223,10 +223,10 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
               ) : (
                 // Step 2: Review & Save
                 <div className="flex flex-col flex-1 min-h-0 space-y-6">
-                  <div className="flex items-end justify-between border-b border-[#D5D3CE] pb-4 shrink-0">
+                  <div className="flex items-end justify-between border-b border-[#D5D3CE] pb-3 sm:pb-4 shrink-0">
                     <div>
-                      <p className="eyebrow mb-2">Detected Inventory</p>
-                      <h3 className="font-display text-3xl text-[#111]">
+                      <p className="eyebrow mb-1 sm:mb-2">Detected Inventory</p>
+                      <h3 className="font-display text-2xl sm:text-3xl text-[#111]">
                         Review items
                       </h3>
                     </div>
@@ -250,7 +250,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
                         className="flex items-center justify-between gap-4 border-b border-[#D5D3CE] py-4 group"
                       >
                         <div className="flex-1">
-                          <div className="font-display text-2xl text-[#111]">
+                          <div className="font-display text-lg sm:text-2xl text-[#111]">
                             {ingredient.name}
                           </div>
                           <div className="text-sm font-light text-[#777] mt-1">
@@ -258,7 +258,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
                           </div>
                         </div>
                         {ingredient.confidence && (
-                          <div className="glass-pill px-4 py-2 border border-[#D5D3CE] text-[0.65rem] uppercase tracking-[0.2em] text-[#555]">
+                          <div className="glass-pill px-3 sm:px-4 py-1.5 sm:py-2 border border-[#D5D3CE] text-[0.55rem] sm:text-[0.65rem] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[#555] shrink-0">
                             {Math.round(ingredient.confidence * 100)}% Match
                           </div>
                         )}
@@ -276,7 +276,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
                   <button
                     onClick={handleSaveScanned}
                     disabled={saving || scannedIngredients.length === 0}
-                    className="w-full shrink-0 glass-pill bg-[#222] text-[#EAE8E3] px-8 py-5 text-sm font-semibold uppercase tracking-[0.2em] hover:bg-[#111] transition-colors flex items-center justify-center gap-3 disabled:opacity-50"
+                    className="w-full shrink-0 glass-pill bg-[#222] text-[#EAE8E3] px-6 sm:px-8 py-4 sm:py-5 text-xs sm:text-sm font-semibold uppercase tracking-[0.15em] sm:tracking-[0.2em] hover:bg-[#111] transition-colors flex items-center justify-center gap-2 sm:gap-3 disabled:opacity-50"
                   >
                     {saving ? (
                       <>

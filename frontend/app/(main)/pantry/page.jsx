@@ -182,20 +182,20 @@ export default function PantryPage() {
 
   return (
     <div className="bg-[#EAE8E3] min-h-screen pb-32">
-      <div className="max-w-[1400px] mx-auto px-6 sm:px-12 lg:px-20 pt-32 space-y-8">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-12 lg:px-20 pt-32 space-y-8">
         
         {/* Header Grid */}
-        <section className="grid items-stretch gap-6 lg:grid-cols-[1fr_0.95fr]">
-          <div className="glass-card flex h-full flex-col justify-between p-10 sm:p-14">
+        <section className="grid items-stretch gap-6 lg:grid-cols-[1fr_0.95fr] min-w-0 overflow-hidden">
+          <div className="glass-card flex h-full flex-col justify-between p-6 sm:p-14">
             <div className="space-y-5">
-              <div className="flex items-center gap-4">
-                <span className="flex size-14 items-center justify-center rounded-full bg-[#222] text-[#EAE8E3]">
-                  <Package className="size-7" />
+              <div className="flex items-center gap-3 sm:gap-4">
+                <span className="flex size-11 sm:size-14 shrink-0 items-center justify-center rounded-full bg-[#222] text-[#EAE8E3]">
+                  <Package className="size-5 sm:size-7" />
                 </span>
                 <p className="eyebrow">Pantry Studio</p>
               </div>
               <div>
-                <h1 className="font-display text-5xl leading-none text-[#111] mb-6">
+                <h1 className="font-display text-3xl sm:text-5xl leading-none text-[#111] mb-4 sm:mb-6">
                   Your ingredients,<br/> styled like a collection.
                 </h1>
                 <p className="text-[#555] font-light leading-relaxed max-w-md">
@@ -204,7 +204,7 @@ export default function PantryPage() {
                 </p>
               </div>
 
-              <div className="flex gap-12 pt-2">
+              <div className="flex gap-8 sm:gap-12 pt-2">
                 <div>
                   <p className="text-[0.68rem] uppercase tracking-[0.2em] text-[#777]">
                     Ingredients
@@ -244,13 +244,13 @@ export default function PantryPage() {
             )}
           </div>
 
-          <div className="glass-card bg-[#111] border-white/10 text-white flex h-full flex-col justify-between p-10 sm:p-14">
+          <div className="glass-card bg-[#111] border-white/10 text-white flex h-full flex-col justify-between p-6 sm:p-14">
             <div className="space-y-12">
               <div className="max-w-lg">
                 <p className="eyebrow border-white/10 text-[#aaa] mb-4">
                   Recipe engine
                 </p>
-                <h2 className="font-display text-5xl leading-none text-[#EAE8E3] mb-6">
+                <h2 className="font-display text-3xl sm:text-5xl leading-none text-[#EAE8E3] mb-4 sm:mb-6">
                   What can I cook tonight?
                 </h2>
                 <p className="text-[#aaa] font-light leading-relaxed">
@@ -259,7 +259,7 @@ export default function PantryPage() {
                 </p>
               </div>
 
-              <div className="rounded-full border border-white/10 bg-black/40 p-2 inline-flex items-center gap-2">
+              <div className="rounded-2xl sm:rounded-full border border-white/10 bg-black/40 p-2 inline-flex flex-wrap items-center gap-2">
                 <span className="text-xs uppercase tracking-[0.2em] text-[#777] pl-4 pr-2">
                   Diet:
                 </span>
@@ -269,7 +269,7 @@ export default function PantryPage() {
                       key={pref}
                       onClick={() => handlePreferenceChange(pref)}
                       disabled={updatingPref || loadingPref}
-                      className={`rounded-full px-4 py-2 text-xs uppercase tracking-[0.2em] transition-all ${
+                      className={`rounded-full px-3 sm:px-4 py-2 text-[0.6rem] sm:text-xs uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-all ${
                         dietaryPreference === pref
                           ? "bg-[#EAE8E3] text-[#111]"
                           : "text-[#777] hover:text-[#EAE8E3]"
@@ -284,15 +284,15 @@ export default function PantryPage() {
 
             <Link
               href={`/pantry/recipes?diet=${dietaryPreference}`}
-              className="mt-12 block rounded-[24px] bg-[#EAE8E3] p-8 hover:scale-[1.02] hover:bg-white transition-all duration-500 group"
+              className="mt-8 sm:mt-12 block rounded-[24px] bg-[#EAE8E3] p-5 sm:p-8 hover:scale-[1.02] hover:bg-white transition-all duration-500 group"
             >
               <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center justify-between">
-                <div className="flex items-center gap-6">
-                  <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-[#111] text-[#EAE8E3] group-hover:bg-[#222] transition-colors">
-                    <ChefHat className="size-8" />
+                <div className="flex items-center gap-4 sm:gap-6">
+                  <span className="flex size-12 sm:size-16 shrink-0 items-center justify-center rounded-full bg-[#111] text-[#EAE8E3] group-hover:bg-[#222] transition-colors">
+                    <ChefHat className="size-6 sm:size-8" />
                   </span>
                   <div>
-                    <h3 className="font-display text-3xl text-[#111] mb-2">
+                    <h3 className="font-display text-xl sm:text-3xl text-[#111] mb-1 sm:mb-2">
                       Launch Suggestions
                     </h3>
                     <p className="text-sm font-light text-[#555]">

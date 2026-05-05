@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
 export default function CustomCursor() {
+  const [isTouch, setIsTouch] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const mouseX = useMotionValue(-100);
   const mouseY = useMotionValue(-100);
@@ -13,6 +14,17 @@ export default function CustomCursor() {
   const cursorY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
+    // Detect touch devices
+    const mql = window.matchMedia("(pointer: coarse)");
+    setIsTouch(mql.matches);
+    const onChange = (e) => setIsTouch(e.matches);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (isTouch) return;
+
     const moveCursor = (e) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
@@ -40,11 +52,13 @@ export default function CustomCursor() {
       window.removeEventListener("mousemove", moveCursor);
       window.removeEventListener("mouseover", handleMouseOver);
     };
-  }, [mouseX, mouseY]);
+  }, [mouseX, mouseY, isTouch]);
+
+  if (isTouch) return null;
 
   return (
     <motion.div
-      className="pointer-events-none fixed left-0 top-0 z-[99999] rounded-full mix-blend-difference"
+      className="pointer-events-none fixed left-0 top-0 z-[99999] rounded-full mix-blend-difference hidden lg:block"
       style={{
         x: cursorX,
         y: cursorY,

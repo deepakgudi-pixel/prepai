@@ -41,13 +41,19 @@
 @layer base {
   * {
     @apply border-border outline-none;
-    cursor: none;
+  }
+
+  @media (pointer: fine) {
+    * {
+      cursor: none;
+    }
   }
 
   html {
     scroll-behavior: initial;
-    scrollbar-gutter: stable;
+    overflow-x: hidden;
   }
+
 
   body {
     @apply bg-background text-foreground antialiased;
@@ -61,7 +67,13 @@
   a,
   button {
     @apply transition-all duration-300;
-    cursor: none;
+  }
+
+  @media (pointer: fine) {
+    a,
+    button {
+      cursor: none;
+    }
   }
 }
 
@@ -112,6 +124,14 @@
     @apply inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-700;
   }
 
+  .section-shell {
+    @apply bg-white/40 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] rounded-3xl;
+  }
+
+  .panel-dark {
+    @apply bg-[#111] border border-white/10 rounded-3xl p-8 sm:p-10 text-white;
+  }
+
   /* Lenis CSS */
   html.lenis, html.lenis body {
     height: auto;
@@ -151,3 +171,4 @@
 .animate-slow-fill {
   animation: slow-fill 10s ease-out forwards;
 }
+

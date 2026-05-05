@@ -143,9 +143,9 @@ export default function Header() {
             </SignedIn>
             <button
               onClick={toggleMenu}
-              className="group flex items-center gap-3 text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] text-[#222]"
+              aria-label={isOpen ? "Close menu" : "Open menu"}
+              className="group flex items-center justify-center size-10"
             >
-              {isOpen ? "CLOSE" : "MENU"}
               <div className="flex flex-col gap-1 w-5 sm:w-6">
                 <motion.span
                   animate={isOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}

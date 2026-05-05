@@ -43,7 +43,7 @@ export default function RootLayout({ children }) {
       }}
     >
       <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-        <body className="app-shell bg-[#EAE8E3] text-[#222222] selection:bg-[#222222] selection:text-[#EAE8E3] cursor-none">
+        <body className="app-shell bg-[#EAE8E3] text-[#222222] selection:bg-[#222222] selection:text-[#EAE8E3]">
           <CustomCursor />
       <SmoothScroll>
             <Header />
