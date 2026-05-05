@@ -5,15 +5,17 @@
 [![Railway](https://img.shields.io/badge/Railway-Backend-111827?style=for-the-badge)](https://railway.app/)
 [![Neon](https://img.shields.io/badge/Neon-Postgres-00E699?style=for-the-badge)](https://neon.tech/)
 [![Clerk](https://img.shields.io/badge/Clerk-Auth-6C47FF?style=for-the-badge)](https://clerk.com/)
+[![TheMealDB](https://img.shields.io/badge/TheMealDB-API-4CAF50?style=for-the-badge)](https://www.themealdb.com/)
 
-PrepAI is an AI-powered pantry and recipe app. Users can scan pantry images, manage ingredients, save preferences, generate recipe suggestions, and open full recipe detail pages from the ingredients they already have.
+PrepAI is an AI-powered pantry and recipe app. Users can scan pantry images, manage ingredients, save preferences, generate recipe suggestions, explore curated recipes from TheMealDB, and open full recipe detail pages from the ingredients they already have.
 
-The app now runs on a much simpler product-focused stack:
+The app runs on a modern, product-focused stack:
 - `Next.js` frontend on Vercel
 - `Express` backend on Railway
 - `Neon Postgres` for data
 - `Clerk` for auth
 - `OpenRouter` for pantry vision + recipe generation
+- `TheMealDB` for curated recipe discovery
 
 ## Architecture
 
@@ -23,9 +25,10 @@ graph TD
     B --> C["Clerk Auth"]
     B --> D["Express API (Railway)"]
     B --> E["OpenRouter Vision<br/>Pantry Image Scan"]
-    D --> F["Neon Postgres"]
-    D --> G["OpenRouter Text Models<br/>Recipe Suggestions + Full Recipes"]
-    D --> H["Unsplash<br/>Recipe Images"]
+    B --> F["TheMealDB API<br/>Curated Recipes"]
+    D --> G["Neon Postgres"]
+    D --> H["OpenRouter Text Models<br/>Recipe Suggestions + Full Recipes"]
+    D --> I["Unsplash<br/>Recipe Images"]
 ```
 
 ## Product Flow
@@ -41,42 +44,71 @@ graph LR
     F --> G["OpenRouter generates recipe ideas"]
     G --> H["View full recipe"]
     H --> I["Save recipe to collection"]
+    A --> J["Browse curated recipes"]
+    J --> K["Explore by category/cuisine"]
+    K --> H
 ```
 
 ## Features
 
-- Pantry inventory with add, edit, delete, and clear flows
-- Pantry image scan with structured ingredient extraction
-- Dietary preference saving per user
-- AI recipe suggestions from current pantry items
-- Full recipe generation with ingredients, steps, nutrition, and tips
-- Saved recipe collection
-- Premium-style frontend with a cleaner product UI
+- **Pantry Management**: Add, edit, delete, and clear pantry ingredients
+- **Pantry Image Scan**: AI-powered image recognition with structured ingredient extraction
+- **Dietary Preferences**: Save dietary preferences per user
+- **AI Recipe Suggestions**: Generate recipe ideas from current pantry items via OpenRouter
+- **Full Recipe Generation**: Detailed recipes with ingredients, steps, nutrition, and tips
+- **Saved Recipe Collection**: Personal cookbook with save/unsave functionality
+- **Curated Recipes**: Discover recipes from TheMealDB with daily featured recipe
+- **Category Browsing**: Filter recipes by category (Pasta, Dessert, Vegan, etc.)
+- **Cuisine Exploration**: Browse recipes by cuisine (Italian, Mexican, Indian, etc.)
+- **PDF Export**: Export recipes as PDF documents
+- **Premium UI/UX**: Smooth animations with Framer Motion, GSAP, and Lenis
+- **Theme Support**: Light/dark mode with next-themes
+- **Responsive Design**: Mobile-first design with Tailwind CSS
 
 ## Stack
 
 ### Frontend
-- Next.js 16
-- React 19
-- Tailwind CSS 4
-- Clerk
-- Sonner
+- **Framework**: Next.js 16
+- **UI Library**: React 19
+- **Styling**: Tailwind CSS 4 with PostCSS
+- **UI Components**: shadcn/ui, Radix UI primitives
+- **Animations**: Framer Motion, GSAP, Lenis (smooth scroll)
+- **Authentication**: Clerk
+- **Icons**: Lucide React
+- **Toast Notifications**: Sonner
+- **File Upload**: React Dropzone
+- **PDF Generation**: @react-pdf/renderer
+- **Theme**: next-themes
+- **Utilities**: clsx, class-variance-authority, tailwind-merge
 
 ### Backend
-- Express 5
-- pg
-- Neon Postgres
+- **Framework**: Express 5
+- **Database**: Neon Postgres (Serverless Postgres)
+- **Database Driver**: pg (node-postgres)
+- **Environment**: dotenv
 
 ### AI + Media
-- OpenRouter
-- Unsplash
+- **AI Recipes & Vision**: OpenRouter
+- **Curated Recipes**: TheMealDB API
+- **Recipe Images**: Unsplash
 
 ## Monorepo Structure
 
 ```text
 prepai/
-├── frontend/   # Next.js app
-├── backend/    # Express API
+├── frontend/          # Next.js app (Vercel)
+│   ├── app/           # Next.js app router
+│   ├── components/    # React components
+│   ├── actions/       # Server actions
+│   ├── lib/           # Utilities and data
+│   └── hooks/         # Custom React hooks
+├── backend/           # Express API (Railway)
+│   ├── src/
+│   │   ├── routes/    # API routes
+│   │   ├── services/  # Business logic
+│   │   ├── middleware/# Auth middleware
+│   │   └── db/        # Database connection
+│   └── scripts/       # Migration scripts
 └── README.md
 ```
 
@@ -157,16 +189,16 @@ Backend runs on `http://127.0.0.1:4000`
 
 ## Database Tables
 
-The app uses only four product tables:
-- `users`
-- `pantry_items`
-- `recipes`
-- `saved_recipes`
-
-Old Strapi tables were removed from the active schema.
+The app uses four main tables:
+- `users` - User profiles (synced with Clerk)
+- `pantry_items` - Pantry inventory
+- `recipes` - Generated and curated recipes
+- `saved_recipes` - User's saved recipe collection
 
 ## Notes
 
-- Pantry image scan runs through OpenRouter from the frontend server action layer.
-- Recipe generation and recipe suggestions run through OpenRouter from the Express backend.
-- Clerk remains the auth source of truth; app users are created/upserted in Postgres when backend-backed flows are used.
+- Pantry image scan runs through OpenRouter from the frontend server action layer
+- Recipe generation and recipe suggestions run through OpenRouter from the Express backend
+- Curated recipes are fetched from TheMealDB API
+- Clerk remains the auth source of truth; app users are created/upserted in Postgres when backend-backed flows are used
+- PDF export is available for full recipes via @react-pdf/renderer
