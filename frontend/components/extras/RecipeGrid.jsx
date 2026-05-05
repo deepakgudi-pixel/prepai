@@ -10,7 +10,7 @@ export default function RecipeGrid({
   type,
   value,
   fetchAction,
-  backLink = "/dashboard",
+  backLink = "/curated",
 }) {
   const { loading, data, fn: fetchMeals } = useFetch(fetchAction);
 
@@ -25,14 +25,14 @@ export default function RecipeGrid({
   const displayName = value?.replace(/-/g, " ");
 
   return (
-    <div className="page-frame space-y-8">
+    <div className="page-frame pt-32 space-y-8">
       <section className="section-shell px-6 py-8 sm:px-8 sm:py-10">
         <Link
           href={backLink}
           className="nav-pill inline-flex items-center gap-2 hover:-translate-y-0.5"
         >
           <ArrowLeft className="size-4" />
-          Back to Dashboard
+          Back to Curated
         </Link>
 
         <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -63,7 +63,7 @@ export default function RecipeGrid({
       )}
 
       {!loading && meals.length > 0 && (
-        <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {meals.map((meal) => (
             <RecipeCard key={meal.idMeal} recipe={meal} variant="grid" />
           ))}

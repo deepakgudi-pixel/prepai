@@ -66,7 +66,7 @@ function PantryRecipesContent() {
     normalizedMessage.includes("failed to generate recipe suggestions");
 
   return (
-    <div className="page-frame space-y-8">
+    <div className="page-frame pt-32 space-y-8">
       <section className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="section-shell px-6 py-8 sm:px-8 sm:py-10">
           <Link
@@ -90,21 +90,21 @@ function PantryRecipesContent() {
           </div>
         </div>
 
-        <div className="panel-dark px-6 py-8 sm:px-8">
+        <div className="panel-dark">
           <div className="flex items-center gap-3">
             <TrendingUp className="size-5 text-emerald-300" />
             <p className="text-sm uppercase tracking-[0.22em] text-stone-300">
               Ingredient snapshot
             </p>
           </div>
-          <h2 className="mt-4 font-display text-5xl leading-none text-white">
+          <h2 className="mt-4 font-display text-3xl sm:text-5xl leading-none text-white">
             Your current pantry context.
           </h2>
-          <div className="mt-6 rounded-[22px] border border-white/10 bg-white/7 p-5">
+          <div className="mt-6 rounded-[22px] border border-white/10 bg-white/5 p-5">
             <div className="flex items-start gap-3">
               <Package className="mt-1 size-5 shrink-0 text-emerald-300" />
               <p className="text-sm leading-7 text-stone-200">
-                {ingredientsUsed || "We’re reading your pantry and composing suggestions now."}
+                {ingredientsUsed || "We're reading your pantry and composing suggestions now."}
               </p>
             </div>
           </div>

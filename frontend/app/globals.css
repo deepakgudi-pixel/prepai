@@ -7,136 +7,73 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-manrope);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
   --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-border: var(--border);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
 }
 
 :root {
-  --font-manrope: "Inter", "SF Pro Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
   --radius: 0.5rem;
-  --background: oklch(0.985 0.002 95);
-  --foreground: oklch(0.19 0.01 260);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.19 0.01 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.19 0.01 260);
-  --primary: oklch(0.19 0.01 260);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.965 0.003 95);
-  --secondary-foreground: oklch(0.23 0.01 260);
-  --muted: oklch(0.965 0.003 95);
-  --muted-foreground: oklch(0.52 0.01 260);
-  --accent: oklch(0.93 0.015 120);
-  --accent-foreground: oklch(0.23 0.01 260);
-  --destructive: oklch(0.58 0.222 28.6);
-  --border: oklch(0.9 0.002 95);
-  --input: oklch(0.93 0.003 95);
-  --ring: oklch(0.26 0.01 260);
-  --chart-1: oklch(0.6 0.18 35);
-  --chart-2: oklch(0.52 0.15 180);
-  --chart-3: oklch(0.34 0.05 260);
-  --chart-4: oklch(0.78 0.13 85);
-  --chart-5: oklch(0.72 0.16 65);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.19 0.01 260);
-  --sidebar-primary: oklch(0.19 0.01 260);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.965 0.003 95);
-  --sidebar-accent-foreground: oklch(0.23 0.01 260);
-  --sidebar-border: oklch(0.9 0.002 95);
-  --sidebar-ring: oklch(0.26 0.01 260);
+  --background: #EAE8E3;
+  --foreground: #222222;
+  --card: #F4F3F0;
+  --card-foreground: #222222;
+  --primary: #222222;
+  --primary-foreground: #EAE8E3;
+  --border: #D5D3CE;
 }
 
 .dark {
-  --background: oklch(0.18 0.01 260);
-  --foreground: oklch(0.96 0.004 95);
-  --card: oklch(0.22 0.01 260);
-  --card-foreground: oklch(0.96 0.004 95);
-  --popover: oklch(0.22 0.01 260);
-  --popover-foreground: oklch(0.96 0.004 95);
-  --primary: oklch(0.96 0.004 95);
-  --primary-foreground: oklch(0.18 0.01 260);
-  --secondary: oklch(0.26 0.01 260);
-  --secondary-foreground: oklch(0.96 0.004 95);
-  --muted: oklch(0.24 0.01 260);
-  --muted-foreground: oklch(0.72 0.004 95);
-  --accent: oklch(0.3 0.03 145);
-  --accent-foreground: oklch(0.96 0.004 95);
-  --destructive: oklch(0.68 0.19 27);
-  --border: oklch(1 0 0 / 0.12);
-  --input: oklch(1 0 0 / 0.1);
-  --ring: oklch(0.76 0.004 95);
-  --chart-1: oklch(0.62 0.18 40);
-  --chart-2: oklch(0.7 0.13 186);
-  --chart-3: oklch(0.68 0.16 257);
-  --chart-4: oklch(0.77 0.17 82);
-  --chart-5: oklch(0.78 0.15 62);
-  --sidebar: oklch(0.19 0.01 260);
-  --sidebar-foreground: oklch(0.96 0.004 95);
-  --sidebar-primary: oklch(0.96 0.004 95);
-  --sidebar-primary-foreground: oklch(0.18 0.01 260);
-  --sidebar-accent: oklch(0.26 0.01 260);
-  --sidebar-accent-foreground: oklch(0.96 0.004 95);
-  --sidebar-border: oklch(1 0 0 / 0.12);
-  --sidebar-ring: oklch(0.76 0.004 95);
+  --background: #111111;
+  --foreground: #EAE8E3;
+  --card: #1A1A1A;
+  --card-foreground: #EAE8E3;
+  --primary: #EAE8E3;
+  --primary-foreground: #111111;
+  --border: #333333;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-none;
+  }
+
+  @media (pointer: fine) {
+    * {
+      cursor: none;
+    }
   }
 
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: initial;
+    overflow-x: hidden;
   }
+
 
   body {
     @apply bg-background text-foreground antialiased;
-    background-image:
-      radial-gradient(circle at top left, rgba(195, 229, 212, 0.28), transparent 30%),
-      linear-gradient(180deg, #fafaf8 0%, #f3f3ee 100%);
+    background-color: var(--background);
+  }
+
+  body[data-scroll-locked] {
+    padding-right: 0 !important;
   }
 
   a,
   button {
     @apply transition-all duration-300;
+  }
+
+  @media (pointer: fine) {
+    a,
+    button {
+      cursor: none;
+    }
   }
 }
 
@@ -145,54 +82,75 @@
     font-family: var(--font-display);
   }
 
+  .font-sans {
+    font-family: var(--font-sans);
+  }
+
   .app-shell {
-    @apply relative bg-transparent;
+    @apply relative bg-transparent overflow-x-hidden;
   }
 
   .page-frame {
-    @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[1400px] px-6 sm:px-12 lg:px-20;
   }
 
-  .section-shell {
-    @apply border border-stone-200 bg-white;
+  .glass-card {
+    @apply bg-white/40 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] rounded-3xl;
   }
 
-  .panel-surface {
-    @apply rounded-[8px] border border-stone-200 bg-white;
-  }
-
-  .panel-dark {
-    @apply rounded-[8px] border border-stone-900 bg-stone-950 text-stone-50;
+  .glass-pill {
+    @apply bg-white/60 backdrop-blur-md border border-white/40 shadow-sm rounded-full;
   }
 
   .eyebrow {
-    @apply inline-flex items-center gap-2 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-stone-500;
+    @apply inline-flex items-center gap-2 text-[0.65rem] font-medium uppercase tracking-[0.3em] text-[#555];
   }
 
   .display-title {
     font-family: var(--font-display);
-    @apply text-5xl leading-[0.95] tracking-tight text-stone-950 sm:text-6xl lg:text-7xl;
+    @apply text-6xl leading-[0.9] tracking-tight text-[#111] sm:text-7xl lg:text-8xl xl:text-9xl;
   }
 
   .section-title {
     font-family: var(--font-display);
-    @apply text-4xl leading-[0.96] tracking-tight text-stone-950 sm:text-5xl lg:text-6xl;
+    @apply text-4xl leading-[0.9] tracking-tight text-[#111] sm:text-5xl lg:text-7xl;
   }
 
   .section-copy {
-    @apply max-w-2xl text-base leading-7 text-stone-600 sm:text-lg;
+    @apply max-w-lg text-lg leading-relaxed text-[#555] font-light;
   }
-
+  
   .nav-pill {
     @apply inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-700;
   }
 
-  .hero-media {
-    @apply relative overflow-hidden rounded-[8px] border border-stone-200 bg-stone-950;
+  .section-shell {
+    @apply bg-white/40 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] rounded-3xl;
   }
 
-  .stat-card {
-    @apply rounded-[8px] border border-stone-200 bg-white p-5;
+  .panel-dark {
+    @apply bg-[#111] border border-white/10 rounded-3xl p-8 sm:p-10 text-white;
+  }
+
+  /* Lenis CSS */
+  html.lenis, html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
+  .lenis.lenis-smooth iframe {
+    pointer-events: none;
   }
 }
 
@@ -213,3 +171,4 @@
 .animate-slow-fill {
   animation: slow-fill 10s ease-out forwards;
 }
+

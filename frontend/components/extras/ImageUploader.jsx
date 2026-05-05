@@ -2,10 +2,9 @@
 
 import { useState, useCallback, useRef } from "react";
 import { useDropzone } from "react-dropzone";
-import { Camera, Upload, X, Loader2, ImageIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Camera, Upload, X, ImageIcon } from "lucide-react";
 import Image from "next/image";
-import { RingLoader } from "react-spinners";
+import { motion } from "framer-motion";
 
 export default function ImageUploader({ onImageSelect, loading }) {
   const [preview, setPreview] = useState(null);
@@ -16,14 +15,11 @@ export default function ImageUploader({ onImageSelect, loading }) {
       const file = acceptedFiles[0];
       if (!file) return;
 
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result);
       };
       reader.readAsDataURL(file);
-
-      // Pass file to parent
       onImageSelect(file);
     },
     [onImageSelect]
@@ -55,112 +51,125 @@ export default function ImageUploader({ onImageSelect, loading }) {
     }
   };
 
-  // Preview Mode
   if (preview) {
     return (
-      <div className="relative w-full aspect-video bg-stone-100 rounded-2xl overflow-hidden border-2 border-stone-200">
+      <div className="relative w-full aspect-[4/5] sm:aspect-video bg-[#111] rounded-[24px] overflow-hidden border border-[#D5D3CE]">
         <Image
           src={preview}
           alt="Pantry preview"
           fill
-          className="object-cover"
+          className={`object-cover transition-opacity duration-1000 ${loading ? "opacity-40 grayscale" : "opacity-100"}`}
         />
+        
+        {loading && (
+          <>
+            {/* Scanning Line Animation */}
+            <motion.div
+              animate={{ top: ["0%", "100%", "0%"] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              className="absolute left-0 right-0 h-[2px] bg-white shadow-[0_0_20px_4px_rgba(255,255,255,0.8)] z-20"
+            />
+            {/* Pulse Overlay */}
+            <motion.div
+              animate={{ opacity: [0.1, 0.3, 0.1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0 bg-[#EAE8E3] z-10 mix-blend-overlay"
+            />
+            {/* Scanning Text */}
+            <div className="absolute inset-0 z-30 flex items-center justify-center">
+              <div className="glass-pill bg-[#111]/80 text-[#EAE8E3] px-8 py-4 border-white/20 text-xs font-semibold uppercase tracking-[0.2em] backdrop-blur-md">
+                Analyzing Ingredients...
+              </div>
+            </div>
+          </>
+        )}
+
         {!loading && (
           <button
             onClick={clearImage}
-            className="absolute top-4 right-4 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all"
+            className="absolute top-4 right-4 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full backdrop-blur-md transition-all z-40 border border-white/20"
           >
-            <X className="w-5 h-5 text-stone-700" />
+            <X className="w-5 h-5" />
           </button>
-        )}
-        {loading && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <RingLoader color="white" />
-          </div>
         )}
       </div>
     );
   }
 
-  // Upload Mode
   return (
     <>
       <div
         {...getRootProps()}
-        className={`relative w-full aspect-square border-2 border-dashed rounded-2xl transition-all cursor-pointer ${
+        className={`relative w-full min-h-[400px] sm:min-h-[450px] flex items-center justify-center border-[1px] border-dashed rounded-[24px] transition-all duration-500 cursor-pointer overflow-hidden ${
           isDragActive
-            ? "border-green-600 bg-green-50 scale-[1.02]"
-            : "border-stone-300 bg-stone-50 hover:border-green-400 hover:bg-green-50/50"
+            ? "border-[#111] bg-[#111]/5 scale-[1.02]"
+            : "border-[#D5D3CE] bg-white/30 hover:border-[#aaa] hover:bg-white/50"
         }`}
       >
         <input {...getInputProps()} />
 
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-8 text-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 p-10 text-center">
           {/* Icon */}
           <div
-            className={`p-4 rounded-full transition-all ${
-              isDragActive ? "bg-green-600 scale-110" : "bg-green-100"
+            className={`flex size-20 shrink-0 items-center justify-center rounded-full transition-all duration-500 ${
+              isDragActive ? "bg-[#111] scale-110" : "bg-white border border-[#D5D3CE]"
             }`}
           >
             {isDragActive ? (
               <ImageIcon className="w-8 h-8 text-white" />
             ) : (
-              <Camera className="w-8 h-8 text-green-600" />
+              <Camera className="w-8 h-8 text-[#111]" />
             )}
           </div>
 
           {/* Text */}
           <div>
-            <h3 className="text-xl font-bold text-stone-900 mb-2">
-              {isDragActive ? "Drop your image here" : "Scan Your Pantry"}
+            <h3 className="font-display text-3xl sm:text-4xl text-[#111] mb-2 transition-colors">
+              {isDragActive ? "Drop image here" : "Scan Your Pantry"}
             </h3>
-            <p className="text-stone-600 text-sm max-w-sm">
+            <p className="text-[#555] font-light text-sm max-w-sm">
               {isDragActive
                 ? "Release to upload"
-                : "Take a photo or drag & drop an image of your fridge/pantry"}
+                : "Take a photo or drag & drop an image of your fridge or pantry."}
             </p>
           </div>
 
           {/* Buttons */}
           {!isDragActive && (
-            <div className="flex flex-col sm:flex-row gap-3">
-              {/* Camera/File Button - Works on both mobile & desktop */}
-              <Button
+            <div className="flex flex-col sm:flex-row gap-4 mt-2 relative z-10 pointer-events-auto">
+              <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   fileInputRef.current?.click();
                 }}
-                className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                className="glass-pill bg-[#222] text-[#EAE8E3] px-6 py-4 text-xs font-semibold uppercase tracking-[0.2em] hover:bg-[#111] transition-colors flex items-center justify-center gap-3"
               >
-                <Camera className="w-4 h-4" />
+                <Camera className="size-4" />
                 Take Photo
-              </Button>
+              </button>
 
-              {/* Upload Button - Opens file browser */}
-              <Button
+              <button
                 type="button"
-                variant="outline"
                 onClick={(e) => {
                   e.stopPropagation();
                   open();
                 }}
-                className="border-green-200 text-green-700 hover:bg-green-50 gap-2"
+                className="glass-pill border border-[#D5D3CE] bg-white px-6 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#222] hover:bg-white/50 transition-colors flex items-center justify-center gap-3"
               >
-                <Upload className="w-4 h-4" />
+                <Upload className="size-4" />
                 Browse Files
-              </Button>
+              </button>
             </div>
           )}
 
           {/* Helper Text */}
-          <p className="text-xs text-stone-400">
-            Supports JPG, PNG, WebP • Max 10MB
+          <p className="text-[0.65rem] uppercase tracking-[0.2em] text-[#aaa] absolute bottom-6">
+            JPG, PNG, WebP • Max 10MB
           </p>
         </div>
       </div>
 
-      {/* Hidden file input with capture attribute for mobile */}
       <input
         ref={fileInputRef}
         type="file"

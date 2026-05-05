@@ -27,12 +27,11 @@ import {
 } from "@/actions/recipe.actions";
 import { toast } from "sonner";
 import { ClockLoader } from "react-spinners";
-import { Button } from "@/components/ui/button";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import { Badge } from "@/components/ui/badge";
 import { RecipePDF } from "@/components/extras/RecipePDF";
 import Image from "next/image";
 import { useMemo } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 function RecipeContent() {
   const { user, isLoaded } = useUser();
@@ -138,21 +137,23 @@ function RecipeContent() {
     }
   };
 
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 1000], [0, 300]);
+  const opacity1 = useTransform(scrollY, [0, 500], [1, 0]);
+
   if (!recipeName) {
     return (
-      <div className="page-frame">
-        <div className="section-shell px-6 py-20 text-center sm:px-8">
-          <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-emerald-950 text-white">
+      <div className="bg-[#EAE8E3] min-h-screen flex items-center justify-center pt-20">
+        <div className="glass-card px-6 py-20 text-center max-w-2xl w-full mx-auto">
+          <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-[#111] text-[#EAE8E3]">
             <AlertCircle className="size-10" />
           </div>
-          <h2 className="mt-8 font-display text-5xl leading-none text-stone-950">
+          <h2 className="mt-8 font-display text-5xl leading-none text-[#111]">
             No recipe specified.
           </h2>
-          <p className="mt-4 text-stone-600">Please select a recipe from the dashboard.</p>
-          <Link href="/dashboard">
-            <Button variant="primary" size="lg" className="mt-8">
-              Go to Dashboard
-            </Button>
+          <p className="mt-4 text-[#555]">Please select a recipe from the curated list.</p>
+          <Link href="/curated" className="mt-8 inline-block glass-pill bg-[#222] text-[#EAE8E3] px-8 py-4 text-xs uppercase tracking-[0.2em] hover:bg-[#111] transition-colors">
+            Go to Curated
           </Link>
         </div>
       </div>
@@ -161,21 +162,16 @@ function RecipeContent() {
 
   if (loadingRecipe === null || loadingRecipe) {
     return (
-      <div className="page-frame">
-        <div className="section-shell px-6 py-20 text-center sm:px-8">
-          <ClockLoader className="mx-auto" color="#1d6f5f" />
-          <h2 className="mt-8 font-display text-5xl leading-none text-stone-950">
+      <div className="bg-[#EAE8E3] min-h-screen flex items-center justify-center pt-20">
+        <div className="glass-card px-6 py-20 text-center max-w-2xl w-full mx-auto">
+          <ClockLoader className="mx-auto" color="#222" />
+          <h2 className="mt-8 font-display text-5xl leading-none text-[#111]">
             Preparing your recipe
           </h2>
-          <p className="mt-4 text-stone-600">
+          <p className="mt-4 text-[#555] font-light">
             Our AI chef is crafting detailed instructions for{" "}
-            <span className="font-semibold text-emerald-900">{recipeName}</span>.
+            <span className="font-semibold text-[#111]">{recipeName}</span>.
           </p>
-          <div className="mx-auto mt-8 max-w-md">
-            <div className="relative h-1 overflow-hidden rounded-full bg-stone-200">
-              <div className="animate-slow-fill absolute left-0 top-0 h-full bg-emerald-900" />
-            </div>
-          </div>
         </div>
       </div>
     );
@@ -183,144 +179,143 @@ function RecipeContent() {
 
   if (loadingRecipe === false && !recipe) {
     return (
-      <div className="page-frame">
-        <div className="section-shell px-6 py-20 text-center sm:px-8">
+      <div className="bg-[#EAE8E3] min-h-screen flex items-center justify-center pt-20">
+        <div className="glass-card px-6 py-20 text-center max-w-2xl w-full mx-auto">
           <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-red-600 text-white">
             <AlertCircle className="size-10" />
           </div>
-          <h2 className="mt-8 font-display text-5xl leading-none text-stone-950">
+          <h2 className="mt-8 font-display text-5xl leading-none text-[#111]">
             Failed to load recipe.
           </h2>
-          <p className="mt-4 text-stone-600">
+          <p className="mt-4 text-[#555] font-light">
             {loadError || "Something went wrong while loading the recipe. Please try again."}
           </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button onClick={() => router.back()} variant="outline" size="lg">
-              <ArrowLeft className="size-4" />
-              Go Back
-            </Button>
+          <div className="mt-12 flex flex-col justify-center gap-4 sm:flex-row">
+            <button onClick={() => router.back()} className="glass-pill px-8 py-4 text-xs uppercase tracking-[0.2em] text-[#111] hover:bg-white/50 transition-colors flex items-center gap-2">
+              <ArrowLeft className="size-4" /> Go Back
+            </button>
             {!authUser && (
               <SignUpButton mode="modal">
-                <Button variant="primary" size="lg">
+                <button className="glass-pill bg-[#222] text-white px-8 py-4 text-xs uppercase tracking-[0.2em] hover:bg-[#111] transition-colors">
                   Sign up to continue
-                </Button>
+                </button>
               </SignUpButton>
             )}
-            <Button onClick={() => window.location.reload()} variant="primary" size="lg">
+            <button onClick={() => window.location.reload()} className="glass-pill bg-[#111] text-white px-8 py-4 text-xs uppercase tracking-[0.2em] hover:bg-black transition-colors">
               Retry
-            </Button>
+            </button>
           </div>
         </div>
       </div>
     );
   }
 
-  const totalTime =
-    parseInt(recipe.prepTime || 0, 10) + parseInt(recipe.cookTime || 0, 10);
+  const totalTime = parseInt(recipe.prepTime || 0, 10) + parseInt(recipe.cookTime || 0, 10);
 
   return (
-    <div className="page-frame space-y-8">
-      <section className="section-shell overflow-hidden pt-0">
-        {recipe.imageUrl && (
-          <div className="relative h-72 w-full overflow-hidden sm:h-96">
+    <div className="bg-[#EAE8E3] min-h-screen pb-32">
+      {/* Editorial Parallax Hero */}
+      <section className="relative h-[80vh] w-full overflow-hidden flex flex-col justify-end">
+        {recipe.imageUrl ? (
+          <motion.div style={{ y: y1, opacity: opacity1 }} className="absolute inset-0 w-full h-full">
             <Image
               src={recipe.imageUrl}
               alt={recipe.title}
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 100vw, 1200px"
+              sizes="100vw"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-          </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          </motion.div>
+        ) : (
+          <div className="absolute inset-0 bg-[#222]" />
         )}
 
-        <div className="px-6 py-8 sm:px-8 sm:py-10">
-          <Link
-            href="/dashboard"
-            className="nav-pill inline-flex items-center gap-2 hover:-translate-y-0.5"
+        <div className="relative z-10 max-w-[1400px] w-full mx-auto px-6 sm:px-12 lg:px-20 pb-20">
+          <button
+            onClick={() => router.back()}
+            className="glass-pill bg-white/10 border-white/20 text-[#EAE8E3] px-6 py-3 text-xs uppercase tracking-[0.2em] hover:bg-white/20 transition-colors inline-flex items-center gap-2 mb-8"
           >
-            <ArrowLeft className="size-4" />
-            Back to Dashboard
-          </Link>
+            <ArrowLeft className="size-4" /> Back
+          </button>
 
-          <div className="mt-8 flex flex-wrap gap-2">
-            <Badge variant="outline" className="rounded-full capitalize">
+          <div className="flex flex-wrap gap-3 mb-6">
+            <span className="glass-pill bg-black/40 border-white/20 text-[#EAE8E3] px-4 py-2 text-[0.65rem] uppercase tracking-[0.2em]">
               {recipe.cuisine}
-            </Badge>
-            <Badge variant="outline" className="rounded-full capitalize">
+            </span>
+            <span className="glass-pill bg-black/40 border-white/20 text-[#EAE8E3] px-4 py-2 text-[0.65rem] uppercase tracking-[0.2em]">
               {recipe.category}
-            </Badge>
+            </span>
           </div>
 
-          <h1 className="section-title mt-5">{recipe.title}</h1>
-          <p className="section-copy mt-5 max-w-3xl">{recipe.description}</p>
+          <h1 className="font-display text-6xl sm:text-8xl lg:text-9xl text-[#EAE8E3] leading-[0.9] mb-8">
+            {recipe.title}
+          </h1>
 
-          <div className="mt-6 flex flex-wrap gap-3 text-sm text-stone-600">
-            <span className="nav-pill flex items-center gap-2">
-              <Clock3 className="size-4" />
-              {totalTime} mins total
-            </span>
-            <span className="nav-pill flex items-center gap-2">
-              <Users className="size-4" />
-              {recipe.servings} servings
-            </span>
-            {recipe.nutrition?.calories && (
-              <span className="nav-pill flex items-center gap-2">
-                <Flame className="size-4" />
-                {recipe.nutrition.calories} cal/serving
-              </span>
-            )}
-          </div>
-
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button
-              onClick={handleToggleSave}
-              disabled={saving || removing}
-              variant="primary"
-              size="lg"
-            >
-              {saving || removing ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" />
-                  {saving ? "Saving..." : "Removing..."}
-                </>
-              ) : isSaved ? (
-                <>
-                  <BookmarkCheck className="size-4" />
-                  Saved to Collection
-                </>
-              ) : (
-                <>
-                  <Bookmark className="size-4" />
-                  Save to Collection
-                </>
-              )}
-            </Button>
-            <PDFDownloadLink
-              document={<RecipePDF recipe={recipe} />}
-              fileName={`${recipe.title.replace(/\s+/g, "-").toLowerCase()}.pdf`}
-            >
-              {({ loading }) => (
-                <Button variant="outline" size="lg" disabled={loading}>
-                  <Download className="size-4" />
-                  {loading ? "Preparing PDF..." : "Download PDF"}
-                </Button>
-              )}
-            </PDFDownloadLink>
+          <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-end border-t border-white/20 pt-8">
+             <div className="flex flex-wrap gap-6 text-[#EAE8E3] font-light text-sm">
+                <span className="flex items-center gap-2">
+                  <Clock3 className="size-5" /> {totalTime} mins
+                </span>
+                <span className="flex items-center gap-2">
+                  <Users className="size-5" /> {recipe.servings} portions
+                </span>
+                {recipe.nutrition?.calories && (
+                  <span className="flex items-center gap-2">
+                    <Flame className="size-5" /> {recipe.nutrition.calories} cal
+                  </span>
+                )}
+             </div>
+             
+             <div className="flex gap-4">
+                <PDFDownloadLink
+                  document={<RecipePDF recipe={recipe} />}
+                  fileName={`${recipe.title.replace(/\s+/g, "-").toLowerCase()}.pdf`}
+                >
+                  {({ loading }) => (
+                    <button disabled={loading} className="glass-pill bg-white/10 border-white/20 text-[#EAE8E3] px-6 py-4 text-xs uppercase tracking-[0.2em] hover:bg-white/20 transition-colors inline-flex items-center gap-2">
+                      <Download className="size-4" /> {loading ? "Preparing..." : "PDF"}
+                    </button>
+                  )}
+                </PDFDownloadLink>
+                <button
+                  onClick={handleToggleSave}
+                  disabled={saving || removing}
+                  className="glass-pill bg-[#EAE8E3] text-[#111] px-6 py-4 text-xs uppercase tracking-[0.2em] hover:bg-white transition-colors inline-flex items-center gap-2"
+                >
+                  {saving || removing ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : isSaved ? (
+                    <BookmarkCheck className="size-4" />
+                  ) : (
+                    <Bookmark className="size-4" />
+                  )}
+                  {isSaved ? "Saved" : "Save"}
+                </button>
+             </div>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[0.82fr_1.18fr]">
-        <div className="space-y-6">
-          <div className="section-shell px-6 py-8 sm:px-8 lg:sticky lg:top-28">
-            <h2 className="flex items-center gap-3 font-display text-5xl leading-none text-stone-950">
-              <ChefHat className="size-7 text-emerald-900" />
-              Ingredients
+      {/* Description */}
+      <section className="max-w-[1400px] w-full mx-auto px-6 sm:px-12 lg:px-20 py-24">
+        <p className="font-display text-4xl leading-relaxed text-[#111] max-w-4xl mx-auto text-center">
+          "{recipe.description}"
+        </p>
+      </section>
+
+      {/* Main Content Grid */}
+      <section className="max-w-[1400px] w-full mx-auto px-6 sm:px-12 lg:px-20 grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+        
+        {/* Ingredients Column */}
+        <div className="space-y-8">
+          <div className="glass-card p-10 lg:sticky lg:top-32">
+            <h2 className="flex items-center gap-4 font-display text-5xl leading-none text-[#111] border-b border-[#D5D3CE] pb-8 mb-8">
+              <ChefHat className="size-8 text-[#555]" /> Ingredients
             </h2>
 
-            <div className="mt-8 space-y-6">
+            <div className="space-y-10">
               {Object.entries(
                 recipe.ingredients.reduce((acc, ing) => {
                   const category = ing.category || "Other";
@@ -328,46 +323,49 @@ function RecipeContent() {
                   acc[category].push(ing);
                   return acc;
                 }, {}),
-              ).map(([category, items]) => (
-                <div key={category}>
-                  <p className="text-xs uppercase tracking-[0.22em] text-stone-500">
+              ).map(([category, items], idx) => (
+                <motion.div 
+                  key={category}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
+                >
+                  <p className="text-[0.65rem] uppercase tracking-[0.2em] text-[#777] mb-6">
                     {category}
                   </p>
-                  <ul className="mt-4 space-y-3">
+                  <ul className="space-y-2">
                     {items.map((ingredient, index) => (
                       <li
                         key={`${ingredient.item}-${index}`}
-                        className="flex items-start justify-between gap-3 rounded-[18px] border border-stone-900/8 bg-white/65 px-4 py-3"
+                        className="flex items-end justify-between border-b border-dashed border-[#D5D3CE] pb-2"
                       >
-                        <span className="text-stone-800">{ingredient.item}</span>
-                        <span className="text-sm font-semibold text-emerald-900">
+                        <span className="text-lg text-[#111] font-light">{ingredient.item}</span>
+                        <span className="text-sm font-medium text-[#555]">
                           {ingredient.amount}
                         </span>
                       </li>
                     ))}
                   </ul>
-                </div>
+                </motion.div>
               ))}
             </div>
 
             {recipe.nutrition && (
-              <div className="mt-8 rounded-[22px] border border-stone-900/8 bg-stone-950/[0.03] p-5">
-                <p className="text-xs uppercase tracking-[0.22em] text-stone-500">
+              <div className="mt-16 border-t border-[#D5D3CE] pt-10">
+                <p className="text-[0.65rem] uppercase tracking-[0.2em] text-[#777] mb-6">
                   Nutrition per serving
                 </p>
-                <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {[
                     ["Calories", recipe.nutrition.calories],
                     ["Protein", recipe.nutrition.protein],
                     ["Carbs", recipe.nutrition.carbs],
                     ["Fat", recipe.nutrition.fat],
                   ].map(([label, value]) => (
-                    <div
-                      key={label}
-                      className="rounded-[18px] border border-stone-900/8 bg-white/70 p-4 text-center"
-                    >
-                      <p className="text-2xl font-semibold text-stone-950">{value}</p>
-                      <p className="mt-1 text-xs uppercase tracking-[0.18em] text-stone-500">
+                    <div key={label} className="text-center">
+                      <p className="font-display text-3xl text-[#111]">{value}</p>
+                      <p className="text-[0.6rem] uppercase tracking-[0.2em] text-[#777] mt-2">
                         {label}
                       </p>
                     </div>
@@ -378,32 +376,37 @@ function RecipeContent() {
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="section-shell px-6 py-8 sm:px-8">
-            <h2 className="font-display text-5xl leading-none text-stone-950">
-              Step-by-step instructions
+        {/* Instructions Column */}
+        <div className="space-y-8">
+          <div className="glass-card p-10 sm:p-16">
+            <h2 className="font-display text-5xl leading-none text-[#111] border-b border-[#D5D3CE] pb-8 mb-12">
+              Method
             </h2>
 
-            <div className="mt-8 space-y-6">
+            <div className="space-y-16">
               {recipe.instructions.map((step, index) => (
-                <div key={step.step} className="relative pl-16">
-                  <div className="absolute left-0 top-0 flex size-11 items-center justify-center rounded-full bg-stone-950 text-white shadow-[0_14px_26px_rgba(24,22,18,0.18)]">
+                <motion.div 
+                  key={step.step} 
+                  className="relative pl-12 sm:pl-20"
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <div className="absolute left-0 top-0 font-display text-4xl sm:text-6xl text-[#D5D3CE]">
                     {step.step}
                   </div>
-                  {index !== recipe.instructions.length - 1 && (
-                    <div className="absolute left-5 top-12 h-[calc(100%-1.5rem)] w-px bg-stone-300" />
-                  )}
-                  <div className="panel-surface p-5">
-                    <h3 className="text-xl font-semibold text-stone-950">
+                  <div>
+                    <h3 className="font-display text-3xl text-[#111] mb-4">
                       {step.title}
                     </h3>
-                    <p className="mt-3 text-base leading-7 text-stone-700">
+                    <p className="text-lg text-[#555] font-light leading-relaxed">
                       {step.instruction}
                     </p>
                     {step.tip && (
-                      <div className="mt-4 rounded-[18px] border border-amber-500/20 bg-amber-50/80 p-4">
-                        <p className="flex items-start gap-2 text-sm leading-6 text-stone-800">
-                          <Lightbulb className="mt-0.5 size-4 shrink-0 text-amber-600" />
+                      <div className="mt-6 border-l-2 border-[#111] pl-6 py-2">
+                        <p className="flex items-start gap-3 text-sm leading-relaxed text-[#111]">
+                          <Lightbulb className="mt-1 size-4 shrink-0" />
                           <span>
                             <strong>Pro Tip:</strong> {step.tip}
                           </span>
@@ -411,82 +414,62 @@ function RecipeContent() {
                       </div>
                     )}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
 
-            <div className="mt-8 rounded-[24px] border border-emerald-500/20 bg-[linear-gradient(135deg,rgba(28,80,66,0.08),rgba(213,144,50,0.14))] p-6">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="mt-1 size-6 shrink-0 text-emerald-900" />
-                <div>
-                  <h3 className="text-lg font-semibold text-stone-950">
-                    You&apos;re all set.
-                  </h3>
-                  <p className="mt-2 text-sm leading-6 text-stone-700">
-                    Plate your {recipe.title} and enjoy the fact that tonight&apos;s
-                    dinner came from ingredients you already had.
-                  </p>
-                </div>
+            <div className="mt-20 border-t border-[#D5D3CE] pt-12 flex items-start gap-6">
+              <CheckCircle2 className="size-8 text-[#111] shrink-0" />
+              <div>
+                <h3 className="font-display text-3xl text-[#111] mb-2">
+                  You're all set.
+                </h3>
+                <p className="text-[#555] font-light leading-relaxed">
+                  Plate your {recipe.title} and enjoy the fact that tonight's
+                  dinner came from ingredients you already had.
+                </p>
               </div>
             </div>
           </div>
 
-          {recipe.tips && recipe.tips.length > 0 && (
-            <div className="panel-dark px-6 py-8 sm:px-8">
-              <h2 className="flex items-center gap-3 font-display text-5xl leading-none text-white">
-                <Lightbulb className="size-7 text-amber-300" />
-                Chef&apos;s tips
-              </h2>
-              <div className="mt-6 space-y-3">
-                {recipe.tips.map((tip, index) => (
-                  <div
-                    key={`${tip}-${index}`}
-                    className="rounded-[18px] border border-white/10 bg-white/6 px-4 py-4 text-sm leading-6 text-stone-200"
-                  >
-                    {tip}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {recipe.substitutions && recipe.substitutions.length > 0 && (
-            <div className="section-shell px-6 py-8 sm:px-8">
-              <h2 className="font-display text-5xl leading-none text-stone-950">
-                Ingredient substitutions
-              </h2>
-              <p className="mt-4 text-sm leading-6 text-stone-600">
-                Don&apos;t have everything? Here are strong alternatives you can use.
-              </p>
-
-              <div className="mt-6 space-y-4">
-                {recipe.substitutions.map((sub, index) => (
-                  <div
-                    key={`${sub.original}-${index}`}
-                    className="panel-surface p-5"
-                  >
-                    <p className="text-sm text-stone-600">
-                      Instead of{" "}
-                      <span className="font-semibold text-emerald-900">
-                        {sub.original}
-                      </span>
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {sub.alternatives.map((alt, altIndex) => (
-                        <Badge
-                          key={`${alt}-${altIndex}`}
-                          variant="outline"
-                          className="rounded-full bg-white/70"
-                        >
-                          {alt}
-                        </Badge>
-                      ))}
+          {/* Tips & Substitutions */}
+          <div className="grid sm:grid-cols-2 gap-8">
+            {recipe.tips && recipe.tips.length > 0 && (
+              <div className="glass-card bg-[#111] text-[#EAE8E3] p-10">
+                <h2 className="flex items-center gap-3 font-display text-4xl mb-8">
+                  <Lightbulb className="size-6 text-white" />
+                  Chef's notes
+                </h2>
+                <div className="space-y-6">
+                  {recipe.tips.map((tip, index) => (
+                    <div key={index} className="text-sm font-light text-[#aaa] leading-relaxed border-b border-[#333] pb-4 last:border-0">
+                      {tip}
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {recipe.substitutions && recipe.substitutions.length > 0 && (
+              <div className="glass-card p-10">
+                <h2 className="font-display text-4xl text-[#111] mb-8">
+                  Substitutions
+                </h2>
+                <div className="space-y-6">
+                  {recipe.substitutions.map((sub, index) => (
+                    <div key={index} className="border-b border-[#D5D3CE] pb-4 last:border-0">
+                      <p className="text-[0.65rem] uppercase tracking-[0.2em] text-[#777] mb-2">
+                        Instead of <span className="font-bold text-[#111]">{sub.original}</span>
+                      </p>
+                      <p className="text-[#555] font-light">
+                        {sub.alternatives.join(", ")}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </div>
@@ -497,11 +480,8 @@ export default function RecipePage() {
   return (
     <Suspense
       fallback={
-        <div className="page-frame">
-          <div className="section-shell px-6 py-20 text-center sm:px-8">
-            <Loader2 className="mx-auto size-14 animate-spin text-emerald-900" />
-            <p className="mt-5 text-stone-600">Loading recipe...</p>
-          </div>
+        <div className="bg-[#EAE8E3] min-h-screen flex items-center justify-center pt-20">
+          <Loader2 className="size-10 animate-spin text-[#111]" />
         </div>
       }
     >

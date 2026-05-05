@@ -3,6 +3,12 @@ import Header from "@/components/extras/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/themes";
 import { Toaster } from "@/components/ui/sonner";
+import SmoothScroll from "@/components/ui/SmoothScroll";
+import CustomCursor from "@/components/ui/CustomCursor";
+import { Inter, Playfair_Display } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-display" });
 
 export const metadata = {
   title: "PrepAI",
@@ -36,12 +42,14 @@ export default function RootLayout({ children }) {
         },
       }}
     >
-      <html lang="en">
-        <body className="app-shell">
-          <Header />
-          <main className="min-h-screen pt-20">{children}</main>
-          <Toaster richColors />
-          <footer className="mt-20 border-t border-stone-200 bg-white">
+      <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+        <body className="app-shell bg-[#EAE8E3] text-[#222222] selection:bg-[#222222] selection:text-[#EAE8E3]">
+          <CustomCursor />
+      <SmoothScroll>
+            <Header />
+            <main className="min-h-screen">{children}</main>
+            <Toaster richColors />
+            <footer className="mt-32 border-t border-[#D5D3CE] bg-[#EAE8E3]">
             <div className="page-frame flex flex-col gap-8 py-10 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-2xl">
                 <p className="eyebrow">PrepAI</p>
@@ -54,7 +62,8 @@ export default function RootLayout({ children }) {
                 <p>© 2026 PrepAI</p>
               </div>
             </div>
-          </footer>
+            </footer>
+          </SmoothScroll>
         </body>
       </html>
     </ClerkProvider>
