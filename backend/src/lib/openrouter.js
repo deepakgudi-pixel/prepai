@@ -135,7 +135,13 @@ async function attemptWithModel({
   throw lastError || new Error("All retry attempts failed");
 }
 
-const FALLBACK_MODEL = "openrouter/free";
+const FALLBACK_MODELS = [
+  "google/gemma-3-27b-it:free",
+  "mistralai/pixtral-12b:free",
+  "qwen/qwen-2-7b-instruct:free",
+  "meta-llama/llama-3.1-8b-instruct:free",
+  "openrouter/free" // Final catch-all
+];
 
 async function createOpenRouterChatCompletion({
   messages,
@@ -147,10 +153,12 @@ async function createOpenRouterChatCompletion({
     throw new Error("OPENROUTER_API_KEY is not configured");
   }
 
-  // Build list of models to try: primary first, then fallback (if different)
+  // Build list of models to try: primary first, then all fallbacks
   const modelsToTry = [model];
-  if (model !== FALLBACK_MODEL) {
-    modelsToTry.push(FALLBACK_MODEL);
+  for (const fm of FALLBACK_MODELS) {
+    if (fm !== model && !modelsToTry.includes(fm)) {
+      modelsToTry.push(fm);
+    }
   }
 
   let lastError = null;
