@@ -47,8 +47,8 @@ export default function Home() {
               </SignUpButton>
             </SignedOut>
             <SignedIn>
-               <Link href="/curated" className="magnetic group flex items-center gap-4 bg-[#222] text-[#EAE8E3] px-8 py-4 rounded-full font-semibold text-sm uppercase tracking-[0.1em] hover:bg-[#111] transition-all">
-                  Open Curated
+               <Link href="/pantry" className="magnetic group flex items-center gap-4 bg-[#222] text-[#EAE8E3] px-8 py-4 rounded-full font-semibold text-sm uppercase tracking-[0.1em] hover:bg-[#111] transition-all">
+                  Open Pantry
                   <span className="flex size-8 items-center justify-center rounded-full bg-[#EAE8E3]/20 group-hover:bg-[#EAE8E3]/30 transition-colors">
                     <ArrowRight className="size-4" />
                   </span>
@@ -102,7 +102,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How it Works / Parallax Section */}
+      {/* The Method + Footer */}
       <section className="relative py-32 bg-[#111] text-[#EAE8E3] px-6 sm:px-12 lg:px-20 overflow-hidden rounded-t-[3rem]">
         <div className="max-w-4xl mx-auto mb-24 text-center">
           <h2 className="font-display text-6xl md:text-8xl mb-8">The Method</h2>
@@ -124,6 +124,22 @@ export default function Home() {
                 <p className="text-[#888] font-light leading-relaxed">{step.desc}</p>
              </motion.div>
           ))}
+        </div>
+
+        {/* Footer / Branding */}
+        <div className="mt-32 border-t border-[#333] pt-12 max-w-[1400px] mx-auto">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-xs uppercase tracking-[0.2em] text-[#777] mb-4">PrepAI</p>
+              <h2 className="font-display text-3xl leading-tight sm:text-4xl">
+                Pantry-first planning for weeknights that need to move fast.
+              </h2>
+            </div>
+            <div className="space-y-2 text-sm text-[#777]">
+              <p>AI recipe generation, pantry intelligence, and cleaner cooking decisions.</p>
+              <p>© 2026 PrepAI</p>
+            </div>
+          </div>
         </div>
       </section>
     </div>

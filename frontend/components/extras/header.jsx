@@ -3,10 +3,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { useLenis } from "lenis/react";
-import { SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, SignedIn, SignedOut, SignOutButton, useUser } from "@clerk/nextjs";
 import { Soup, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import UserDropdown from "./UserDropdown";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -16,6 +15,7 @@ const navItems = [
 ];
 
 export default function Header() {
+  const { user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const { scrollY } = useScroll();
@@ -66,7 +66,7 @@ export default function Header() {
           opacity: hidden && !isOpen ? 0 : 1,
           width: hidden && !isOpen ? "64px" : "calc(100% - 3rem)",
           maxWidth: hidden && !isOpen ? "64px" : "600px",
-          height: isOpen ? "70vh" : "64px",
+          height: isOpen ? "auto" : "64px",
           borderRadius: isOpen ? "24px" : "32px",
           backgroundColor: isOpen ? "rgba(255, 255, 255, 0.98)" : "rgba(255, 255, 255, 0.85)",
         }}
@@ -137,27 +137,36 @@ export default function Header() {
           {/* Right: Menu Toggle */}
           <div className="flex-1 flex justify-end items-center gap-4">
             <SignedIn>
-               <div className="hidden sm:block">
-                 <UserDropdown />
-               </div>
+              {user && (
+                <div className="size-8 rounded-full border border-[#111]/10 overflow-hidden shrink-0">
+                  <img 
+                    src={user.imageUrl} 
+                    alt={user.fullName || "User"} 
+                    className="size-full object-cover"
+                  />
+                </div>
+              )}
             </SignedIn>
             <button
               onClick={toggleMenu}
               aria-label={isOpen ? "Close menu" : "Open menu"}
               className="group flex items-center justify-center size-10"
             >
-              <div className="flex flex-col gap-1 w-5 sm:w-6">
+              <div className="flex flex-col gap-[5px] w-5 sm:w-6">
                 <motion.span
-                  animate={isOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
-                  className="h-[1.5px] w-full bg-[#222] block origin-center transition-all duration-500"
+                  animate={isOpen ? { rotate: 45, y: 6.5 } : { rotate: 0, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="h-[1.5px] w-full bg-[#222] block origin-center"
                 />
                 <motion.span
-                  animate={isOpen ? { opacity: 0 } : { opacity: 1 }}
-                  className="h-[1.5px] w-3/4 bg-[#222] block transition-all duration-500"
+                  animate={isOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
+                  transition={{ duration: 0.2 }}
+                  className="h-[1.5px] w-full bg-[#222] block origin-center"
                 />
                 <motion.span
-                  animate={isOpen ? { rotate: -45, y: -5, width: "100%" } : { rotate: 0, y: 0 }}
-                  className="h-[1.5px] w-full bg-[#222] block origin-center transition-all duration-500"
+                  animate={isOpen ? { rotate: -45, y: -6.5 } : { rotate: 0, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="h-[1.5px] w-full bg-[#222] block origin-center"
                 />
               </div>
             </button>
@@ -172,7 +181,7 @@ export default function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex-1 flex flex-col mt-8 w-[calc(100vw-6rem)] max-w-[552px]"
+              className="flex-1 flex flex-col mt-4 w-[calc(100vw-6rem)] max-w-[552px]"
             >
               <nav className="flex flex-col flex-1 justify-center px-4">
                 {navItems.map((item, i) => (
@@ -182,12 +191,12 @@ export default function Header() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                     transition={{ duration: 0.4, delay: i * 0.05 + 0.1 }}
-                    className="border-b border-[#111]/10 last:border-none py-4 sm:py-6"
+                    className="border-b border-[#111]/10 last:border-none py-3 sm:py-4"
                   >
                     <Link
                       href={item.href}
                       onClick={toggleMenu}
-                      className="block font-display text-4xl sm:text-6xl text-[#111] hover:text-[#555] transition-colors"
+                      className="block font-display text-3xl sm:text-5xl text-[#111] hover:text-[#555] transition-colors"
                     >
                       {item.label}
                     </Link>
@@ -201,13 +210,9 @@ export default function Header() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, delay: 0.2 }}
-                className="mt-auto flex justify-between items-end border-t border-[#111]/10 pt-6 px-4"
+                className="mt-6 flex justify-between items-end border-t border-[#111]/10 pt-5 px-4"
               >
-                <div>
-                  <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[#777]">
-                    English
-                  </span>
-                </div>
+                <div></div>
                 
                 <SignedOut>
                   <SignInButton mode="modal">
@@ -217,9 +222,11 @@ export default function Header() {
                   </SignInButton>
                 </SignedOut>
                 <SignedIn>
-                  <Link href="/pantry" onClick={() => setIsOpen(false)} className="bg-[#111] text-[#EAE8E3] rounded-full px-6 py-3 text-[0.65rem] sm:text-xs uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-black hover:scale-105 transition-all duration-300">
-                    OPEN PANTRY <ArrowUpRight className="size-4" />
-                  </Link>
+                  <SignOutButton>
+                    <button className="bg-[#111] text-[#EAE8E3] rounded-full px-6 py-3 text-[0.65rem] sm:text-xs uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-black hover:scale-105 transition-all duration-300">
+                      SIGN OUT <ArrowUpRight className="size-4" />
+                    </button>
+                  </SignOutButton>
                 </SignedIn>
               </motion.div>
             </motion.div>
