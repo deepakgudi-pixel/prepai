@@ -210,7 +210,7 @@ export default function Header() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, delay: 0.2 }}
-                className="mt-6 flex justify-between items-end border-t border-[#111]/10 pt-5 px-4"
+                className="mt-6 flex justify-between items-end border-[#111]/10 pt-5 px-4"
               >
                 <div></div>
                 
