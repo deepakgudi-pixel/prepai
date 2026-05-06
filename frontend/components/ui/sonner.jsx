@@ -19,12 +19,12 @@ const Toaster = ({
     <Sonner
       theme={theme}
       position={"top-right"}
-      expand={true}
-      visibleToasts={4}
-      closeButton
+      expand={false}
+      visibleToasts={3}
       toastOptions={{
         classNames: {
           toast: "editorial-toast",
+          content: "editorial-toast-content",
           title: "editorial-toast-title",
           description: "editorial-toast-description",
           icon: "editorial-toast-icon",
@@ -35,7 +35,6 @@ const Toaster = ({
           warning: "editorial-toast-warning",
           info: "editorial-toast-info",
           loading: "editorial-toast-loading",
-          closeButton: "editorial-toast-close",
         },
       }}
       className={"toaster group"}
