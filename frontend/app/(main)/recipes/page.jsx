@@ -7,10 +7,11 @@ import Link from "next/link";
 import RecipeCard from "@/components/extras/RecipeCard";
 import useFetch from "@/hooks/use-fetch";
 import { getSavedRecipes } from "@/actions/recipe.actions";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 export default function SavedRecipesPage() {
   const { user, isLoaded } = useUser();
+  const prefersReducedMotion = useReducedMotion();
   const {
     loading,
     data: recipesData,
@@ -39,7 +40,7 @@ export default function SavedRecipesPage() {
     }
 
     fetchSavedRecipes(authUser);
-  }, [isLoaded, authUser]);
+  }, [authUser, fetchSavedRecipes, isLoaded]);
 
   const recipes = recipesData?.recipes || [];
 
@@ -73,10 +74,10 @@ export default function SavedRecipesPage() {
           <section className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {recipes.map((recipe, i) => (
               <motion.div
-                key={recipe.documentId}
-                initial={{ opacity: 0, y: 30 }}
+                key={recipe.documentId || recipe.title}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, delay: i * 0.1 }}
                 className="h-full"
               >
                 <RecipeCard recipe={recipe} variant="default" />

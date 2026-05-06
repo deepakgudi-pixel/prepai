@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+import Image from "next/image";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion } from "framer-motion";
 import { useLenis } from "lenis/react";
 import { SignInButton, SignUpButton, SignedIn, SignedOut, SignOutButton, useUser } from "@clerk/nextjs";
 import { Soup, ArrowUpRight } from "lucide-react";
@@ -19,17 +20,32 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const { scrollY } = useScroll();
+  const prefersReducedMotion = useReducedMotion();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    if (latest > 100) {
-      setHidden(true);
-      if (isOpen) setIsOpen(false);
-    } else {
-      setHidden(false);
+    const nextHidden = latest > 100;
+
+    setHidden((currentValue) => (
+      currentValue === nextHidden ? currentValue : nextHidden
+    ));
+
+    if (nextHidden) {
+      setIsOpen((currentValue) => (currentValue ? false : currentValue));
     }
   });
 
   const toggleMenu = useCallback(() => setIsOpen(prev => !prev), []);
+  const menuTransition = prefersReducedMotion
+    ? { duration: 0 }
+    : { duration: 0.5 };
+  const headerTransition = prefersReducedMotion
+    ? { duration: 0 }
+    : {
+        duration: 1.2,
+        ease: [0.22, 1, 0.36, 1],
+        opacity: { delay: hidden ? 0.3 : 0, duration: 0.6 },
+        delay: isOpen ? 0 : (hidden ? 0 : 0.1),
+      };
 
   // Stop Lenis smooth scrolling when the menu is open
   const lenis = useLenis();
@@ -70,13 +86,7 @@ export default function Header() {
           borderRadius: isOpen ? "24px" : "32px",
           backgroundColor: isOpen ? "rgba(255, 255, 255, 0.98)" : "rgba(255, 255, 255, 0.85)",
         }}
-        transition={{ 
-          duration: 1.2, 
-          ease: [0.22, 1, 0.36, 1], // Cinematic ease out
-          opacity: { delay: hidden ? 0.3 : 0, duration: 0.6 },
-          // When opening/closing menu, or showing/hiding header, stagger slightly
-          delay: isOpen ? 0 : (hidden ? 0 : 0.1)
-        }}
+        transition={headerTransition}
         className="fixed left-1/2 top-6 z-[100] -translate-x-1/2 flex flex-col items-center border border-white/40 backdrop-blur-md shadow-2xl overflow-hidden px-6 py-5"
         style={{
           willChange: "width, height, background-color, border-radius, transform, opacity",
@@ -122,7 +132,7 @@ export default function Header() {
                     initial={{ opacity: 0, width: 0 }}
                     animate={{ opacity: 1, width: "auto" }}
                     exit={{ opacity: 0, width: 0 }}
-                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                     className="overflow-hidden whitespace-nowrap"
                   >
                     <span className="font-display text-xl text-[#111] pt-[2px] block pl-2 pr-1">
@@ -139,10 +149,13 @@ export default function Header() {
             <SignedIn>
               {user && (
                 <div className="size-8 rounded-full border border-[#111]/10 overflow-hidden shrink-0">
-                  <img 
-                    src={user.imageUrl} 
-                    alt={user.fullName || "User"} 
+                  <Image
+                    src={user.imageUrl}
+                    alt={user.fullName || "User"}
+                    width={32}
+                    height={32}
                     className="size-full object-cover"
+                    unoptimized
                   />
                 </div>
               )}
@@ -155,17 +168,17 @@ export default function Header() {
               <div className="flex flex-col gap-[5px] w-5 sm:w-6">
                 <motion.span
                   animate={isOpen ? { rotate: 45, y: 6.5 } : { rotate: 0, y: 0 }}
-                  transition={{ duration: 0.5 }}
+                  transition={menuTransition}
                   className="h-[1.5px] w-full bg-[#222] block origin-center"
                 />
                 <motion.span
                   animate={isOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
-                  transition={{ duration: 0.2 }}
+                  transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2 }}
                   className="h-[1.5px] w-full bg-[#222] block origin-center"
                 />
                 <motion.span
                   animate={isOpen ? { rotate: -45, y: -6.5 } : { rotate: 0, y: 0 }}
-                  transition={{ duration: 0.5 }}
+                  transition={menuTransition}
                   className="h-[1.5px] w-full bg-[#222] block origin-center"
                 />
               </div>

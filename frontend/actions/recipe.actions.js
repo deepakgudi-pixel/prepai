@@ -40,13 +40,17 @@ export async function saveRecipeToCollection(user, formData) {
     }
 
     const recipeId = formData.get("recipeId");
-    if (!recipeId) {
-      throw new Error("Recipe ID is required");
-    }
+    const rawRecipe = formData.get("recipe");
 
-    const response = await backendFetch(`/recipes/${recipeId}/save`, authUser, {
-      method: "POST",
-    });
+    const response = recipeId
+      ? await backendFetch(`/recipes/${recipeId}/save`, authUser, {
+          method: "POST",
+        })
+      : await backendFetch("/recipes/save-generated", authUser, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ recipe: rawRecipe ? JSON.parse(rawRecipe) : null }),
+        });
 
     if (!response) {
       throw new Error("User not authenticated");

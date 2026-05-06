@@ -5,6 +5,99 @@
 
 ---
 
+## Optimization Run: 2026-05-06 14:25:31 IST
+
+### User Problem
+- User asked for app code optimization, animation performance improvements, and UI enhancements, with an explicit request to inspect first instead of changing code blindly.
+
+### Root Cause
+- Multiple frontend pages were mirroring fetched data into local state, which created avoidable render work and triggered React's stricter `set-state-in-effect` lint rule.
+- Global motion features were always active, even for reduced-motion or coarse-pointer contexts, and the marquee relied on JS animation with a hard-coded travel distance.
+- The frontend shell still depended on remote Google font fetching for builds, which made production verification brittle in this environment.
+- A few UI/media paths were heavier than needed, including base64 image previews, a raw header avatar image, and some unused or over-wired motion setup on the home page.
+
+### Solution
+- Stabilized the shared `useFetch` hook with `useCallback` and updated fetch-driven pages so effect dependencies are complete and predictable.
+- Refactored pantry and recipe pages to derive fetched data directly instead of syncing it back into local state, and moved save/edit success updates into event handlers.
+- Added a reusable `useMediaQuery` hook and used it to make the custom cursor and Lenis smooth scrolling respect reduced-motion and coarse-pointer devices.
+- Replaced the Framer Motion marquee with a CSS-based marquee, removed unused home-page scroll wiring, and reduced non-essential animation work when motion should be minimized.
+- Switched layout typography from remote Google font fetching to curated local font stacks so builds do not depend on external font downloads here.
+- Replaced the header avatar with `next/image`, added Clerk image host support, and changed pantry image preview handling to `URL.createObjectURL` to reduce memory overhead during uploads.
+- Verified the result with `npm run lint` and `npm run build`; the build had to be rerun outside the sandbox because Turbopack worker creation was blocked by sandbox restrictions.
+
+### Effect
+- Frontend lint is clean, and the React data flow is leaner with fewer unnecessary state syncs.
+- Motion-heavy UI now behaves more safely on lower-motion and touch-first devices while preserving the current visual style on capable screens.
+- Uploads, avatars, and the landing page shell are more efficient and more robust.
+- Production build verification now completes successfully in the current environment.
+
+---
+
+## Suggestion Fix Run: 2026-05-06 14:42:00 IST
+
+### User Problem
+- Launching pantry recipe suggestions showed: "AI recipe suggestions are temporarily unavailable. We couldn't generate recipes right now. Please try again shortly."
+
+### Root Cause
+- The pantry suggestions endpoint relied fully on OpenRouter for recipe ideas.
+- If the AI provider was unavailable, rate-limited, timed out, or returned malformed JSON, the backend returned an error instead of usable suggestions.
+
+### Solution
+- Updated [recipes.service.js](/Users/deepak/Downloads/prepAI/backend/src/services/recipes.service.js) so pantry suggestions now degrade gracefully.
+- Added a deterministic pantry-based fallback suggestion generator that builds recipe ideas from the user’s ingredients and selected diet (`all`, `veg`, `non-veg`).
+- Added safer JSON-array extraction for AI responses, so partially wrapped model output no longer breaks the whole suggestions flow.
+- Changed the suggestion service to return fallback recipes when OpenRouter is missing, unavailable, or returns invalid JSON, instead of surfacing the temporary-unavailable error state.
+
+### Effect
+- Clicking "Launch Suggestions" no longer dead-ends the user when the AI provider has a bad moment.
+- Users still get recipe suggestions tailored to their pantry and diet, so the core pantry-to-recipe flow remains usable.
+- The AI path is preserved when it works, but the app is no longer brittle when it doesn’t.
+
+---
+
+## Save Fix Run: 2026-05-06 14:47:53 IST
+
+### User Problem
+- Clicking `Save` on the recipe page was not doing anything.
+
+### Root Cause
+- The recipe page save handler returned early whenever `recipeId` was missing.
+- Some generated recipes can render successfully before they are persisted in the database, which meant the UI showed a save button but had no record ID to send to the existing save endpoint.
+
+### Solution
+- Updated the recipe page save flow so it now sends the full recipe payload when `recipeId` is missing instead of silently returning.
+- Added a backend route and service flow to persist generated recipe data on demand, then save that newly created recipe into the user’s collection.
+- Updated the frontend save action to use the normal `/:recipeId/save` endpoint when an ID exists, and the new generated-recipe save endpoint when it does not.
+- After a successful generated save, the page now stores the returned `recipeId` locally so future save/remove actions continue to work normally.
+
+### Effect
+- The `Save` button now works for both already-persisted recipes and freshly generated recipes that did not yet have a database ID.
+- Users no longer see a dead button state caused by missing persistence metadata.
+- The save/remove flow is now resilient instead of depending on recipe generation having completed database persistence earlier in the request lifecycle.
+
+---
+
+## Toast Polish Run: 2026-05-06 14:52:15 IST
+
+### User Problem
+- The app toasts felt functional but not editorial, and they did not match the premium visual language used across the rest of the product.
+
+### Root Cause
+- The toast layer was still close to the default Sonner presentation, with only icon changes and basic theme variables.
+- Typography, surface styling, spacing, and state accents were not aligned with the app’s display-first design direction.
+
+### Solution
+- Restyled the shared toast wrapper in [sonner.jsx](/Users/deepak/Downloads/prepAI/frontend/components/ui/sonner.jsx) with custom class mappings, close button support, and tighter presentation defaults.
+- Added editorial toast styling in [globals.css](/Users/deepak/Downloads/prepAI/frontend/app/globals.css) for glass-like surfaces, display-font titles, refined descriptions, pill actions, and status-specific accent rails.
+- Removed `richColors` from the app toaster mount in [layout.js](/Users/deepak/Downloads/prepAI/frontend/app/layout.js) so the custom visual system fully controls the appearance.
+
+### Effect
+- Toasts now feel like part of the product rather than a generic notification layer.
+- Success, error, warning, info, and loading states are easier to scan while still staying visually restrained.
+- The notification system now reinforces the app’s editorial tone instead of interrupting it.
+
+---
+
 ## Flow 1: User Asks → Analyze → Decide → Implement
 
 ### User Request

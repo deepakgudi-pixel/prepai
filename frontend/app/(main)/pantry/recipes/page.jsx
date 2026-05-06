@@ -51,7 +51,7 @@ function PantryRecipesContent() {
     }
 
     fetchSuggestions(authUser, diet);
-  }, [isLoaded, authUser, diet]);
+  }, [authUser, diet, fetchSuggestions, isLoaded]);
 
   const recipes = recipesData?.recipes || [];
   const ingredientsUsed = recipesData?.ingredientsUsed || "";
@@ -136,8 +136,12 @@ function PantryRecipesContent() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            {recipes.map((recipe, index) => (
-              <RecipeCard key={index} recipe={recipe} variant="pantry" />
+            {recipes.map((recipe) => (
+              <RecipeCard
+                key={recipe.documentId || recipe.title}
+                recipe={recipe}
+                variant="pantry"
+              />
             ))}
           </div>
 

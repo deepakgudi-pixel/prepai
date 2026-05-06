@@ -1,7 +1,6 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -30,8 +29,7 @@ import { ClockLoader } from "react-spinners";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { RecipePDF } from "@/components/extras/RecipePDF";
 import Image from "next/image";
-import { useMemo } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 
 function RecipeContent() {
   const { user, isLoaded } = useUser();
@@ -39,16 +37,19 @@ function RecipeContent() {
   const router = useRouter();
   const recipeName = searchParams.get("cook");
 
-  const [recipe, setRecipe] = useState(null);
-  const [recipeId, setRecipeId] = useState(null);
-  const [isSaved, setIsSaved] = useState(false);
-  const [loadError, setLoadError] = useState("");
+  const [savedOverride, setSavedOverride] = useState(null);
+  const prefersReducedMotion = useReducedMotion();
 
-  const { loading: loadingRecipe, data: recipeData, fn: fetchRecipe } =
+  const {
+    loading: loadingRecipe,
+    data: recipeData,
+    fn: fetchRecipe,
+    setData: setRecipeData,
+  } =
     useFetch(getOrGenerateRecipe);
-  const { loading: saving, data: saveData, fn: saveToCollection } =
+  const { loading: saving, fn: saveToCollection } =
     useFetch(saveRecipeToCollection);
-  const { loading: removing, data: removeData, fn: removeFromCollection } =
+  const { loading: removing, fn: removeFromCollection } =
     useFetch(removeRecipeFromCollection);
 
   const authUser = useMemo(() => {
@@ -68,78 +69,127 @@ function RecipeContent() {
   }, [user]);
 
   useEffect(() => {
-    if (!isLoaded || !recipeName || recipe) {
+    if (!isLoaded || !recipeName || recipeData?.success) {
       return;
     }
 
     if (!authUser) {
-      setLoadError("Please sign up or sign in to generate and save recipes.");
       return;
     }
 
-    if (recipeName) {
+    let isCancelled = false;
+
+    const loadRecipe = async () => {
       const formData = new FormData();
       formData.append("recipeName", recipeName);
-      fetchRecipe(authUser, formData);
-    }
-  }, [isLoaded, recipeName, recipe, authUser]);
+      const result = await fetchRecipe(authUser, formData);
 
-  useEffect(() => {
-    if (recipeData?.success) {
-      setLoadError("");
-      setRecipe(recipeData.recipe);
-      setRecipeId(recipeData.recipeId);
-      setIsSaved(recipeData.isSaved);
+      if (!result?.success || isCancelled) {
+        return;
+      }
 
-      if (recipeData.fromDatabase) {
+      if (result.fromDatabase) {
         toast.success("Recipe loaded from database");
-      } else if (recipeData.persisted === false) {
+      } else if (result.persisted === false) {
         toast.success("Recipe generated");
       } else {
         toast.success("New recipe generated and saved!");
       }
+    };
+
+    loadRecipe();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [authUser, fetchRecipe, isLoaded, recipeData?.success, recipeName]);
+
+  const handleToggleSave = async () => {
+    const recipeId = recipeData?.recipeId;
+    const isSaved =
+      savedOverride?.recipeName === recipeName
+        ? savedOverride.value
+        : Boolean(recipeData?.isSaved);
+
+    const formData = new FormData();
+    if (recipeId) {
+      formData.append("recipeId", recipeId);
+    } else if (recipe) {
+      formData.append("recipe", JSON.stringify(recipe));
+    } else {
+      toast.error("Recipe details are still loading. Please try again.");
       return;
     }
 
-    if (recipeData && recipeData.success === false) {
-      setLoadError(recipeData.message || "Failed to load recipe.");
-    }
-  }, [recipeData]);
+    if (isSaved) {
+      const result = await removeFromCollection(authUser, formData);
 
-  useEffect(() => {
-    if (saveData?.success) {
-      if (saveData.alreadySaved) {
+      if (result?.success) {
+        setSavedOverride({ recipeName, value: false });
+        toast.success("Recipe removed from collection");
+      }
+
+      return;
+    }
+
+    const result = await saveToCollection(authUser, formData);
+
+    if (result?.success) {
+      setSavedOverride({ recipeName, value: true });
+      if (result.recipeId) {
+        setRecipeData((currentData) => (
+          currentData
+            ? {
+                ...currentData,
+                recipeId: result.recipeId,
+                isSaved: true,
+                persisted: true,
+                recipe: result.recipe || currentData.recipe,
+              }
+            : currentData
+        ));
+      }
+
+      if (result.alreadySaved) {
         toast.info("Recipe is already in your collection");
       } else {
-        setIsSaved(true);
         toast.success("Recipe saved to your collection!");
       }
-    }
-  }, [saveData]);
-
-  useEffect(() => {
-    if (removeData?.success) {
-      setIsSaved(false);
-      toast.success("Recipe removed from collection");
-    }
-  }, [removeData]);
-
-  const handleToggleSave = async () => {
-    if (!recipeId) return;
-
-    const formData = new FormData();
-    formData.append("recipeId", recipeId);
-
-    if (isSaved) {
-      await removeFromCollection(authUser, formData);
-    } else {
-      await saveToCollection(authUser, formData);
     }
   };
 
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 1000], [0, 300]);
   const opacity1 = useTransform(scrollY, [0, 500], [1, 0]);
+  const recipe = recipeData?.recipe ?? null;
+  const effectiveSavedState =
+    savedOverride?.recipeName === recipeName
+      ? savedOverride.value
+      : Boolean(recipeData?.isSaved);
+  const loadError =
+    !authUser && isLoaded && recipeName
+      ? "Please sign up or sign in to generate and save recipes."
+      : recipeData?.success === false
+        ? (recipeData.message || "Failed to load recipe.")
+        : "";
+  const groupedIngredients = useMemo(() => {
+    if (!recipe?.ingredients) {
+      return [];
+    }
+
+    return Object.entries(
+      recipe.ingredients.reduce((accumulator, ingredient) => {
+        const category = ingredient.category || "Other";
+
+        if (!accumulator[category]) {
+          accumulator[category] = [];
+        }
+
+        accumulator[category].push(ingredient);
+        return accumulator;
+      }, {}),
+    );
+  }, [recipe]);
 
   if (!recipeName) {
     return (
@@ -160,7 +210,7 @@ function RecipeContent() {
     );
   }
 
-  if (loadingRecipe === null || loadingRecipe) {
+  if ((loadingRecipe === null || loadingRecipe) && !loadError) {
     return (
       <div className="bg-[#EAE8E3] min-h-screen flex items-center justify-center pt-20">
         <div className="glass-card px-6 py-20 text-center max-w-2xl w-full mx-auto">
@@ -217,7 +267,13 @@ function RecipeContent() {
       {/* Editorial Parallax Hero */}
       <section className="relative h-[80vh] w-full overflow-hidden flex flex-col justify-end">
         {recipe.imageUrl ? (
-          <motion.div style={{ y: y1, opacity: opacity1 }} className="absolute inset-0 w-full h-full">
+          <motion.div
+            style={{
+              y: prefersReducedMotion ? 0 : y1,
+              opacity: prefersReducedMotion ? 1 : opacity1,
+            }}
+            className="absolute inset-0 w-full h-full"
+          >
             <Image
               src={recipe.imageUrl}
               alt={recipe.title}
@@ -286,12 +342,12 @@ function RecipeContent() {
                 >
                   {saving || removing ? (
                     <Loader2 className="size-4 animate-spin" />
-                  ) : isSaved ? (
+                  ) : effectiveSavedState ? (
                     <BookmarkCheck className="size-4" />
                   ) : (
                     <Bookmark className="size-4" />
                   )}
-                  {isSaved ? "Saved" : "Save"}
+                  {effectiveSavedState ? "Saved" : "Save"}
                 </button>
              </div>
           </div>
@@ -301,7 +357,7 @@ function RecipeContent() {
       {/* Description */}
       <section className="max-w-[1400px] w-full mx-auto px-6 sm:px-12 lg:px-20 py-24">
         <p className="font-display text-4xl leading-relaxed text-[#111] max-w-4xl mx-auto text-center">
-          "{recipe.description}"
+          &ldquo;{recipe.description}&rdquo;
         </p>
       </section>
 
@@ -316,20 +372,13 @@ function RecipeContent() {
             </h2>
 
             <div className="space-y-10">
-              {Object.entries(
-                recipe.ingredients.reduce((acc, ing) => {
-                  const category = ing.category || "Other";
-                  if (!acc[category]) acc[category] = [];
-                  acc[category].push(ing);
-                  return acc;
-                }, {}),
-              ).map(([category, items], idx) => (
+              {groupedIngredients.map(([category, items], idx) => (
                 <motion.div 
                   key={category}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+                  whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: idx * 0.1 }}
+                  transition={prefersReducedMotion ? { duration: 0 } : { delay: idx * 0.1 }}
                 >
                   <p className="text-[0.65rem] uppercase tracking-[0.2em] text-[#777] mb-6">
                     {category}
@@ -384,14 +433,14 @@ function RecipeContent() {
             </h2>
 
             <div className="space-y-16">
-              {recipe.instructions.map((step, index) => (
+              {recipe.instructions.map((step) => (
                 <motion.div 
                   key={step.step} 
                   className="relative pl-12 sm:pl-20"
-                  initial={{ opacity: 0, x: 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={prefersReducedMotion ? false : { opacity: 0, x: 20 }}
+                  whileInView={prefersReducedMotion ? undefined : { opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.6 }}
+                  transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6 }}
                 >
                   <div className="absolute left-0 top-0 font-display text-4xl sm:text-6xl text-[#D5D3CE]">
                     {step.step}
@@ -422,10 +471,10 @@ function RecipeContent() {
               <CheckCircle2 className="size-8 text-[#111] shrink-0" />
               <div>
                 <h3 className="font-display text-3xl text-[#111] mb-2">
-                  You're all set.
+                  You&apos;re all set.
                 </h3>
                 <p className="text-[#555] font-light leading-relaxed">
-                  Plate your {recipe.title} and enjoy the fact that tonight's
+                  Plate your {recipe.title} and enjoy the fact that tonight&apos;s
                   dinner came from ingredients you already had.
                 </p>
               </div>
@@ -438,7 +487,7 @@ function RecipeContent() {
               <div className="glass-card bg-[#111] text-[#EAE8E3] p-10">
                 <h2 className="flex items-center gap-3 font-display text-4xl mb-8">
                   <Lightbulb className="size-6 text-white" />
-                  Chef's notes
+                  Chef&apos;s notes
                 </h2>
                 <div className="space-y-6">
                   {recipe.tips.map((tip, index) => (

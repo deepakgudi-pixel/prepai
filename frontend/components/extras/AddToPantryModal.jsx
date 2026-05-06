@@ -115,9 +115,9 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
     if (saveData?.success) {
       toast.success(saveData.message);
       handleClose();
-      if (onSuccess) onSuccess();
+      onSuccess?.();
     }
-  }, [saveData]);
+  }, [saveData, handleClose, onSuccess]);
 
   const handleAddManual = async (e) => {
     e.preventDefault();
@@ -145,16 +145,23 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
       toast.success("Item added to pantry!");
       setManualItem({ name: "", quantity: "" });
       handleClose();
-      if (onSuccess) onSuccess();
+      onSuccess?.();
     }
-  }, [addData]);
+  }, [addData, handleClose, onSuccess]);
 
   const removeIngredient = useCallback((index) => {
     setScannedIngredients(prev => prev.filter((_, i) => i !== index));
   }, []);
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          handleClose();
+        }
+      }}
+    >
       <DialogContent 
         onPointerDownOutside={(e) => e.preventDefault()}
         className="max-h-[90vh] max-w-[calc(100%-2.5rem)] sm:max-w-2xl flex flex-col [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] border border-[#D5D3CE] bg-[#EAE8E3] p-0 shadow-2xl backdrop-blur-xl rounded-[20px] sm:rounded-[32px]"

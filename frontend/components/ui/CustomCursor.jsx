@@ -1,59 +1,56 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 export default function CustomCursor() {
-  const [isTouch, setIsTouch] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const mouseX = useMotionValue(-100);
   const mouseY = useMotionValue(-100);
+  const hoverStateRef = useRef(false);
+  const isCoarsePointer = useMediaQuery("(pointer: coarse)", true);
+  const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   const springConfig = { damping: 25, stiffness: 300, mass: 0.5 };
   const cursorX = useSpring(mouseX, springConfig);
   const cursorY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
-    const mql = window.matchMedia("(pointer: coarse)");
-    setIsTouch(mql.matches);
-    const onChange = (e) => setIsTouch(e.matches);
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
-
-  useEffect(() => {
-    if (isTouch) return;
+    if (isCoarsePointer || prefersReducedMotion) {
+      return undefined;
+    }
 
     const moveCursor = (e) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
-    };
 
-    const handleMouseOver = (e) => {
-      const target = e.target;
-      if (
-        target.tagName === "A" ||
-        target.tagName === "BUTTON" ||
-        target.closest("a") ||
-        target.closest("button") ||
-        target.classList.contains("magnetic")
-      ) {
-        setIsHovering(true);
-      } else {
-        setIsHovering(false);
+      const target = e.target instanceof Element ? e.target : null;
+      const nextHoverState = Boolean(target?.closest("a, button, .magnetic"));
+
+      if (hoverStateRef.current !== nextHoverState) {
+        hoverStateRef.current = nextHoverState;
+        setIsHovering(nextHoverState);
       }
     };
 
-    window.addEventListener("mousemove", moveCursor);
-    window.addEventListener("mouseover", handleMouseOver);
+    const resetCursor = () => {
+      hoverStateRef.current = false;
+      setIsHovering(false);
+      mouseX.set(-100);
+      mouseY.set(-100);
+    };
+
+    window.addEventListener("pointermove", moveCursor, { passive: true });
+    window.addEventListener("pointerleave", resetCursor);
 
     return () => {
-      window.removeEventListener("mousemove", moveCursor);
-      window.removeEventListener("mouseover", handleMouseOver);
+      window.removeEventListener("pointermove", moveCursor);
+      window.removeEventListener("pointerleave", resetCursor);
     };
-  }, [isTouch, mouseX, mouseY]);
+  }, [isCoarsePointer, mouseX, mouseY, prefersReducedMotion]);
 
-  if (isTouch) return null;
+  if (isCoarsePointer || prefersReducedMotion) return null;
 
   return (
     <motion.div

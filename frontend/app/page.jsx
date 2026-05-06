@@ -1,29 +1,23 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { FEATURES, HOW_IT_WORKS_STEPS } from "@/lib/data";
 import Marquee from "@/components/ui/Marquee";
 import { ArrowRight } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { SignUpButton, SignedOut, SignedIn } from "@clerk/nextjs";
 
 export default function Home() {
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
+  const prefersReducedMotion = useReducedMotion();
 
   return (
-    <div className="bg-[#EAE8E3]" ref={containerRef}>
+    <div className="bg-[#EAE8E3]">
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center pt-32 pb-20 px-6 sm:px-12 lg:px-20 overflow-hidden">
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 1, ease: [0.76, 0, 0.24, 1] }}
           className="text-center z-10 max-w-5xl mx-auto"
         >
           <p className="eyebrow mb-8">Intelligence for the Kitchen</p>
@@ -60,8 +54,8 @@ export default function Home() {
         {/* Abstract Background Element */}
         <motion.div 
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-[#D5D3CE] opacity-50 pointer-events-none"
-          animate={{ rotate: 360, scale: [1, 1.05, 1] }}
-          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          animate={prefersReducedMotion ? { rotate: 0, scale: 1 } : { rotate: 360, scale: [1, 1.05, 1] }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 40, repeat: Infinity, ease: "linear" }}
         />
       </section>
 

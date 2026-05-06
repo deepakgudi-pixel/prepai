@@ -18,6 +18,26 @@ const Toaster = ({
   return (
     <Sonner
       theme={theme}
+      position={"top-right"}
+      expand={true}
+      visibleToasts={4}
+      closeButton
+      toastOptions={{
+        classNames: {
+          toast: "editorial-toast",
+          title: "editorial-toast-title",
+          description: "editorial-toast-description",
+          icon: "editorial-toast-icon",
+          actionButton: "editorial-toast-action",
+          cancelButton: "editorial-toast-cancel",
+          success: "editorial-toast-success",
+          error: "editorial-toast-error",
+          warning: "editorial-toast-warning",
+          info: "editorial-toast-info",
+          loading: "editorial-toast-loading",
+          closeButton: "editorial-toast-close",
+        },
+      }}
       className={"toaster group"}
       icons={{
         success: <CircleCheckIcon className={"size-4"} />,
@@ -28,10 +48,10 @@ const Toaster = ({
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)"
+          "--normal-bg": "rgba(255,255,255,0.88)",
+          "--normal-text": "#111111",
+          "--normal-border": "rgba(17,17,17,0.08)",
+          "--border-radius": "24px"
         }
       }
       {...props} />

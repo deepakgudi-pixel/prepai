@@ -1,29 +1,51 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { Camera, Upload, X, ImageIcon } from "lucide-react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 export default function ImageUploader({ onImageSelect, loading }) {
   const [preview, setPreview] = useState(null);
   const fileInputRef = useRef(null);
+  const previewUrlRef = useRef(null);
+  const prefersReducedMotion = useReducedMotion();
+
+  const setPreviewFromFile = useCallback((file) => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = null;
+    }
+
+    if (!file) {
+      setPreview(null);
+      return;
+    }
+
+    const nextPreviewUrl = URL.createObjectURL(file);
+    previewUrlRef.current = nextPreviewUrl;
+    setPreview(nextPreviewUrl);
+  }, []);
 
   const onDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+      setPreviewFromFile(file);
       onImageSelect(file);
     },
-    [onImageSelect]
+    [onImageSelect, setPreviewFromFile]
   );
+
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    };
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
@@ -44,7 +66,7 @@ export default function ImageUploader({ onImageSelect, loading }) {
   };
 
   const clearImage = () => {
-    setPreview(null);
+    setPreviewFromFile(null);
     onImageSelect(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -63,18 +85,20 @@ export default function ImageUploader({ onImageSelect, loading }) {
         
         {loading && (
           <>
-            {/* Scanning Line Animation */}
-            <motion.div
-              animate={{ top: ["0%", "100%", "0%"] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              className="absolute left-0 right-0 h-[2px] bg-white shadow-[0_0_20px_4px_rgba(255,255,255,0.8)] z-20"
-            />
-            {/* Pulse Overlay */}
-            <motion.div
-              animate={{ opacity: [0.1, 0.3, 0.1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-0 bg-[#EAE8E3] z-10 mix-blend-overlay"
-            />
+            {!prefersReducedMotion && (
+              <>
+                <motion.div
+                  animate={{ top: ["0%", "100%", "0%"] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                  className="absolute left-0 right-0 h-[2px] bg-white shadow-[0_0_20px_4px_rgba(255,255,255,0.8)] z-20"
+                />
+                <motion.div
+                  animate={{ opacity: [0.1, 0.3, 0.1] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute inset-0 bg-[#EAE8E3] z-10 mix-blend-overlay"
+                />
+              </>
+            )}
             {/* Scanning Text */}
             <div className="absolute inset-0 z-30 flex items-center justify-center">
               <div className="glass-pill bg-[#111]/80 text-[#EAE8E3] px-8 py-4 border-white/20 text-xs font-semibold uppercase tracking-[0.2em] backdrop-blur-md">

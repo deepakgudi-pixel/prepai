@@ -3,6 +3,7 @@ const {
   generateRecipeDetails,
   listRecipeSuggestions,
   saveRecipeForUser,
+  saveGeneratedRecipeForUser,
   removeRecipeForUser,
   listSavedRecipes,
 } = require("../services/recipes.service");
@@ -43,6 +44,19 @@ router.get("/saved", async (req, res, next) => {
 router.post("/:recipeId/save", async (req, res, next) => {
   try {
     const result = await saveRecipeForUser(req.appUser.id, Number(req.params.recipeId));
+    return res.json(result);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.post("/save-generated", async (req, res, next) => {
+  try {
+    if (!req.body.recipe || !req.body.recipe.title) {
+      return res.status(400).json({ success: false, message: "Recipe data is required" });
+    }
+
+    const result = await saveGeneratedRecipeForUser(req.appUser.id, req.body.recipe);
     return res.json(result);
   } catch (error) {
     return next(error);

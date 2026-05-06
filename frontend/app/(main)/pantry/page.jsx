@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import {
@@ -25,19 +24,23 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function PantryPage() {
   const { user, isLoaded } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [items, setItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({ name: "", quantity: "" });
-  const [dietaryPreference, setDietaryPreference] = useState("all");
+  const [optimisticDietaryPreference, setOptimisticDietaryPreference] = useState(null);
 
-  const { loading: loadingPref, data: prefData, fn: fetchPref } =
+  const {
+    loading: loadingPref,
+    data: prefData,
+    fn: fetchPref,
+    setData: setPrefData,
+  } =
     useFetch(getUserPreference);
   const {
     loading: updatingPref,
@@ -69,49 +72,40 @@ export default function PantryPage() {
   }, [user]);
 
   useEffect(() => {
-    if (!isLoaded) {
+    if (!isLoaded || !authUser) {
       return;
     }
 
     fetchItems(authUser);
     fetchPref(authUser);
-  }, [isLoaded, authUser]);
+  }, [authUser, fetchItems, fetchPref, isLoaded]);
 
   useEffect(() => {
-    if (prefData?.success) {
-      setDietaryPreference(prefData.preference);
-    }
-  }, [prefData]);
-
-  useEffect(() => {
-    if (itemsData?.success) {
-      setItems(itemsData.items);
-    } else if (itemsData && !itemsData.success && !loadingItems) {
+    if (itemsData && !itemsData.success && !loadingItems) {
       toast.error(itemsData.message || "Failed to load pantry items");
     }
-  }, [itemsData]);
+  }, [itemsData, loadingItems]);
 
   useEffect(() => {
     if (deleteData?.success && !deleting) {
       toast.success("Item removed from pantry");
       fetchItems(authUser);
     }
-  }, [deleteData, deleting, authUser]);
+  }, [authUser, deleteData, deleting, fetchItems]);
 
   useEffect(() => {
     if (clearData?.success && !clearing) {
       toast.success(clearData.message);
       fetchItems(authUser);
     }
-  }, [clearData, clearing, authUser]);
+  }, [authUser, clearData, clearing, fetchItems]);
 
   useEffect(() => {
     if (updateData?.success) {
       toast.success("Item updated successfully");
-      setEditingId(null);
       fetchItems(authUser);
     }
-  }, [updateData, authUser]);
+  }, [authUser, fetchItems, updateData]);
 
   const handleDelete = async (itemId) => {
     const formData = new FormData();
@@ -143,7 +137,11 @@ export default function PantryPage() {
     formData.append("name", editValues.name);
     formData.append("quantity", editValues.quantity);
     formData.append("authUser", JSON.stringify(authUser));
-    await updateItem(formData);
+    const result = await updateItem(formData);
+
+    if (result?.success) {
+      setEditingId(null);
+    }
   };
 
   const cancelEdit = () => {
@@ -154,23 +152,35 @@ export default function PantryPage() {
   const handlePreferenceChange = async (pref) => {
     if (pref === dietaryPreference || updatingPref) return;
 
-    const previousPreference = dietaryPreference;
-    setDietaryPreference(pref);
+    setOptimisticDietaryPreference(pref);
 
     const result = await updatePrefAction(authUser, pref);
 
     if (result?.success) {
+      setPrefData({ success: true, preference: pref });
+      setOptimisticDietaryPreference(null);
       toast.success("Dietary preference updated successfully");
       return;
     }
 
-    setDietaryPreference(previousPreference);
+    setOptimisticDietaryPreference(null);
     toast.error(result?.message || "Failed to save preference");
   };
 
-  const handleModalSuccess = () => {
+  const handleModalSuccess = useCallback(() => {
+    if (!authUser) {
+      return;
+    }
+
     fetchItems(authUser);
-  };
+  }, [authUser, fetchItems]);
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false);
+  }, []);
+  const items = itemsData?.items || [];
+  const dietaryPreference =
+    optimisticDietaryPreference ?? prefData?.preference ?? "all";
 
   const formatCreatedAt = (value) =>
     new Intl.DateTimeFormat("en-US", {
@@ -456,7 +466,7 @@ export default function PantryPage() {
 
         <AddToPantryModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={handleCloseModal}
           onSuccess={handleModalSuccess}
           authUser={authUser}
         />

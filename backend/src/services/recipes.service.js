@@ -39,6 +39,228 @@ function normalizeCuisineValue(cuisine) {
   return value;
 }
 
+function normalizeIngredientName(name) {
+  return String(name || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function matchesIngredientKeyword(availableIngredients, keyword) {
+  const normalizedKeyword = normalizeIngredientName(keyword);
+
+  return availableIngredients.some(
+    (ingredient) =>
+      ingredient.includes(normalizedKeyword) || normalizedKeyword.includes(ingredient),
+  );
+}
+
+function extractJsonArray(text) {
+  const sanitized = String(text || "")
+    .replace(/```json\n?/gi, "")
+    .replace(/```\n?/g, "")
+    .trim();
+
+  const firstBracket = sanitized.indexOf("[");
+  const lastBracket = sanitized.lastIndexOf("]");
+
+  if (firstBracket === -1 || lastBracket === -1 || lastBracket <= firstBracket) {
+    throw new Error("Failed to generate recipe suggestions. Please try again.");
+  }
+
+  return JSON.parse(sanitized.slice(firstBracket, lastBracket + 1));
+}
+
+function createFallbackDescription(title, ingredients) {
+  const ingredientLead = ingredients.slice(0, 3).join(", ");
+
+  return ingredientLead
+    ? `${title} built around ${ingredientLead}, designed to make practical use of what is already in your pantry.`
+    : `${title} designed as a flexible pantry-first meal using common kitchen staples.`;
+}
+
+function buildFallbackRecipeSuggestions(ingredientNames, diet) {
+  const availableIngredients = ingredientNames
+    .map(normalizeIngredientName)
+    .filter(Boolean);
+
+  const templates = [
+    {
+      title: "Garden Veggie Stir-Fry",
+      category: "dinner",
+      cuisine: "chinese",
+      prepTime: 15,
+      cookTime: 18,
+      servings: 2,
+      diet: "veg",
+      required: ["garlic", "onion"],
+      optional: ["carrot", "bell pepper", "broccoli", "cabbage", "soy sauce", "rice"],
+    },
+    {
+      title: "Pantry Tomato Pasta",
+      category: "dinner",
+      cuisine: "italian",
+      prepTime: 10,
+      cookTime: 20,
+      servings: 2,
+      diet: "veg",
+      required: ["pasta", "tomato"],
+      optional: ["garlic", "onion", "cheese", "basil", "olive oil"],
+    },
+    {
+      title: "Masala Vegetable Skillet",
+      category: "dinner",
+      cuisine: "indian",
+      prepTime: 15,
+      cookTime: 22,
+      servings: 3,
+      diet: "veg",
+      required: ["onion", "tomato"],
+      optional: ["potato", "peas", "cauliflower", "garlic", "ginger", "chili"],
+    },
+    {
+      title: "Hearty Lentil Soup",
+      category: "lunch",
+      cuisine: "other",
+      prepTime: 10,
+      cookTime: 30,
+      servings: 3,
+      diet: "veg",
+      required: ["lentil"],
+      optional: ["onion", "garlic", "carrot", "tomato", "spinach"],
+    },
+    {
+      title: "Loaded Veggie Omelette",
+      category: "breakfast",
+      cuisine: "american",
+      prepTime: 8,
+      cookTime: 10,
+      servings: 2,
+      diet: "veg",
+      required: ["egg"],
+      optional: ["onion", "tomato", "cheese", "spinach", "mushroom", "bell pepper"],
+    },
+    {
+      title: "Chicken Pepper Stir-Fry",
+      category: "dinner",
+      cuisine: "chinese",
+      prepTime: 15,
+      cookTime: 18,
+      servings: 2,
+      diet: "non-veg",
+      required: ["chicken"],
+      optional: ["garlic", "onion", "bell pepper", "soy sauce", "rice"],
+    },
+    {
+      title: "Spiced Egg Fried Rice",
+      category: "lunch",
+      cuisine: "other",
+      prepTime: 12,
+      cookTime: 15,
+      servings: 2,
+      diet: "non-veg",
+      required: ["rice", "egg"],
+      optional: ["onion", "garlic", "carrot", "peas", "soy sauce"],
+    },
+    {
+      title: "Tuna Pantry Rice Bowl",
+      category: "lunch",
+      cuisine: "japanese",
+      prepTime: 10,
+      cookTime: 12,
+      servings: 2,
+      diet: "non-veg",
+      required: ["tuna", "rice"],
+      optional: ["cucumber", "carrot", "soy sauce", "egg", "sesame"],
+    },
+    {
+      title: "Chicken Tomato Skillet",
+      category: "dinner",
+      cuisine: "mediterranean",
+      prepTime: 12,
+      cookTime: 25,
+      servings: 3,
+      diet: "non-veg",
+      required: ["chicken", "tomato"],
+      optional: ["onion", "garlic", "bell pepper", "olive oil"],
+    },
+    {
+      title: "Savory Chicken Egg Wrap",
+      category: "lunch",
+      cuisine: "american",
+      prepTime: 12,
+      cookTime: 12,
+      servings: 2,
+      diet: "non-veg",
+      required: ["chicken", "egg"],
+      optional: ["onion", "cheese", "bell pepper", "tortilla"],
+    },
+    {
+      title: "Bean and Veggie Wraps",
+      category: "lunch",
+      cuisine: "mexican",
+      prepTime: 12,
+      cookTime: 10,
+      servings: 2,
+      diet: "veg",
+      required: ["bean"],
+      optional: ["onion", "tomato", "cheese", "tortilla", "lettuce", "corn"],
+    },
+  ];
+
+  const filteredTemplates = templates.filter((template) => {
+    if (diet === "veg") {
+      return template.diet === "veg";
+    }
+
+    if (diet === "non-veg") {
+      return template.diet === "non-veg";
+    }
+
+    return true;
+  });
+
+  const scoredSuggestions = filteredTemplates
+    .map((template) => {
+      const matchedRequired = template.required.filter((keyword) =>
+        matchesIngredientKeyword(availableIngredients, keyword),
+      );
+      const matchedOptional = template.optional.filter((keyword) =>
+        matchesIngredientKeyword(availableIngredients, keyword),
+      );
+      const matchCount = matchedRequired.length + matchedOptional.length;
+      const totalSignals = template.required.length + template.optional.length;
+      const missingIngredients = [...template.required, ...template.optional]
+        .filter((keyword) => !matchesIngredientKeyword(availableIngredients, keyword))
+        .slice(0, 4);
+
+      const matchPercentage = Math.max(
+        62,
+        Math.min(
+          96,
+          Math.round((matchCount / Math.max(totalSignals, 1)) * 100),
+        ),
+      );
+
+      return {
+        title: template.title,
+        description: createFallbackDescription(template.title, matchedOptional),
+        matchPercentage,
+        missingIngredients,
+        category: template.category,
+        cuisine: template.cuisine,
+        prepTime: template.prepTime,
+        cookTime: template.cookTime,
+        servings: template.servings,
+        _score: matchedRequired.length * 3 + matchedOptional.length,
+      };
+    })
+    .sort((a, b) => b._score - a._score || b.matchPercentage - a.matchPercentage);
+
+  return scoredSuggestions.slice(0, 5).map(({ _score, ...recipe }) => recipe);
+}
+
 async function fetchRecipeImage(recipeName) {
   try {
     if (!env.unsplashAccessKey) {
@@ -86,6 +308,60 @@ function serializeRecipe(row) {
     substitutions: row.substitutions,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function buildRecipePersistencePayload(recipeData, fallbackTitle) {
+  const normalizedTitle = normalizeTitle(recipeData?.title || fallbackTitle || "Untitled Recipe");
+  const validCategories = ["breakfast", "lunch", "dinner", "snack", "dessert"];
+  const validCuisines = [
+    "italian",
+    "chinese",
+    "mexican",
+    "indian",
+    "american",
+    "thai",
+    "japanese",
+    "mediterranean",
+    "french",
+    "korean",
+    "vietnamese",
+    "spanish",
+    "greek",
+    "turkish",
+    "moroccan",
+    "brazilian",
+    "caribbean",
+    "middle - eastern",
+    "british",
+    "german",
+    "portuguese",
+    "other",
+  ];
+
+  const category = validCategories.includes(recipeData?.category?.toLowerCase())
+    ? recipeData.category.toLowerCase()
+    : "dinner";
+  const normalizedCuisine = normalizeCuisineValue(recipeData?.cuisine);
+  const cuisine = validCuisines.includes(normalizedCuisine) ? normalizedCuisine : "other";
+
+  return {
+    ...recipeData,
+    title: normalizedTitle,
+    description: recipeData?.description || "",
+    category,
+    cuisine,
+    ingredients: Array.isArray(recipeData?.ingredients) ? recipeData.ingredients : [],
+    instructions: Array.isArray(recipeData?.instructions) ? recipeData.instructions : [],
+    prepTime: Number(recipeData?.prepTime || 0),
+    cookTime: Number(recipeData?.cookTime || 0),
+    servings: Number(recipeData?.servings || 1),
+    nutrition: recipeData?.nutrition && typeof recipeData.nutrition === "object"
+      ? recipeData.nutrition
+      : {},
+    tips: Array.isArray(recipeData?.tips) ? recipeData.tips : [],
+    substitutions: Array.isArray(recipeData?.substitutions) ? recipeData.substitutions : [],
+    imageUrl: recipeData?.imageUrl || "",
   };
 }
 
@@ -258,49 +534,15 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no expla
     throw new Error("Failed to generate recipe. Please try again.");
   }
 
-  const validCategories = ["breakfast", "lunch", "dinner", "snack", "dessert"];
-  const validCuisines = [
-    "italian",
-    "chinese",
-    "mexican",
-    "indian",
-    "american",
-    "thai",
-    "japanese",
-    "mediterranean",
-    "french",
-    "korean",
-    "vietnamese",
-    "spanish",
-    "greek",
-    "turkish",
-    "moroccan",
-    "brazilian",
-    "caribbean",
-    "middle - eastern",
-    "british",
-    "german",
-    "portuguese",
-    "other",
-  ];
-
-  const category = validCategories.includes(recipeData.category?.toLowerCase())
-    ? recipeData.category.toLowerCase()
-    : "dinner";
-  const normalizedCuisine = normalizeCuisineValue(recipeData.cuisine);
-  const cuisine = validCuisines.includes(normalizedCuisine) ? normalizedCuisine : "other";
   const imageUrl = await fetchRecipeImage(normalizedTitle);
 
-  const payload = {
-    ...recipeData,
-    title: normalizedTitle,
-    category,
-    cuisine,
-    prepTime: Number(recipeData.prepTime || 0),
-    cookTime: Number(recipeData.cookTime || 0),
-    servings: Number(recipeData.servings || 1),
-    imageUrl: imageUrl || "",
-  };
+  const payload = buildRecipePersistencePayload(
+    {
+      ...recipeData,
+      imageUrl: imageUrl || "",
+    },
+    normalizedTitle,
+  );
 
   let createdRecipe = null;
 
@@ -330,6 +572,31 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no expla
   };
 }
 
+async function ensureRecipeRecord(recipeData, userId) {
+  const recipeTitle = recipeData?.title;
+
+  if (!recipeTitle) {
+    throw new Error("Recipe title is required to save this recipe");
+  }
+
+  const existingRecipe = await findRecipeByTitle(recipeTitle);
+
+  if (existingRecipe) {
+    return existingRecipe;
+  }
+
+  const payload = buildRecipePersistencePayload(recipeData, recipeTitle);
+  const imageUrl = payload.imageUrl || (await fetchRecipeImage(payload.title));
+
+  return insertRecipe(
+    {
+      ...payload,
+      imageUrl,
+    },
+    userId,
+  );
+}
+
 async function listRecipeSuggestions(userId, diet) {
   const pantryResult = await query(
     `
@@ -349,11 +616,8 @@ async function listRecipeSuggestions(userId, diet) {
     };
   }
 
-  if (!env.openrouterApiKey) {
-    throw new Error("OPENROUTER_API_KEY is not configured");
-  }
-
-  const ingredients = pantryResult.rows.map((item) => item.name).join(", ");
+  const ingredientNames = pantryResult.rows.map((item) => item.name);
+  const ingredients = ingredientNames.join(", ");
   const dietRestriction =
     diet === "veg"
       ? "Strictly Vegetarian (no meat, no fish, no poultry)."
@@ -383,6 +647,18 @@ Return ONLY a valid JSON array (no markdown, no explanations):
 ]
 `;
 
+  if (!env.openrouterApiKey) {
+    const fallbackRecipes = buildFallbackRecipeSuggestions(ingredientNames, diet);
+
+    return {
+      success: true,
+      recipes: fallbackRecipes,
+      ingredientsUsed: ingredients,
+      fallbackUsed: true,
+      message: "AI was unavailable, so we created pantry-first suggestions for you.",
+    };
+  }
+
   let text = "";
   try {
     text = await createOpenRouterChatCompletion({
@@ -403,16 +679,31 @@ Return ONLY a valid JSON array (no markdown, no explanations):
     });
   } catch (error) {
     console.error("OpenRouter recipe suggestion error:", error);
-    throw new Error(toUserFacingAiError(error));
+    const fallbackRecipes = buildFallbackRecipeSuggestions(ingredientNames, diet);
+
+    return {
+      success: true,
+      recipes: fallbackRecipes,
+      ingredientsUsed: ingredients,
+      fallbackUsed: true,
+      message: "AI was unavailable, so we created pantry-first suggestions for you.",
+    };
   }
 
   let recipeSuggestions;
   try {
-    recipeSuggestions = JSON.parse(
-      text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim(),
-    );
-  } catch {
-    throw new Error("Failed to generate recipe suggestions. Please try again.");
+    recipeSuggestions = extractJsonArray(text);
+  } catch (error) {
+    console.error("Recipe suggestion parsing error:", error);
+    const fallbackRecipes = buildFallbackRecipeSuggestions(ingredientNames, diet);
+
+    return {
+      success: true,
+      recipes: fallbackRecipes,
+      ingredientsUsed: ingredients,
+      fallbackUsed: true,
+      message: "AI returned an incomplete response, so we created pantry-first suggestions for you.",
+    };
   }
 
   return {
@@ -459,6 +750,17 @@ async function saveRecipeForUser(userId, recipeId) {
   };
 }
 
+async function saveGeneratedRecipeForUser(userId, recipeData) {
+  const recipeRow = await ensureRecipeRecord(recipeData, userId);
+  const result = await saveRecipeForUser(userId, recipeRow.id);
+
+  return {
+    ...result,
+    recipeId: String(recipeRow.id),
+    recipe: serializeRecipe(recipeRow),
+  };
+}
+
 async function removeRecipeForUser(userId, recipeId) {
   await query(
     `
@@ -499,6 +801,7 @@ module.exports = {
   generateRecipeDetails,
   listRecipeSuggestions,
   saveRecipeForUser,
+  saveGeneratedRecipeForUser,
   removeRecipeForUser,
   listSavedRecipes,
 };

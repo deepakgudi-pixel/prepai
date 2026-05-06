@@ -19,7 +19,7 @@ export default function RecipeGrid({
       const formattedValue = value.charAt(0).toUpperCase() + value.slice(1);
       fetchMeals(formattedValue);
     }
-  }, [value]);
+  }, [fetchMeals, value]);
 
   const meals = data?.meals || [];
   const displayName = value?.replace(/-/g, " ");
