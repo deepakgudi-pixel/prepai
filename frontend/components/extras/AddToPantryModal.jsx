@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -46,7 +46,6 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
 
   const lenis = useLenis();
 
-  // Strictly enforce scroll locking when modal is open
   useEffect(() => {
     if (isOpen) {
       if (lenis) lenis.stop();
@@ -58,12 +57,12 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
     };
   }, [isOpen, lenis]);
 
-  const handleImageSelect = (file) => {
+  const handleImageSelect = useCallback((file) => {
     setSelectedImage(file);
     setScannedIngredients([]);
-  };
+  }, []);
 
-  const handleScan = async () => {
+  const handleScan = useCallback(async () => {
     if (!selectedImage) return;
     if (!authUser) {
       toast.error("Please sign in to scan and save pantry items");
@@ -76,7 +75,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
     if (result?.success === false) {
       toast.error(result.message || "Failed to scan image");
     }
-  };
+  }, [selectedImage, authUser, scanImage]);
 
   useEffect(() => {
     if (scanData?.success && scanData?.ingredients) {
@@ -85,7 +84,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
     }
   }, [scanData]);
 
-  const handleSaveScanned = async () => {
+  const handleSaveScanned = useCallback(async () => {
     if (scannedIngredients.length === 0) {
       toast.error("No ingredients to save");
       return;
@@ -102,15 +101,15 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
     if (result?.success === false) {
       toast.error(result.message || "Failed to save items");
     }
-  };
+  }, [scannedIngredients, authUser, saveScannedItems]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setActiveTab("scan");
     setSelectedImage(null);
     setScannedIngredients([]);
     setManualItem({ name: "", quantity: "" });
     onClose();
-  };
+  }, [onClose]);
 
   useEffect(() => {
     if (saveData?.success) {
@@ -150,9 +149,9 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
     }
   }, [addData]);
 
-  const removeIngredient = (index) => {
-    setScannedIngredients(scannedIngredients.filter((_, i) => i !== index));
-  };
+  const removeIngredient = useCallback((index) => {
+    setScannedIngredients(prev => prev.filter((_, i) => i !== index));
+  }, []);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>

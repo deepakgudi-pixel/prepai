@@ -14,7 +14,6 @@ export default function CustomCursor() {
   const cursorY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
-    // Detect touch devices
     const mql = window.matchMedia("(pointer: coarse)");
     setIsTouch(mql.matches);
     const onChange = (e) => setIsTouch(e.matches);
@@ -52,7 +51,7 @@ export default function CustomCursor() {
       window.removeEventListener("mousemove", moveCursor);
       window.removeEventListener("mouseover", handleMouseOver);
     };
-  }, [mouseX, mouseY, isTouch]);
+  }, [isTouch, mouseX, mouseY]);
 
   if (isTouch) return null;
 
@@ -64,6 +63,7 @@ export default function CustomCursor() {
         y: cursorY,
         translateX: "-50%",
         translateY: "-50%",
+        willChange: "transform, width, height",
       }}
       initial={false}
       animate={{
