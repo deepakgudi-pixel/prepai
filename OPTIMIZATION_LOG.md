@@ -1,382 +1,143 @@
-# Frontend Optimization Log
+# Engineering Decision Log
 
-**Date**: 2026-05-06
-**Purpose**: Document engineering decisions for learning and future reference
+**Project**: PrepAI  
+**Purpose**: Capture high-value product and engineering decisions in a way that is useful to maintainers, reviewers, and future employers.  
+**Last Updated**: 2026-05-06
+
+## What Belongs Here
+- Changes that improve performance, reliability, UX quality, or maintainability.
+- Fixes where the reasoning matters more than the code diff alone.
+- Decisions with tradeoffs that future contributors should understand quickly.
+
+## What Does Not Belong Here
+- Tiny cosmetic edits with no lasting impact.
+- Obvious refactors that are fully explained by the diff.
+- Repetitive work logs or step-by-step implementation diaries.
+
+## Entry Format
+Each entry follows the same structure:
+- `User Problem`: what surfaced from product behavior or user feedback
+- `Root Cause`: why it was happening
+- `Solution`: what changed
+- `Effect`: what improved
 
 ---
 
-## Optimization Run: 2026-05-06 14:25:31 IST
+## 2026-05-06 14:25:31 IST
+**Area**: Frontend optimization and UI performance  
+**Scope**: Shared fetch flow, motion layer, homepage shell, image handling, header, build reliability
 
 ### User Problem
-- User asked for app code optimization, animation performance improvements, and UI enhancements, with an explicit request to inspect first instead of changing code blindly.
+- The app needed targeted code optimization, animation performance cleanup, and UI refinement without making blind or risky changes.
 
 ### Root Cause
-- Multiple frontend pages were mirroring fetched data into local state, which created avoidable render work and triggered React's stricter `set-state-in-effect` lint rule.
-- Global motion features were always active, even for reduced-motion or coarse-pointer contexts, and the marquee relied on JS animation with a hard-coded travel distance.
-- The frontend shell still depended on remote Google font fetching for builds, which made production verification brittle in this environment.
-- A few UI/media paths were heavier than needed, including base64 image previews, a raw header avatar image, and some unused or over-wired motion setup on the home page.
+- Several pages mirrored fetched data into local state, which increased render work and triggered React lint friction.
+- Motion-heavy features were always active, including on reduced-motion and coarse-pointer devices.
+- The homepage marquee and shell used heavier-than-needed animation behavior.
+- The frontend layout depended on remote Google font fetching, which made build verification fragile in this environment.
+- Some media/UI paths were less efficient than they should be, including base64 image previews and a raw avatar image path.
 
 ### Solution
-- Stabilized the shared `useFetch` hook with `useCallback` and updated fetch-driven pages so effect dependencies are complete and predictable.
-- Refactored pantry and recipe pages to derive fetched data directly instead of syncing it back into local state, and moved save/edit success updates into event handlers.
-- Added a reusable `useMediaQuery` hook and used it to make the custom cursor and Lenis smooth scrolling respect reduced-motion and coarse-pointer devices.
-- Replaced the Framer Motion marquee with a CSS-based marquee, removed unused home-page scroll wiring, and reduced non-essential animation work when motion should be minimized.
-- Switched layout typography from remote Google font fetching to curated local font stacks so builds do not depend on external font downloads here.
-- Replaced the header avatar with `next/image`, added Clerk image host support, and changed pantry image preview handling to `URL.createObjectURL` to reduce memory overhead during uploads.
-- Verified the result with `npm run lint` and `npm run build`; the build had to be rerun outside the sandbox because Turbopack worker creation was blocked by sandbox restrictions.
+- Stabilized the shared `useFetch` hook and cleaned up fetch-driven page dependencies.
+- Refactored pantry and recipe pages to derive data directly from fetch results where appropriate.
+- Added a reusable media-query hook and made the custom cursor and smooth scrolling respect reduced-motion and coarse-pointer contexts.
+- Replaced the JS-driven marquee with a CSS-based version and simplified unnecessary home-page motion wiring.
+- Switched layout typography to curated local font stacks.
+- Replaced heavy preview handling with `URL.createObjectURL`, moved the header avatar to `next/image`, and aligned host config accordingly.
 
 ### Effect
-- Frontend lint is clean, and the React data flow is leaner with fewer unnecessary state syncs.
-- Motion-heavy UI now behaves more safely on lower-motion and touch-first devices while preserving the current visual style on capable screens.
-- Uploads, avatars, and the landing page shell are more efficient and more robust.
-- Production build verification now completes successfully in the current environment.
+- Frontend state flow is leaner and easier to reason about.
+- Motion behavior is more resilient across device classes and accessibility preferences.
+- Media handling is more efficient.
+- Production build verification is more reliable in the current environment.
+
+### Verification
+- `frontend`: `npm run lint`
+- `frontend`: `npm run build`  
+  Note: build verification required one rerun outside the sandbox because Turbopack worker creation was blocked inside the sandbox.
 
 ---
 
-## Suggestion Fix Run: 2026-05-06 14:42:00 IST
+## 2026-05-06 14:42:00 IST
+**Area**: Pantry recipe suggestions reliability  
+**Scope**: Backend recipe suggestion generation
 
 ### User Problem
-- Launching pantry recipe suggestions showed: "AI recipe suggestions are temporarily unavailable. We couldn't generate recipes right now. Please try again shortly."
+- Launching pantry-based recipe suggestions could fail with an AI unavailability message instead of producing usable results.
 
 ### Root Cause
-- The pantry suggestions endpoint relied fully on OpenRouter for recipe ideas.
-- If the AI provider was unavailable, rate-limited, timed out, or returned malformed JSON, the backend returned an error instead of usable suggestions.
+- The suggestion endpoint depended entirely on OpenRouter.
+- If the provider was unavailable, rate-limited, timed out, or returned malformed JSON, the request degraded into an error state instead of a functional fallback.
 
 ### Solution
-- Updated [recipes.service.js](/Users/deepak/Downloads/prepAI/backend/src/services/recipes.service.js) so pantry suggestions now degrade gracefully.
-- Added a deterministic pantry-based fallback suggestion generator that builds recipe ideas from the user’s ingredients and selected diet (`all`, `veg`, `non-veg`).
-- Added safer JSON-array extraction for AI responses, so partially wrapped model output no longer breaks the whole suggestions flow.
-- Changed the suggestion service to return fallback recipes when OpenRouter is missing, unavailable, or returns invalid JSON, instead of surfacing the temporary-unavailable error state.
+- Added a deterministic pantry-based fallback suggestion generator keyed to available ingredients and selected diet.
+- Added safer JSON-array extraction for AI responses.
+- Changed the backend suggestion flow to return fallback suggestions when AI is unavailable or returns invalid output.
 
 ### Effect
-- Clicking "Launch Suggestions" no longer dead-ends the user when the AI provider has a bad moment.
-- Users still get recipe suggestions tailored to their pantry and diet, so the core pantry-to-recipe flow remains usable.
-- The AI path is preserved when it works, but the app is no longer brittle when it doesn’t.
+- The pantry-to-recipe flow remains usable even when the AI provider has a bad moment.
+- AI suggestions are still preferred when they work, but the feature is no longer brittle.
+
+### Verification
+- Backend service syntax check passed.
+- Runtime note: full DB-backed end-to-end verification was not possible in this shell because `DATABASE_URL` was not configured here.
 
 ---
 
-## Save Fix Run: 2026-05-06 14:47:53 IST
+## 2026-05-06 14:47:53 IST
+**Area**: Recipe save flow reliability  
+**Scope**: Recipe page save behavior, frontend action routing, backend persistence path
 
 ### User Problem
-- Clicking `Save` on the recipe page was not doing anything.
+- Clicking `Save` on some recipe pages appeared to do nothing.
 
 ### Root Cause
 - The recipe page save handler returned early whenever `recipeId` was missing.
-- Some generated recipes can render successfully before they are persisted in the database, which meant the UI showed a save button but had no record ID to send to the existing save endpoint.
+- Some generated recipes could render before they had been persisted, leaving the UI with a visible save button but no database ID to send to the standard save endpoint.
 
 ### Solution
-- Updated the recipe page save flow so it now sends the full recipe payload when `recipeId` is missing instead of silently returning.
-- Added a backend route and service flow to persist generated recipe data on demand, then save that newly created recipe into the user’s collection.
-- Updated the frontend save action to use the normal `/:recipeId/save` endpoint when an ID exists, and the new generated-recipe save endpoint when it does not.
-- After a successful generated save, the page now stores the returned `recipeId` locally so future save/remove actions continue to work normally.
+- Updated the recipe page save flow to send the full recipe payload when no `recipeId` is available.
+- Added a backend route and service path to persist generated recipes on demand, then save them to the user’s collection.
+- Updated the frontend save action to choose between the existing save endpoint and the new generated-recipe save endpoint.
+- After successful save, the page now stores the returned `recipeId` locally so future save/remove actions use the standard path.
 
 ### Effect
-- The `Save` button now works for both already-persisted recipes and freshly generated recipes that did not yet have a database ID.
-- Users no longer see a dead button state caused by missing persistence metadata.
-- The save/remove flow is now resilient instead of depending on recipe generation having completed database persistence earlier in the request lifecycle.
+- The save button now works for both already-persisted recipes and freshly generated recipes.
+- The save/remove flow is resilient instead of assuming persistence already happened earlier in the request lifecycle.
+
+### Verification
+- Backend syntax checks passed for updated service and route files.
+- `frontend`: `npm run lint`
 
 ---
 
-## Toast Polish Run: 2026-05-06 14:52:15 IST
+## 2026-05-06 14:52:15 IST
+**Area**: Notification system polish  
+**Scope**: Toast presentation, typography, state styling
 
 ### User Problem
-- The app toasts felt functional but not editorial, and they did not match the premium visual language used across the rest of the product.
+- Toasts felt generic and did not match the editorial tone of the rest of the product.
 
 ### Root Cause
-- The toast layer was still close to the default Sonner presentation, with only icon changes and basic theme variables.
-- Typography, surface styling, spacing, and state accents were not aligned with the app’s display-first design direction.
+- The app was still close to the default Sonner presentation, with only light icon/theme customization.
+- Typography, spacing, surfaces, and status treatments were not aligned with the product’s visual direction.
 
 ### Solution
-- Restyled the shared toast wrapper in [sonner.jsx](/Users/deepak/Downloads/prepAI/frontend/components/ui/sonner.jsx) with custom class mappings, close button support, and tighter presentation defaults.
-- Added editorial toast styling in [globals.css](/Users/deepak/Downloads/prepAI/frontend/app/globals.css) for glass-like surfaces, display-font titles, refined descriptions, pill actions, and status-specific accent rails.
-- Removed `richColors` from the app toaster mount in [layout.js](/Users/deepak/Downloads/prepAI/frontend/app/layout.js) so the custom visual system fully controls the appearance.
+- Restyled the shared toast wrapper with custom class mappings, close-button support, and tighter presentation defaults.
+- Added editorial toast styling for surface treatment, display-font titles, restrained copy styling, pill-shaped actions, and status-specific accent rails.
+- Removed `richColors` so the custom system fully controls toast appearance.
 
 ### Effect
-- Toasts now feel like part of the product rather than a generic notification layer.
-- Success, error, warning, info, and loading states are easier to scan while still staying visually restrained.
-- The notification system now reinforces the app’s editorial tone instead of interrupting it.
+- Toasts now feel integrated into the product rather than layered on top of it.
+- Success, error, warning, info, and loading states are easier to scan while staying visually restrained.
+
+### Verification
+- `frontend`: `npm run lint`
 
 ---
 
-## Flow 1: User Asks → Analyze → Decide → Implement
-
-### User Request
-> "Help my app with code optimization, animation performance, UI enhancements"
-> "Before starting make a list of it"
-> "Don't start blindly and don't create unnecessary issues"
-> "Focus on what's required without causing any bugs"
-
-### My Approach
-
-**Step 1: Explore First**
-- Explored entire codebase to understand tech stack
-- Found: Next.js 16, React 19, Framer Motion, Tailwind CSS
-- Located all UI components and animation files
-
-**Step 2: Create Risk-Based Priority List**
-| Priority | Risk Level | Action |
-|----------|-------------|--------|
-| HIGH | Low, isolated | Do first |
-| MEDIUM | Safe but needs care | Do with testing |
-| HIGH | Complex/risky | Skip |
-
-**Step 3: Verify After Each Change**
-- Ran `npm run lint` - check for errors
-- Ran `npm run build` - ensure no bugs
-
----
-
-## Change 1: Header toggleMenu
-
-### User Problem
-Menu button was causing unnecessary re-renders
-
-### Root Cause
-Function recreated every render:
-```javascript
-// BAD: New function every render
-const toggleMenu = () => setIsOpen(!isOpen);
-```
-
-### Solution
-```javascript
-// GOOD: Stable reference with useCallback
-const toggleMenu = useCallback(() => setIsOpen(prev => !prev), []);
-```
-
-### Why This Fix
-1. **`useCallback` caches the function** - doesn't recreate unless dependencies change
-2. **Empty deps []** - function never needs to change
-3. **Fixes referential equality** - child components won't re-render unnecessarily
-
-### How It Affects App
-- ✅ Menu opens/closes faster
-- ✅ No unnecessary child re-renders
-- ✅ Better performance on mobile
-
----
-
-## Change 2: AddToPantryModal Event Handlers
-
-### User Problem
-Multiple handlers were being recreated every render, causing eslint warnings
-
-### Root Cause
-Five handlers without memoization:
-```javascript
-// BAD: Created fresh every render
-const handleImageSelect = (file) => {...}
-const handleScan = async () => {...}
-const handleSaveScanned = async () => {...}
-const handleClose = () => {...}
-const removeIngredient = (index) => {...}
-```
-
-### Solution
-```javascript
-// GOOD: Cached with useCallback
-const handleImageSelect = useCallback((file) => {
-  setSelectedImage(file);
-  setScannedIngredients([]);
-}, []);
-
-const handleScan = useCallback(async () => {
-  if (!selectedImage) return;
-  if (!authUser) {
-    toast.error("Please sign in to scan and save pantry items");
-    return;
-  }
-  const formData = new FormData();
-  formData.append("image", selectedImage);
-  formData.append("authUser", JSON.stringify(authUser));
-  const result = await scanImage(formData);
-  if (result?.success === false) {
-    toast.error(result.message || "Failed to scan image");
-  }
-}, [selectedImage, authUser, scanImage]);
-
-const handleSaveScanned = useCallback(async () => {
-  if (scannedIngredients.length === 0) {
-    toast.error("No ingredients to save");
-    return;
-  }
-  if (!authUser) {
-    toast.error("Please sign in to save pantry items");
-    return;
-  }
-  const formData = new FormData();
-  formData.append("ingredients", JSON.stringify(scannedIngredients));
-  formData.append("authUser", JSON.stringify(authUser));
-  const result = await saveScannedItems(formData);
-  if (result?.success === false) {
-    toast.error(result.message || "Failed to save items");
-  }
-}, [scannedIngredients, authUser, saveScannedItems]);
-
-const handleClose = useCallback(() => {
-  setActiveTab("scan");
-  setSelectedImage(null);
-  setScannedIngredients([]);
-  setManualItem({ name: "", quantity: "" });
-  onClose();
-}, [onClose]);
-
-const removeIngredient = useCallback((index) => {
-  setScannedIngredients(prev => prev.filter((_, i) => i !== index));
-}, []);
-```
-
-### Why This Fix
-1. **Fixes eslint warnings** - handlers are now stable references
-2. **Prevents stale closures** - useEffect sees consistent function identities
-3. **Child components benefit** - modal opens faster, no lag from function recreation
-
-### How It Affects App
-- ✅ Modal opens instantly
-- ✅ Scan workflow is smoother
-- ✅ No memory leaks from stale closures
-
----
-
-## Change 3: CustomCursor Animation Performance
-
-### User Problem
-Cursor animations weren't smooth, especially on mobile
-
-### Root Cause
-No browser hint to promote elements to GPU:
-```javascript
-// Browser doesn't know to optimize
-style={{
-  x: cursorX,
-  y: cursorY,
-  translateX: "-50%",
-  translateY: "-50%",
-}}
-```
-
-### Solution
-```javascript
-// Browser promoted to compositor thread
-style={{
-  x: cursorX,
-  y: cursorY,
-  translateX: "-50%",
-  translateY: "-50%",
-  willChange: "transform, width, height",
-}}
-```
-
-### Why This Fix
-1. **`willChange` is a hint** - tells browser "prepare for animation"
-2. **GPU compositing** - element rendered on compositor thread, not main thread
-3. **Only animated properties** - transform, width, height (not backgroundColor)
-
-### How It Affects App
-- ✅ Smoother 60fps cursor movement
-- ✅ Lower CPU usage on mobile
-- ✅ No jank during scroll + hover
-
----
-
-## Skipped: RecipeCard Optimization
-
-### User Problem (Implied)
-Card re-renders on every parent update
-
-### What I Tried
-```javascript
-const data = useMemo(() => {...}, [recipe]);
-const totalTime = useMemo(() => {...}, [data.prepTime, data.cookTime]);
-export default memo(RecipeCardComponent);
-```
-
-### Why I Skipped
-| Factor | Reason |
-|--------|--------|
-| JSX Complexity | 3 variants (grid, list, default) deeply nested |
-| Build Breaking | Edit caused tag misalignment |
-| Risk vs Reward | Low impact, high bug potential |
-
-### Key Learning
-Don't optimize complex JSX until you fully understand its structure.
-
----
-
-## Skipped: useEffect Dependencies
-
-### What's Happening
-```
-React Hook useEffect has missing dependencies: 'fetchItems' and 'fetchPref'
-```
-
-### Why I Skipped
-1. **Intentional** - Code has `eslint-disable` comment
-2. **useFetch returns stable refs** - Functions don't change between renders
-3. **Would cause bugs** - Adding deps would trigger infinite loops
-
-### Key Learning
-Not all lint warnings need fixing. Understand the pattern first.
-
----
-
-## Quick Reference
-
-### When useCallback?
-
-```javascript
-// Use when passing to memoized child
-const MemoizedChild = memo(({ onClick }) => ...);
-
-function Parent() {
-  // Without - child re-renders every time
-  const handleClick = () => {};
-
-  // With - stable reference
-  const handleClick = useCallback(() => {}, []);
-
-  return <MemoizedChild onClick={handleClick} />;
-}
-```
-
-### When useMemo?
-
-```javascript
-// Heavy computation
-const sorted = useMemo(() => items.sort(), [items]);
-
-// Stable object
-const config = useMemo(() => ({ theme: 'dark' }), []);
-```
-
-### When willChange?
-
-```css
-/* YES - animating transform */
-.will-change-transform {
-  will-change: transform;
-}
-
-/* NO - too broad */
-.will-change-all {
-  will-change: all; /* Never */
-}
-
-/* NO - layout triggers */
-.will-change-layout {
-  will-change: width, height; /* Layout thrashing */
-}
-```
-
----
-
-## Commands to Verify
-
-```bash
-npm run lint    # Check errors
-npm run build  # Verify no bugs
-```
-
----
-
-*End of Log*
+## Review Standard
+- Prefer concise entries over diary-style narration.
+- Record decisions, not just activity.
+- Include verification whenever a change can be validated.
+- Optimize for fast scanning by someone who did not make the change.
