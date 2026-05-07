@@ -228,11 +228,11 @@ export default function Header() {
                 <div></div>
                 
                 <SignedOut>
-                  <SignInButton mode="modal">
-                    <button className="bg-[#111] text-[#EAE8E3] rounded-full px-6 py-3 text-[0.65rem] sm:text-xs uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-black hover:scale-105 transition-all duration-300">
-                      SIGN IN <ArrowUpRight className="size-4" />
-                    </button>
-                  </SignInButton>
+                    <SignInButton mode="modal">
+                      <button onClick={() => setIsOpen(false)} className="bg-[#111] text-[#EAE8E3] rounded-full px-6 py-3 text-[0.65rem] sm:text-xs uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-black hover:scale-105 transition-all duration-300">
+                        SIGN IN <ArrowUpRight className="size-4" />
+                      </button>
+                    </SignInButton>
                 </SignedOut>
                 <SignedIn>
                   <SignOutButton>

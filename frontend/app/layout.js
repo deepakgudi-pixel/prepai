@@ -18,8 +18,7 @@ export default function RootLayout({ children }) {
         baseTheme: shadcn,
         elements: {
           card: "rounded-[8px] bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)] border border-stone-200",
-          modalContent:
-            "rounded-[8px] bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)] border border-stone-200",
+          modalContent: "rounded-[16px] bg-[#EAE8E3] backdrop-blur-lg border border-stone-300 shadow-[0_24px_80px_rgba(15,23,42,0.08)]",
           popoverCard:
             "rounded-[8px] bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)] border border-stone-200",
           userButtonPopoverCard:
