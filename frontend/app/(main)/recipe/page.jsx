@@ -227,7 +227,7 @@ function RecipeContent() {
     );
   }
 
-  if (loadingRecipe === false && !recipe) {
+  if (!recipe && (loadError || loadingRecipe === false)) {
     return (
       <div className="bg-[#EAE8E3] min-h-screen flex items-center justify-center pt-20">
         <div className="glass-card px-6 py-20 text-center max-w-2xl w-full mx-auto">
