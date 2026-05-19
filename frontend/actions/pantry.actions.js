@@ -21,24 +21,17 @@ export async function scanPantryImage(formData) {
     const buffer = Buffer.from(bytes);
     const base64Image = buffer.toString("base64");
 
-    const prompt = `You are a professional chef and ingredient recognition expert. Analyze this image of a pantry/fridge and identify all visible food ingredients.
+    const prompt = `Analyze this pantry/fridge image and identify visible food ingredients.
 
-Return ONLY a valid JSON array with this exact structure (no markdown, no explanations):
-[
-  {
-    "name": "ingredient name",
-    "quantity": "estimated quantity with unit",
-    "confidence": 0.95
-  }
-]
+Return ONLY valid JSON array (no markdown):
+[{"name": "ingredient", "quantity": "amount", "confidence": 0.9}]
 
 Rules:
-- Only identify food ingredients (not containers, utensils, or packaging)
-- Be specific (e.g., "Cheddar Cheese" not just "Cheese")
-- Estimate realistic quantities (e.g., "3 eggs", "1 cup milk", "2 tomatoes")
-- Confidence should be 0.7-1.0 (omit items below 0.7)
-- Maximum 20 items
-- Common pantry staples are acceptable (salt, pepper, oil)`;
+- Food only (no containers/utensils)
+- Be specific (e.g., "Cheddar Cheese")
+- Realistic quantities (e.g., "3 eggs", "1 cup milk")
+- Confidence 0.7-1.0 only
+- Max 15 items`;
 
     const text = await createOpenRouterVisionCompletion({
       prompt,
@@ -61,8 +54,8 @@ Rules:
 
     return {
       success: true,
-      ingredients: ingredients.slice(0, 20),
-      message: `Found ${ingredients.length} ingredients!`,
+      ingredients: ingredients.slice(0, 15),
+      message: `Found ${Math.min(ingredients.length, 15)} ingredients!`,
     };
   } catch (error) {
     console.error("OpenRouter pantry scan error:", error);

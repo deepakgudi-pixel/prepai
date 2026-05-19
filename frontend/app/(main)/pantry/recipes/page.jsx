@@ -114,7 +114,7 @@ function PantryRecipesContent() {
       {loading && (
         <section className="section-shell flex flex-col items-center justify-center px-6 py-20 text-center">
           <Loader2 className="size-10 animate-spin text-emerald-900" />
-          <h2 className="mt-5 font-display text-5xl leading-none text-stone-950">
+          <h2 className="mt-5 font-display text-4xl leading-none text-stone-950 sm:text-5xl">
             Finding perfect recipes
           </h2>
           <p className="mt-4 text-stone-600">
@@ -125,7 +125,7 @@ function PantryRecipesContent() {
 
       {!loading && recipes.length > 0 && (
         <section className="space-y-6">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <p className="eyebrow">Suggestions</p>
               <h2 className="section-title mt-4">Best-fit dishes right now.</h2>
@@ -173,7 +173,7 @@ function PantryRecipesContent() {
           <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-stone-950 text-white">
             <AlertCircle className="size-10" />
           </div>
-          <h2 className="mt-8 font-display text-5xl leading-none text-stone-950">
+          <h2 className="mt-8 font-display text-4xl leading-none text-stone-950 sm:text-5xl">
             {isAuthError
               ? "Sign in to generate recipe suggestions."
               : isAiUnavailable
@@ -203,7 +203,7 @@ export default function PantryRecipesPage() {
         <div className="page-frame">
           <section className="section-shell flex flex-col items-center justify-center px-6 py-20 text-center">
             <Loader2 className="size-10 animate-spin text-emerald-900" />
-            <h2 className="mt-5 font-display text-5xl leading-none text-stone-950">
+            <h2 className="mt-5 font-display text-4xl leading-none text-stone-950 sm:text-5xl">
               Finding perfect recipes
             </h2>
             <p className="mt-4 text-stone-600">

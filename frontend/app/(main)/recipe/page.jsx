@@ -198,7 +198,7 @@ function RecipeContent() {
           <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-[#111] text-[#EAE8E3]">
             <AlertCircle className="size-10" />
           </div>
-          <h2 className="mt-8 font-display text-5xl leading-none text-[#111]">
+          <h2 className="mt-8 font-display text-4xl leading-none text-[#111] sm:text-5xl">
             No recipe specified.
           </h2>
           <p className="mt-4 text-[#555]">Please select a recipe from the curated list.</p>
@@ -215,7 +215,7 @@ function RecipeContent() {
       <div className="bg-[#EAE8E3] min-h-screen flex items-center justify-center pt-20">
         <div className="glass-card px-6 py-20 text-center max-w-2xl w-full mx-auto">
           <ClockLoader className="mx-auto" color="#222" />
-          <h2 className="mt-8 font-display text-5xl leading-none text-[#111]">
+          <h2 className="mt-8 font-display text-4xl leading-none text-[#111] sm:text-5xl">
             Preparing your recipe
           </h2>
           <p className="mt-4 text-[#555] font-light">
@@ -234,7 +234,7 @@ function RecipeContent() {
           <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-red-600 text-white">
             <AlertCircle className="size-10" />
           </div>
-          <h2 className="mt-8 font-display text-5xl leading-none text-[#111]">
+          <h2 className="mt-8 font-display text-4xl leading-none text-[#111] sm:text-5xl">
             Failed to load recipe.
           </h2>
           <p className="mt-4 text-[#555] font-light">
@@ -265,7 +265,7 @@ function RecipeContent() {
   return (
     <div className="bg-[#EAE8E3] min-h-screen pb-32">
       {/* Editorial Parallax Hero */}
-      <section className="relative h-[80vh] w-full overflow-hidden flex flex-col justify-end">
+      <section className="relative flex h-[86svh] min-h-[620px] w-full flex-col justify-end overflow-hidden sm:h-[80vh]">
         {recipe.imageUrl ? (
           <motion.div
             style={{
@@ -288,28 +288,28 @@ function RecipeContent() {
           <div className="absolute inset-0 bg-[#222]" />
         )}
 
-        <div className="relative z-10 max-w-[1400px] w-full mx-auto px-6 sm:px-12 lg:px-20 pb-20">
+        <div className="relative z-10 mx-auto w-full max-w-[1400px] px-4 pb-10 sm:px-12 sm:pb-20 lg:px-20">
           <button
             onClick={() => router.back()}
-            className="glass-pill bg-white/10 border-white/20 text-[#EAE8E3] px-6 py-3 text-xs uppercase tracking-[0.2em] hover:bg-white/20 transition-colors inline-flex items-center gap-2 mb-8"
+            className="glass-pill mb-6 inline-flex items-center gap-2 border-white/20 bg-white/10 px-5 py-3 text-xs uppercase tracking-[0.16em] text-[#EAE8E3] transition-colors hover:bg-white/20 sm:mb-8 sm:px-6 sm:tracking-[0.2em]"
           >
             <ArrowLeft className="size-4" /> Back
           </button>
 
           <div className="flex flex-wrap gap-3 mb-6">
-            <span className="glass-pill bg-black/40 border-white/20 text-[#EAE8E3] px-4 py-2 text-[0.65rem] uppercase tracking-[0.2em]">
+            <span className="glass-pill border-white/20 bg-black/40 px-3 py-2 text-[0.65rem] uppercase tracking-[0.16em] text-[#EAE8E3] sm:px-4 sm:tracking-[0.2em]">
               {recipe.cuisine}
             </span>
-            <span className="glass-pill bg-black/40 border-white/20 text-[#EAE8E3] px-4 py-2 text-[0.65rem] uppercase tracking-[0.2em]">
+            <span className="glass-pill border-white/20 bg-black/40 px-3 py-2 text-[0.65rem] uppercase tracking-[0.16em] text-[#EAE8E3] sm:px-4 sm:tracking-[0.2em]">
               {recipe.category}
             </span>
           </div>
 
-          <h1 className="font-display text-6xl sm:text-8xl lg:text-9xl text-[#EAE8E3] leading-[0.9] mb-8">
+          <h1 className="mb-6 break-words font-display text-4xl leading-[0.9] text-[#EAE8E3] sm:mb-8 sm:text-7xl lg:text-9xl">
             {recipe.title}
           </h1>
 
-          <div className="flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-end border-t border-white/20 pt-8">
+          <div className="flex flex-col items-start justify-between gap-5 border-t border-white/20 pt-6 sm:flex-row sm:items-end sm:gap-6 sm:pt-8">
              <div className="flex flex-wrap gap-6 text-[#EAE8E3] font-light text-sm">
                 <span className="flex items-center gap-2">
                   <Clock3 className="size-5" /> {totalTime} mins
@@ -324,13 +324,13 @@ function RecipeContent() {
                 )}
              </div>
              
-             <div className="flex gap-4">
+             <div className="flex w-full flex-wrap gap-3 sm:w-auto sm:gap-4">
                 <PDFDownloadLink
                   document={<RecipePDF recipe={recipe} />}
                   fileName={`${recipe.title.replace(/\s+/g, "-").toLowerCase()}.pdf`}
                 >
                   {({ loading }) => (
-                    <button disabled={loading} className="glass-pill bg-white/10 border-white/20 text-[#EAE8E3] px-6 py-4 text-xs uppercase tracking-[0.2em] hover:bg-white/20 transition-colors inline-flex items-center gap-2">
+                    <button disabled={loading} className="glass-pill inline-flex items-center gap-2 border-white/20 bg-white/10 px-5 py-3.5 text-xs uppercase tracking-[0.16em] text-[#EAE8E3] transition-colors hover:bg-white/20 sm:px-6 sm:py-4 sm:tracking-[0.2em]">
                       <Download className="size-4" /> {loading ? "Preparing..." : "PDF"}
                     </button>
                   )}
@@ -338,7 +338,7 @@ function RecipeContent() {
                 <button
                   onClick={handleToggleSave}
                   disabled={saving || removing}
-                  className="glass-pill bg-[#EAE8E3] text-[#111] px-6 py-4 text-xs uppercase tracking-[0.2em] hover:bg-white transition-colors inline-flex items-center gap-2"
+                  className="glass-pill inline-flex items-center gap-2 bg-[#EAE8E3] px-5 py-3.5 text-xs uppercase tracking-[0.16em] text-[#111] transition-colors hover:bg-white sm:px-6 sm:py-4 sm:tracking-[0.2em]"
                 >
                   {saving || removing ? (
                     <Loader2 className="size-4 animate-spin" />
@@ -355,19 +355,19 @@ function RecipeContent() {
       </section>
 
       {/* Description */}
-      <section className="max-w-[1400px] w-full mx-auto px-6 sm:px-12 lg:px-20 py-24">
-        <p className="font-display text-4xl leading-relaxed text-[#111] max-w-4xl mx-auto text-center">
+      <section className="mx-auto w-full max-w-[1400px] px-4 py-16 sm:px-12 sm:py-24 lg:px-20">
+        <p className="mx-auto max-w-4xl text-center font-display text-2xl leading-relaxed text-[#111] sm:text-4xl">
           &ldquo;{recipe.description}&rdquo;
         </p>
       </section>
 
       {/* Main Content Grid */}
-      <section className="max-w-[1400px] w-full mx-auto px-6 sm:px-12 lg:px-20 grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+      <section className="mx-auto grid w-full max-w-[1400px] gap-8 px-4 sm:px-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-12 lg:px-20">
         
         {/* Ingredients Column */}
         <div className="space-y-8">
-          <div className="glass-card p-10 lg:sticky lg:top-32">
-            <h2 className="flex items-center gap-4 font-display text-5xl leading-none text-[#111] border-b border-[#D5D3CE] pb-8 mb-8">
+          <div className="glass-card p-6 sm:p-10 lg:sticky lg:top-32">
+            <h2 className="mb-8 flex items-center gap-3 border-b border-[#D5D3CE] pb-6 font-display text-3xl leading-none text-[#111] sm:gap-4 sm:pb-8 sm:text-5xl">
               <ChefHat className="size-8 text-[#555]" /> Ingredients
             </h2>
 
@@ -387,9 +387,9 @@ function RecipeContent() {
                     {items.map((ingredient, index) => (
                       <li
                         key={`${ingredient.item}-${index}`}
-                        className="flex items-end justify-between border-b border-dashed border-[#D5D3CE] pb-2"
+                        className="flex flex-col gap-1 border-b border-dashed border-[#D5D3CE] pb-2 sm:flex-row sm:items-end sm:justify-between"
                       >
-                        <span className="text-lg text-[#111] font-light">{ingredient.item}</span>
+                        <span className="break-words text-base font-light text-[#111] sm:text-lg">{ingredient.item}</span>
                         <span className="text-sm font-medium text-[#555]">
                           {ingredient.amount}
                         </span>
@@ -427,12 +427,12 @@ function RecipeContent() {
 
         {/* Instructions Column */}
         <div className="space-y-8">
-          <div className="glass-card p-10 sm:p-16">
-            <h2 className="font-display text-5xl leading-none text-[#111] border-b border-[#D5D3CE] pb-8 mb-12">
+          <div className="glass-card p-6 sm:p-16">
+            <h2 className="mb-10 border-b border-[#D5D3CE] pb-6 font-display text-3xl leading-none text-[#111] sm:mb-12 sm:pb-8 sm:text-5xl">
               Method
             </h2>
 
-            <div className="space-y-16">
+            <div className="space-y-12 sm:space-y-16">
               {recipe.instructions.map((step) => (
                 <motion.div 
                   key={step.step} 
@@ -446,10 +446,10 @@ function RecipeContent() {
                     {step.step}
                   </div>
                   <div>
-                    <h3 className="font-display text-3xl text-[#111] mb-4">
+                    <h3 className="mb-4 font-display text-2xl text-[#111] sm:text-3xl">
                       {step.title}
                     </h3>
-                    <p className="text-lg text-[#555] font-light leading-relaxed">
+                    <p className="text-base font-light leading-relaxed text-[#555] sm:text-lg">
                       {step.instruction}
                     </p>
                     {step.tip && (
@@ -467,10 +467,10 @@ function RecipeContent() {
               ))}
             </div>
 
-            <div className="mt-20 border-t border-[#D5D3CE] pt-12 flex items-start gap-6">
+            <div className="mt-16 flex items-start gap-4 border-t border-[#D5D3CE] pt-10 sm:mt-20 sm:gap-6 sm:pt-12">
               <CheckCircle2 className="size-8 text-[#111] shrink-0" />
               <div>
-                <h3 className="font-display text-3xl text-[#111] mb-2">
+                <h3 className="mb-2 font-display text-2xl text-[#111] sm:text-3xl">
                   You&apos;re all set.
                 </h3>
                 <p className="text-[#555] font-light leading-relaxed">
@@ -484,8 +484,8 @@ function RecipeContent() {
           {/* Tips & Substitutions */}
           <div className="grid sm:grid-cols-2 gap-8">
             {recipe.tips && recipe.tips.length > 0 && (
-              <div className="glass-card bg-[#111] text-[#EAE8E3] p-10">
-                <h2 className="flex items-center gap-3 font-display text-4xl mb-8">
+              <div className="glass-card bg-[#111] p-6 text-[#EAE8E3] sm:p-10">
+                <h2 className="mb-8 flex items-center gap-3 font-display text-3xl sm:text-4xl">
                   <Lightbulb className="size-6 text-white" />
                   Chef&apos;s notes
                 </h2>
@@ -500,8 +500,8 @@ function RecipeContent() {
             )}
 
             {recipe.substitutions && recipe.substitutions.length > 0 && (
-              <div className="glass-card p-10">
-                <h2 className="font-display text-4xl text-[#111] mb-8">
+              <div className="glass-card p-6 sm:p-10">
+                <h2 className="mb-8 font-display text-3xl text-[#111] sm:text-4xl">
                   Substitutions
                 </h2>
                 <div className="space-y-6">

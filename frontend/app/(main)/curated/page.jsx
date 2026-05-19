@@ -18,13 +18,13 @@ export default async function CuratedPage() {
   return (
     <div className="bg-[#EAE8E3] pb-32">
       {/* Curated Header */}
-      <section className="pt-32 pb-12 px-6 sm:px-12 lg:px-20 max-w-[1400px] mx-auto">
+      <section className="mx-auto max-w-[1400px] px-4 pb-12 pt-32 sm:px-12 lg:px-20">
         <p className="eyebrow mb-6">Discovery</p>
         <h1 className="display-title mb-8">
           Inspiration for <br/> <span className="italic text-[#777]">tonight.</span>
         </h1>
         
-        <div className="flex flex-col sm:flex-row gap-6 mt-12">
+        <div className="mt-10 flex flex-col gap-4 sm:mt-12 sm:flex-row sm:gap-6">
            <div className="glass-pill px-6 py-4 flex gap-4 items-center">
               <span className="text-xs uppercase tracking-[0.2em] text-[#777]">Collections</span>
               <span className="font-display text-2xl">{categories.length}</span>
@@ -38,10 +38,10 @@ export default async function CuratedPage() {
 
       {/* Featured Recipe */}
       {recipeOfTheDay && (
-        <section className="px-6 sm:px-12 lg:px-20 max-w-[1400px] mx-auto mb-32">
+        <section className="mx-auto mb-20 max-w-[1400px] px-4 sm:mb-32 sm:px-12 lg:px-20">
            <Link
              href={`/recipe?cook=${encodeURIComponent(recipeOfTheDay.strMeal)}`}
-             className="group block relative w-full h-[600px] rounded-3xl overflow-hidden"
+             className="group relative block h-[420px] w-full overflow-hidden rounded-3xl sm:h-[600px]"
            >
               <Image
                 src={recipeOfTheDay.strMealThumb}
@@ -52,17 +52,17 @@ export default async function CuratedPage() {
               />
               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-700" />
               
-              <div className="absolute inset-0 p-8 sm:p-16 flex flex-col justify-end">
+              <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-16">
                 <div className="max-w-2xl">
-                  <div className="flex gap-4 mb-6">
-                    <span className="glass-pill px-4 py-2 text-xs uppercase tracking-[0.2em] text-[#EAE8E3] bg-black/30 border-white/20">
+                  <div className="mb-5 flex flex-wrap gap-3 sm:mb-6 sm:gap-4">
+                    <span className="glass-pill border-white/20 bg-black/30 px-3 py-2 text-[0.65rem] uppercase tracking-[0.16em] text-[#EAE8E3] sm:px-4 sm:text-xs sm:tracking-[0.2em]">
                       {recipeOfTheDay.strCategory}
                     </span>
-                    <span className="glass-pill px-4 py-2 text-xs uppercase tracking-[0.2em] text-[#EAE8E3] bg-black/30 border-white/20">
+                    <span className="glass-pill border-white/20 bg-black/30 px-3 py-2 text-[0.65rem] uppercase tracking-[0.16em] text-[#EAE8E3] sm:px-4 sm:text-xs sm:tracking-[0.2em]">
                       {recipeOfTheDay.strArea}
                     </span>
                   </div>
-                  <h2 className="font-display text-5xl sm:text-7xl text-[#EAE8E3] mb-6">
+                  <h2 className="mb-6 break-words font-display text-4xl leading-none text-[#EAE8E3] sm:text-7xl">
                     {recipeOfTheDay.strMeal}
                   </h2>
                   <div className="flex items-center gap-4 text-[#EAE8E3]">
@@ -78,11 +78,11 @@ export default async function CuratedPage() {
       )}
 
       {/* Categories Grid */}
-      <section className="px-6 sm:px-12 lg:px-20 max-w-[1400px] mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16">
+      <section className="mx-auto max-w-[1400px] px-4 sm:px-12 lg:px-20">
+        <div className="mb-10 flex flex-col items-start justify-between gap-4 md:mb-16 md:flex-row md:items-end">
           <div>
             <p className="eyebrow mb-4">Browse</p>
-            <h2 className="font-display text-5xl">Collections</h2>
+            <h2 className="font-display text-4xl sm:text-5xl">Collections</h2>
           </div>
           <p className="text-[#777] font-light max-w-sm">Jump straight into a shelf of familiar formats: breakfast, pasta, vegan, and more.</p>
         </div>

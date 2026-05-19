@@ -1,5 +1,6 @@
 import "./globals.css";
 import Header from "@/components/extras/header";
+import AIChat from "@/components/extras/AIChat";
 import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/themes";
 import { Toaster } from "@/components/ui/sonner";
@@ -34,6 +35,7 @@ export default function RootLayout({ children }) {
           userButtonPopoverFooter: "opacity-100",
           navbar: "bg-white",
           pageScrollBox: "bg-transparent",
+          footer: "hidden",
         },
       }}
     >
@@ -43,6 +45,7 @@ export default function RootLayout({ children }) {
           <SmoothScroll>
             <Header />
             <main className="min-h-screen">{children}</main>
+            <AIChat />
             <Toaster />
           </SmoothScroll>
         </body>

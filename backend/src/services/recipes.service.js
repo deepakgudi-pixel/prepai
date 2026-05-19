@@ -69,7 +69,28 @@ function extractJsonArray(text) {
     throw new Error("Failed to generate recipe suggestions. Please try again.");
   }
 
-  return JSON.parse(sanitized.slice(firstBracket, lastBracket + 1));
+  const jsonStr = sanitized.slice(firstBracket, lastBracket + 1);
+
+  try {
+    return JSON.parse(jsonStr);
+  } catch (error) {
+    // Try to fix common JSON issues
+    let fixed = jsonStr
+      // Remove trailing commas before closing braces/brackets
+      .replace(/,(\s*[}\]])/g, '$1')
+      // Fix unescaped quotes in strings (basic attempt)
+      .replace(/([^\\])"([^"]*)":/g, '$1\\"$2":')
+      // Remove any control characters
+      .replace(/[\x00-\x1F\x7F]/g, '');
+
+    try {
+      return JSON.parse(fixed);
+    } catch (secondError) {
+      console.error("JSON parsing failed even after fixes:", secondError.message);
+      console.error("Problematic JSON:", jsonStr.substring(0, 500));
+      throw new Error("Failed to generate recipe suggestions. Please try again.");
+    }
+  }
 }
 
 function createFallbackDescription(title, ingredients) {
@@ -797,6 +818,255 @@ async function listSavedRecipes(userId) {
   };
 }
 
+/**
+ * Suggest recipes based on remaining macros
+ */
+async function suggestRecipesForMacros(userId, remainingMacros) {
+  const { calories, protein, carbs, fats } = remainingMacros;
+
+  // First, try to match from saved recipes
+  const savedResult = await query(
+    `
+      SELECT r.*
+      FROM saved_recipes sr
+      INNER JOIN recipes r ON r.id = sr.recipe_id
+      WHERE sr.user_id = $1
+    `,
+    [userId],
+  );
+
+  let matchingRecipes = [];
+
+  if (savedResult.rows.length > 0) {
+    // Filter recipes that fit within remaining macros (with 20% tolerance)
+    const tolerance = 1.2;
+    matchingRecipes = savedResult.rows
+      .filter((recipe) => {
+        const nutrition = recipe.nutrition || {};
+        const recipeCalories = Number(nutrition.calories || 0);
+        const recipeProtein = Number(nutrition.protein || 0);
+        const recipeCarbs = Number(nutrition.carbs || 0);
+        const recipeFats = Number(nutrition.fat || nutrition.fats || 0);
+
+        // Recipe should fit within remaining macros (with tolerance)
+        return (
+          recipeCalories <= calories * tolerance &&
+          recipeProtein <= protein * tolerance &&
+          recipeCarbs <= carbs * tolerance &&
+          recipeFats <= fats * tolerance &&
+          recipeCalories > 0 // Must have nutrition data
+        );
+      })
+      .map((recipe) => {
+        const nutrition = recipe.nutrition || {};
+        const recipeCalories = Number(nutrition.calories || 0);
+        const recipeProtein = Number(nutrition.protein || 0);
+        const recipeCarbs = Number(nutrition.carbs || 0);
+        const recipeFats = Number(nutrition.fat || nutrition.fats || 0);
+
+        // Calculate match score (how well it uses remaining macros)
+        const calorieScore = Math.min(recipeCalories / calories, 1) * 100;
+        const proteinScore = Math.min(recipeProtein / protein, 1) * 100;
+        const carbScore = Math.min(recipeCarbs / carbs, 1) * 100;
+        const fatScore = Math.min(recipeFats / fats, 1) * 100;
+
+        // Protein is most important, then calories
+        const matchScore = (proteinScore * 0.4 + calorieScore * 0.3 + carbScore * 0.15 + fatScore * 0.15);
+
+        return {
+          ...serializeRecipe(recipe),
+          matchScore: Math.round(matchScore),
+          macroFit: {
+            calories: recipeCalories,
+            protein: recipeProtein,
+            carbs: recipeCarbs,
+            fats: recipeFats,
+          },
+        };
+      })
+      .sort((a, b) => b.matchScore - a.matchScore)
+      .slice(0, 5);
+  }
+
+  // If we have matching saved recipes, use AI to explain them
+  if (matchingRecipes.length > 0 && env.openrouterApiKey) {
+    const prompt = `
+You are a nutrition coach. The user has these remaining macros for today:
+- Calories: ${calories}
+- Protein: ${protein}g
+- Carbs: ${carbs}g
+- Fats: ${fats}g
+
+For each recipe below, write a brief 1-sentence explanation of why it's a good fit for their remaining macros.
+
+Recipes:
+${matchingRecipes.map((r, i) => `${i + 1}. ${r.title} (${r.macroFit.calories} cal, ${r.macroFit.protein}g protein, ${r.macroFit.carbs}g carbs, ${r.macroFit.fats}g fats)`).join("\n")}
+
+Return ONLY a valid JSON array with explanations (no markdown, no commentary):
+[
+  "Explanation for recipe 1",
+  "Explanation for recipe 2",
+  ...
+]
+`;
+
+    let explanations = [];
+    try {
+      const text = await createOpenRouterChatCompletion({
+        model: env.openrouterTextModel,
+        temperature: 0.3,
+        max_tokens: 500,
+        messages: [
+          {
+            role: "system",
+            content: "You are a nutrition coach. Return only valid JSON with no markdown fences.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      });
+
+      explanations = extractJsonArray(text);
+    } catch (error) {
+      console.error("AI explanation generation error:", error);
+      explanations = matchingRecipes.map((recipe) =>
+        `This recipe provides ${recipe.macroFit.calories} calories and ${recipe.macroFit.protein}g protein, fitting well within your remaining daily targets.`
+      );
+    }
+
+    const recipesWithExplanations = matchingRecipes.map((recipe, index) => ({
+      ...recipe,
+      aiExplanation: explanations[index] || `Great fit for your remaining macros!`,
+    }));
+
+    return {
+      success: true,
+      recipes: recipesWithExplanations,
+      fromSaved: true,
+      message: `Found ${recipesWithExplanations.length} recipes from your collection that fit your macros!`,
+    };
+  }
+
+  // If no saved recipes or no matches, generate AI suggestions
+  if (!env.openrouterApiKey) {
+    return {
+      success: false,
+      recipes: [],
+      message: "AI recipe generation is not available. Try saving some recipes first!",
+    };
+  }
+
+  const prompt = `
+You are a professional chef and nutrition expert. The user has these remaining macros for today:
+- Calories: ${calories}
+- Protein: ${protein}g
+- Carbs: ${carbs}g
+- Fats: ${fats}g
+
+Suggest 5 recipes that fit within these remaining macros (with 20% tolerance). Each recipe should be practical and delicious.
+
+Return ONLY a valid JSON array (no markdown, no explanations):
+[
+  {
+    "title": "Recipe name",
+    "description": "Brief 2-3 sentence description",
+    "category": "breakfast|lunch|dinner|snack|dessert",
+    "cuisine": "italian|chinese|mexican|indian|american|thai|japanese|mediterranean|french|korean|other",
+    "prepTime": 20,
+    "cookTime": 30,
+    "servings": 2,
+    "nutrition": {
+      "calories": 400,
+      "protein": 30,
+      "carbs": 40,
+      "fat": 15
+    },
+    "ingredients": [
+      {"item": "ingredient name", "amount": "quantity", "category": "Protein|Vegetable|Grain|Other"}
+    ],
+    "instructions": [
+      {"step": 1, "title": "Step title", "instruction": "Detailed instruction"}
+    ],
+    "aiExplanation": "Why this recipe fits the user's remaining macros"
+  }
+]
+`;
+
+  let text = "";
+  try {
+    text = await createOpenRouterChatCompletion({
+      model: env.openrouterTextModel,
+      temperature: 0.4,
+      max_tokens: 2000,
+      messages: [
+        {
+          role: "system",
+          content: "You are a professional chef and nutrition expert. Return only valid JSON with no markdown fences.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
+  } catch (error) {
+    console.error("OpenRouter recipe suggestion error:", error);
+    return {
+      success: false,
+      recipes: [],
+      message: toUserFacingAiError(error),
+    };
+  }
+
+  let recipeSuggestions;
+  try {
+    recipeSuggestions = extractJsonArray(text);
+  } catch (error) {
+    console.error("Recipe suggestion parsing error:", error);
+    return {
+      success: false,
+      recipes: [],
+      message: "Failed to generate recipe suggestions. Please try again.",
+    };
+  }
+
+  // Add match scores to AI-generated recipes
+  const recipesWithScores = recipeSuggestions.map((recipe) => {
+    const nutrition = recipe.nutrition || {};
+    const recipeCalories = Number(nutrition.calories || 0);
+    const recipeProtein = Number(nutrition.protein || 0);
+    const recipeCarbs = Number(nutrition.carbs || 0);
+    const recipeFats = Number(nutrition.fat || nutrition.fats || 0);
+
+    const calorieScore = Math.min(recipeCalories / calories, 1) * 100;
+    const proteinScore = Math.min(recipeProtein / protein, 1) * 100;
+    const carbScore = Math.min(recipeCarbs / carbs, 1) * 100;
+    const fatScore = Math.min(recipeFats / fats, 1) * 100;
+
+    const matchScore = (proteinScore * 0.4 + calorieScore * 0.3 + carbScore * 0.15 + fatScore * 0.15);
+
+    return {
+      ...recipe,
+      matchScore: Math.round(matchScore),
+      macroFit: {
+        calories: recipeCalories,
+        protein: recipeProtein,
+        carbs: recipeCarbs,
+        fats: recipeFats,
+      },
+    };
+  });
+
+  return {
+    success: true,
+    recipes: recipesWithScores,
+    fromSaved: false,
+    message: `Generated ${recipesWithScores.length} AI recipe suggestions for your macros!`,
+  };
+}
+
 module.exports = {
   generateRecipeDetails,
   listRecipeSuggestions,
@@ -804,4 +1074,5 @@ module.exports = {
   saveGeneratedRecipeForUser,
   removeRecipeForUser,
   listSavedRecipes,
+  suggestRecipesForMacros,
 };

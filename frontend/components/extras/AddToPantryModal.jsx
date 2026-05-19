@@ -164,9 +164,9 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
     >
       <DialogContent 
         onPointerDownOutside={(e) => e.preventDefault()}
-        className="max-h-[90vh] max-w-[calc(100%-2.5rem)] sm:max-w-2xl flex flex-col [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] border border-[#D5D3CE] bg-[#EAE8E3] p-0 shadow-2xl backdrop-blur-xl rounded-[20px] sm:rounded-[32px]"
+        className="flex max-h-[calc(100dvh-1.5rem)] max-w-[calc(100%-1.5rem)] flex-col overflow-hidden rounded-[20px] border border-[#D5D3CE] bg-[#EAE8E3] p-0 shadow-2xl backdrop-blur-xl sm:max-h-[90vh] sm:max-w-2xl sm:rounded-[32px]"
       >
-        <div className="p-5 sm:p-12 flex flex-col flex-1 min-h-0">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-5 sm:p-12">
           <DialogHeader className="mb-6 sm:mb-10 text-center sm:text-left">
             <DialogTitle className="font-display text-3xl sm:text-5xl leading-none text-[#111]">
               Add to Pantry
@@ -229,7 +229,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
               ) : (
                 // Step 2: Review & Save
                 <div className="flex flex-col flex-1 min-h-0 space-y-6">
-                  <div className="flex items-end justify-between border-b border-[#D5D3CE] pb-3 sm:pb-4 shrink-0">
+                  <div className="flex shrink-0 flex-col gap-3 border-b border-[#D5D3CE] pb-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4 sm:pb-4">
                     <div>
                       <p className="eyebrow mb-1 sm:mb-2">Detected Inventory</p>
                       <h3 className="font-display text-2xl sm:text-3xl text-[#111]">
@@ -241,7 +241,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
                         setScannedIngredients([]);
                         setSelectedImage(null);
                       }}
-                      className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-[#777] hover:text-[#111] transition-colors flex items-center gap-2"
+                      className="flex items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-[#777] transition-colors hover:text-[#111] sm:tracking-[0.2em]"
                     >
                       <Camera className="w-3 h-3" />
                       Rescan
@@ -249,13 +249,13 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
                   </div>
 
                   {/* Ingredients List */}
-                  <div className="flex-1 min-h-0 overflow-y-auto pr-2 space-y-2">
+                  <div className="flex-1 min-h-0 overflow-y-auto pr-2 space-y-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#D5D3CE] [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-[#aaa]">
                     {scannedIngredients.map((ingredient, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between gap-4 border-b border-[#D5D3CE] py-4 group"
+                        className="group flex items-center justify-between gap-3 border-b border-[#D5D3CE] py-4 sm:gap-4"
                       >
-                        <div className="flex-1">
+                        <div className="min-w-0 flex-1">
                           <div className="font-display text-lg sm:text-2xl text-[#111]">
                             {ingredient.name}
                           </div>
@@ -270,7 +270,8 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
                         )}
                         <button
                           onClick={() => removeIngredient(index)}
-                          className="size-8 flex items-center justify-center rounded-full text-[#aaa] hover:text-[#111] hover:bg-white/50 transition-all opacity-0 group-hover:opacity-100"
+                          className="flex size-8 shrink-0 items-center justify-center rounded-full text-[#777] opacity-100 transition-all hover:bg-white/50 hover:text-[#111] sm:text-[#aaa] sm:opacity-0 sm:group-hover:opacity-100"
+                          aria-label={`Remove ${ingredient.name}`}
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -304,7 +305,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
           {/* Manual Add Tab Content */}
           {activeTab === "manual" && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <form onSubmit={handleAddManual} className="space-y-10">
+              <form onSubmit={handleAddManual} className="space-y-8 sm:space-y-10">
                 <div>
                   <label className="mb-2 block text-[0.65rem] uppercase tracking-[0.2em] text-[#777]">
                     Ingredient Name
@@ -316,7 +317,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
                       setManualItem({ ...manualItem, name: e.target.value })
                     }
                     placeholder="e.g., San Marzano Tomatoes"
-                    className="w-full bg-transparent border-b border-[#D5D3CE] py-3 text-3xl font-display text-[#111] placeholder:text-[#aaa] focus:border-[#222] transition-colors outline-none"
+                    className="w-full border-b border-[#D5D3CE] bg-transparent py-3 font-display text-2xl text-[#111] outline-none transition-colors placeholder:text-[#aaa] focus:border-[#222] sm:text-3xl"
                     disabled={adding}
                   />
                 </div>
@@ -340,7 +341,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
                 <button
                   type="submit"
                   disabled={adding}
-                  className="w-full mt-4 glass-pill bg-[#222] text-[#EAE8E3] px-8 py-5 text-sm font-semibold uppercase tracking-[0.2em] hover:bg-[#111] transition-colors flex items-center justify-center gap-3 disabled:opacity-50"
+                  className="glass-pill mt-4 flex w-full items-center justify-center gap-3 bg-[#222] px-6 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-[#EAE8E3] transition-colors hover:bg-[#111] disabled:opacity-50 sm:px-8 sm:py-5 sm:text-sm sm:tracking-[0.2em]"
                 >
                   {adding ? (
                     <>

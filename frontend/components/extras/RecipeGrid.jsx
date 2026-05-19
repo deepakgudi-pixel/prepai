@@ -72,7 +72,7 @@ export default function RecipeGrid({
 
       {!loading && meals.length === 0 && (
         <section className="section-shell px-6 py-20 text-center sm:px-8">
-          <p className="font-display text-5xl text-stone-950">No recipes found.</p>
+          <p className="font-display text-4xl text-stone-950 sm:text-5xl">No recipes found.</p>
           <p className="mx-auto mt-4 max-w-lg text-stone-600">
             We couldn&apos;t find any {displayName}{" "}
             {type === "cuisine" ? "dishes" : "recipes"} right now.

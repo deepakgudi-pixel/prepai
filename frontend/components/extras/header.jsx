@@ -1,26 +1,60 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion } from "framer-motion";
 import { useLenis } from "lenis/react";
-import { SignInButton, SignUpButton, SignedIn, SignedOut, SignOutButton, useUser } from "@clerk/nextjs";
+import { SignOutButton, useUser } from "@clerk/nextjs";
 import { Soup, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
-const navItems = [
-  { href: "/", label: "Home" },
-  { href: "/pantry", label: "Pantry" },
-  { href: "/recipes", label: "Recipes" },
-  { href: "/curated", label: "Curated" },
+const navSections = [
+  {
+    title: null,
+    items: [
+      { href: "/", label: "Home", public: true },
+    ]
+  },
+  {
+    title: "FOOD",
+    items: [
+      { href: "/pantry", label: "Pantry", public: false },
+      { href: "/recipes", label: "Recipes", public: false },
+      { href: "/curated", label: "Curated", public: false },
+      { href: "/meal-planner", label: "Meal Plan", public: false },
+    ]
+  },
+  {
+    title: "FITNESS",
+    items: [
+      { href: "/fitness-profile", label: "Profile", public: false },
+      { href: "/nutrition", label: "Nutrition", public: false },
+      { href: "/body-tracking", label: "Body", public: false },
+      { href: "/supplements", label: "Supplements", public: false },
+      { href: "/progress", label: "Progress", public: false },
+    ]
+  }
 ];
 
 export default function Header() {
-  const { user } = useUser();
+  const { user, isLoaded, isSignedIn } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const isHydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const { scrollY } = useScroll();
   const prefersReducedMotion = useReducedMotion();
+
+  const showSignedIn = isLoaded && isSignedIn;
+
+  // Filter nav items based on sign-in status
+  const visibleNavSections = navSections.map(section => ({
+    ...section,
+    items: section.items.filter(item => item.public || showSignedIn)
+  })).filter(section => section.items.length > 0);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const nextHidden = latest > 100;
@@ -81,13 +115,13 @@ export default function Header() {
           scale: hidden && !isOpen ? 0.9 : 1,
           opacity: hidden && !isOpen ? 0 : 1,
           width: hidden && !isOpen ? "64px" : "calc(100% - 3rem)",
-          maxWidth: hidden && !isOpen ? "64px" : "600px",
+          maxWidth: hidden && !isOpen ? "64px" : "500px",
           height: isOpen ? "auto" : "64px",
-          borderRadius: isOpen ? "24px" : "32px",
+          borderRadius: isOpen ? "22px" : "32px",
           backgroundColor: isOpen ? "rgba(255, 255, 255, 0.98)" : "rgba(255, 255, 255, 0.85)",
         }}
         transition={headerTransition}
-        className="fixed left-1/2 top-6 z-[100] -translate-x-1/2 flex flex-col items-center border border-white/40 backdrop-blur-md shadow-2xl overflow-hidden px-6 py-5"
+        className="fixed left-1/2 top-6 z-[100] -translate-x-1/2 flex flex-col items-center border border-white/40 backdrop-blur-md shadow-2xl overflow-hidden px-4 py-4 sm:px-5"
         style={{
           willChange: "width, height, background-color, border-radius, transform, opacity",
         }}
@@ -96,18 +130,11 @@ export default function Header() {
         <motion.div 
           animate={{ opacity: hidden && !isOpen ? 0 : 1 }}
           transition={{ duration: 0.3 }}
-          className="flex w-[calc(100vw-6rem)] max-w-[552px] items-center justify-between shrink-0 h-[24px]"
+          className="flex w-[calc(100vw-5rem)] max-w-[460px] items-center justify-between shrink-0 h-[28px]"
         >
           {/* Left: Dynamic Action Based on Auth */}
           <div className="flex-1 flex justify-start">
-            <SignedOut>
-              <SignUpButton mode="modal">
-                <button className="text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] text-[#222] hover:text-[#555] transition-colors">
-                  Get Started
-                </button>
-              </SignUpButton>
-            </SignedOut>
-            <SignedIn>
+            {showSignedIn ? (
               <Link
                 href="/curated"
                 className="text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] text-[#222] hover:text-[#555] transition-colors"
@@ -115,7 +142,15 @@ export default function Header() {
               >
                 Curated
               </Link>
-            </SignedIn>
+            ) : (
+              <Link
+                href="/sign-up"
+                className="text-[0.65rem] sm:text-xs font-semibold uppercase tracking-[0.2em] text-[#222] hover:text-[#555] transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Get Started
+              </Link>
+            )}
           </div>
 
           {/* Center: Logo */}
@@ -146,24 +181,23 @@ export default function Header() {
 
           {/* Right: Menu Toggle */}
           <div className="flex-1 flex justify-end items-center gap-4">
-            <SignedIn>
-              {user && (
-                <div className="size-8 rounded-full border border-[#111]/10 overflow-hidden shrink-0">
-                  <Image
-                    src={user.imageUrl}
-                    alt={user.fullName || "User"}
-                    width={32}
-                    height={32}
-                    className="size-full object-cover"
-                    unoptimized
-                  />
-                </div>
-              )}
-            </SignedIn>
+            {showSignedIn && user && (
+              <div className="size-8 rounded-full border border-[#111]/10 overflow-hidden shrink-0">
+                <Image
+                  src={user.imageUrl}
+                  alt={user.fullName || "User"}
+                  width={32}
+                  height={32}
+                  className="size-full object-cover"
+                  unoptimized
+                />
+              </div>
+            )}
             <button
               onClick={toggleMenu}
+              disabled={!isHydrated}
               aria-label={isOpen ? "Close menu" : "Open menu"}
-              className="group flex items-center justify-center size-10"
+              className="group flex size-10 items-center justify-center disabled:cursor-default"
             >
               <div className="flex flex-col gap-[5px] w-5 sm:w-6">
                 <motion.span
@@ -194,26 +228,45 @@ export default function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex-1 flex flex-col mt-4 w-[calc(100vw-6rem)] max-w-[552px]"
+              className="flex-1 flex max-h-[min(72vh,520px)] w-[calc(100vw-5rem)] max-w-[460px] flex-col overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              data-lenis-prevent
             >
-              <nav className="flex flex-col flex-1 justify-center px-4">
-                {navItems.map((item, i) => (
-                  <motion.div
-                    key={item.href}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.4, delay: i * 0.05 + 0.1 }}
-                    className="border-b border-[#111]/10 last:border-none py-3 sm:py-4"
-                  >
-                    <Link
-                      href={item.href}
-                      onClick={toggleMenu}
-                      className="block font-display text-3xl sm:text-5xl text-[#111] hover:text-[#555] transition-colors"
-                    >
-                      {item.label}
-                    </Link>
-                  </motion.div>
+              <nav className="flex flex-col gap-3 pt-4">
+                {visibleNavSections.map((section, sectionIndex) => (
+                  <div key={sectionIndex} className="rounded-2xl border border-[#111]/10 bg-[#F4F3F0]/70 p-2">
+                    {section.title && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.4, delay: sectionIndex * 0.1 }}
+                        className="px-2 pb-2"
+                      >
+                        <p className="text-[0.6rem] uppercase text-[#777] font-semibold">
+                          {section.title}
+                        </p>
+                      </motion.div>
+                    )}
+                    <div className={`grid gap-2 ${section.items.length > 1 ? "grid-cols-2" : ""}`}>
+                      {section.items.map((item, i) => (
+                        <motion.div
+                          key={item.href}
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 8 }}
+                          transition={{ duration: 0.3, delay: (sectionIndex * 0.06) + (i * 0.03) + 0.08 }}
+                        >
+                          <Link
+                            href={item.href}
+                            onClick={toggleMenu}
+                            className="flex min-h-11 items-center rounded-xl bg-white/50 px-3 py-2 text-sm font-semibold text-[#111] transition-colors hover:bg-white hover:text-[#555]"
+                          >
+                            {item.label}
+                          </Link>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </nav>
 
@@ -223,24 +276,23 @@ export default function Header() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, delay: 0.2 }}
-                className="mt-6 flex justify-between items-end border-[#111]/10 pt-5 px-4"
-              >
-                <div></div>
-                
-                <SignedOut>
-                    <SignInButton mode="modal">
-                      <button onClick={() => setIsOpen(false)} className="bg-[#111] text-[#EAE8E3] rounded-full px-6 py-3 text-[0.65rem] sm:text-xs uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-black hover:scale-105 transition-all duration-300">
-                        SIGN IN <ArrowUpRight className="size-4" />
-                      </button>
-                    </SignInButton>
-                </SignedOut>
-                <SignedIn>
+              className="mt-4 flex justify-end border-[#111]/10 pt-1"
+            >
+                {showSignedIn ? (
                   <SignOutButton>
-                    <button className="bg-[#111] text-[#EAE8E3] rounded-full px-6 py-3 text-[0.65rem] sm:text-xs uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-black hover:scale-105 transition-all duration-300">
+                    <button className="bg-[#111] text-[#EAE8E3] rounded-full px-5 py-2.5 text-[0.65rem] sm:text-xs uppercase flex items-center gap-2 hover:bg-black transition-colors duration-300">
                       SIGN OUT <ArrowUpRight className="size-4" />
                     </button>
                   </SignOutButton>
-                </SignedIn>
+                ) : (
+                  <Link
+                    href="/sign-in"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-2 rounded-full bg-[#111] px-5 py-2.5 text-[0.65rem] uppercase text-[#EAE8E3] transition-colors duration-300 hover:bg-black sm:text-xs"
+                  >
+                    SIGN IN <ArrowUpRight className="size-4" />
+                  </Link>
+                )}
               </motion.div>
             </motion.div>
           )}

@@ -214,7 +214,7 @@ export default function PantryPage() {
                 </p>
               </div>
 
-              <div className="flex gap-8 sm:gap-12 pt-2">
+              <div className="flex flex-wrap gap-8 pt-2 sm:gap-12">
                 <div>
                   <p className="text-[0.68rem] uppercase tracking-[0.2em] text-[#777]">
                     Ingredients
@@ -235,17 +235,17 @@ export default function PantryPage() {
             </div>
 
             {items.length > 0 && (
-              <div className="mt-12 flex gap-4">
+              <div className="mt-10 flex flex-col gap-3 sm:mt-12 sm:flex-row sm:gap-4">
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="glass-pill bg-[#222] text-white px-6 py-3 text-xs uppercase tracking-[0.2em] hover:bg-[#111] transition-colors flex items-center gap-2"
+                  className="glass-pill flex items-center justify-center gap-2 bg-[#222] px-6 py-3 text-xs uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#111] sm:tracking-[0.2em]"
                 >
                   <Plus className="size-4" /> Add Item
                 </button>
                 <button
                   onClick={handleClearAll}
                   disabled={clearing}
-                  className="glass-pill px-6 py-3 text-xs uppercase tracking-[0.2em] text-[#777] hover:text-red-600 transition-colors flex items-center gap-2"
+                  className="glass-pill flex items-center justify-center gap-2 px-6 py-3 text-xs uppercase tracking-[0.16em] text-[#777] transition-colors hover:text-red-600 sm:tracking-[0.2em]"
                 >
                   {clearing ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
                   Clear All
@@ -327,14 +327,14 @@ export default function PantryPage() {
 
         {/* Signed Out State */}
         {isLoaded && !authUser && !loadingItems && (
-          <section className="glass-card px-6 py-32 text-center">
+          <section className="glass-card px-5 py-20 text-center sm:px-6 sm:py-32">
             <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-[#111] text-[#EAE8E3] mb-8">
               <Package className="size-10" />
             </div>
-            <h2 className="font-display text-6xl text-[#111] mb-6">
+            <h2 className="mb-6 font-display text-4xl text-[#111] sm:text-6xl">
               Sign in to use your pantry.
             </h2>
-            <p className="mx-auto text-lg text-[#555] font-light max-w-xl">
+            <p className="mx-auto max-w-xl text-base font-light text-[#555] sm:text-lg">
               Your ingredients, dietary preference, and recipe suggestions are tied to
               your account.
             </p>
@@ -343,20 +343,20 @@ export default function PantryPage() {
 
         {/* Empty State */}
         {!loadingItems && items.length === 0 && authUser && (
-          <section className="glass-card px-6 py-32 text-center">
+          <section className="glass-card px-5 py-20 text-center sm:px-6 sm:py-32">
             <div className="mx-auto flex size-24 items-center justify-center rounded-full border border-[#D5D3CE] bg-white/50 mb-8">
               <Package className="size-10 text-[#222]" />
             </div>
-            <h2 className="font-display text-6xl text-[#111] mb-6">
+            <h2 className="mb-6 font-display text-4xl text-[#111] sm:text-6xl">
               Your pantry is empty.
             </h2>
-            <p className="mx-auto text-lg text-[#555] font-light max-w-xl mb-12">
+            <p className="mx-auto mb-10 max-w-xl text-base font-light text-[#555] sm:mb-12 sm:text-lg">
               Start with a scan or add a few ingredients manually to bring the recipe
               engine to life.
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="glass-pill bg-[#222] text-white px-8 py-4 text-sm uppercase tracking-[0.2em] hover:bg-[#111] transition-colors inline-flex items-center gap-3"
+              className="glass-pill inline-flex items-center justify-center gap-3 bg-[#222] px-6 py-4 text-xs uppercase tracking-[0.16em] text-white transition-colors hover:bg-[#111] sm:px-8 sm:text-sm sm:tracking-[0.2em]"
             >
               <Plus className="size-5" /> Add First Item
             </button>
@@ -366,10 +366,10 @@ export default function PantryPage() {
         {/* Inventory Grid */}
         {!loadingItems && items.length > 0 && (
           <section className="pt-12">
-            <div className="mb-12 flex justify-between items-end">
+            <div className="mb-10 flex flex-col items-start justify-between gap-4 sm:mb-12 sm:flex-row sm:items-end">
               <div>
                 <p className="eyebrow mb-4">Inventory</p>
-                <h2 className="font-display text-5xl">Your ingredients</h2>
+                <h2 className="font-display text-4xl sm:text-5xl">Your ingredients</h2>
               </div>
             </div>
 
@@ -382,7 +382,7 @@ export default function PantryPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.4, delay: i * 0.05 }}
-                    className="glass-card p-8 group hover:border-[#aaa] transition-colors flex flex-col justify-between min-h-[240px]"
+                    className="glass-card group flex min-h-[220px] flex-col justify-between p-6 transition-colors hover:border-[#aaa] sm:min-h-[240px] sm:p-8"
                   >
                     {editingId === item.documentId ? (
                       <div className="space-y-4 h-full flex flex-col justify-center">
@@ -428,28 +428,30 @@ export default function PantryPage() {
                             <p className="text-[0.65rem] uppercase tracking-[0.2em] text-[#777]">
                               Added {formatCreatedAt(item.createdAt)}
                             </p>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-3">
+                            <div className="flex gap-3 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
                               <button
                                 onClick={() => startEdit(item)}
-                                className="text-[#777] hover:text-[#111] transition-colors"
+                                className="text-[#777] transition-colors hover:text-[#111]"
+                                aria-label={`Edit ${item.name}`}
                               >
                                 <Edit2 className="size-4" />
                               </button>
                               <button
                                 onClick={() => handleDelete(item.documentId)}
                                 disabled={deleting}
-                                className="text-[#777] hover:text-red-700 transition-colors"
+                                className="text-[#777] transition-colors hover:text-red-700"
+                                aria-label={`Delete ${item.name}`}
                               >
                                 <Trash2 className="size-4" />
                               </button>
                             </div>
                           </div>
-                          <h3 className="font-display text-4xl leading-none text-[#111] mb-4 break-words">
+                          <h3 className="mb-4 break-words font-display text-3xl leading-none text-[#111] sm:text-4xl">
                             {item.name}
                           </h3>
                           <p className="text-sm text-[#555] font-light">{item.quantity}</p>
                         </div>
-                        <div className="mt-8 border-t border-[#D5D3CE] pt-6 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="mt-8 flex items-center justify-between border-t border-[#D5D3CE] pt-6 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
                           <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[#aaa]">Item details</span>
                           <span className="size-8 rounded-full bg-[#EAE8E3] border border-[#D5D3CE] flex items-center justify-center">
                             <Package className="size-3 text-[#555]" />

@@ -93,7 +93,7 @@
   }
 
   .page-frame {
-    @apply mx-auto w-full max-w-[1400px] px-6 sm:px-12 lg:px-20;
+    @apply mx-auto w-full max-w-[1400px] px-4 sm:px-12 lg:px-20;
   }
 
   .glass-card {
@@ -110,7 +110,7 @@
 
   .display-title {
     font-family: var(--font-display);
-    @apply text-6xl leading-[0.9] tracking-tight text-[#111] sm:text-7xl lg:text-8xl xl:text-9xl;
+    @apply text-5xl leading-[0.9] tracking-tight text-[#111] sm:text-7xl lg:text-8xl xl:text-9xl;
   }
 
   .section-title {
@@ -119,7 +119,7 @@
   }
 
   .section-copy {
-    @apply max-w-lg text-lg leading-relaxed text-[#555] font-light;
+    @apply max-w-lg text-base leading-relaxed text-[#555] font-light sm:text-lg;
   }
   
   .nav-pill {
@@ -388,7 +388,7 @@
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee-scroll 16s linear infinite;
+  animation: marquee-scroll 40s linear infinite;
   will-change: transform;
 }
 

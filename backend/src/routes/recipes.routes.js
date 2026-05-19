@@ -6,7 +6,9 @@ const {
   saveGeneratedRecipeForUser,
   removeRecipeForUser,
   listSavedRecipes,
+  suggestRecipesForMacros,
 } = require("../services/recipes.service");
+const { getRemainingMacros } = require("../services/daily-nutrition.service");
 
 const router = express.Router();
 
@@ -27,6 +29,29 @@ router.post("/suggestions", async (req, res, next) => {
   try {
     const result = await listRecipeSuggestions(req.appUser.id, req.body.diet || "all");
     return res.json(result);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.post("/suggest-for-macros", async (req, res, next) => {
+  try {
+    const { date } = req.body;
+
+    if (!date) {
+      return res.status(400).json({ success: false, message: "Date is required" });
+    }
+
+    // Get remaining macros for the date
+    const macroData = await getRemainingMacros(req.appUser.id, date);
+
+    // Get recipe suggestions
+    const result = await suggestRecipesForMacros(req.appUser.id, macroData.remaining);
+
+    return res.json({
+      ...result,
+      macroData,
+    });
   } catch (error) {
     return next(error);
   }

@@ -211,3 +211,32 @@ export async function getUserPreference(user) {
     return { success: false, preference: "all" };
   }
 }
+
+export async function getSuggestedRecipes(user, date) {
+  try {
+    const authUser = await checkUser(user);
+    if (!authUser) {
+      return { success: false, recipes: [], message: "User not authenticated" };
+    }
+
+    const response = await backendFetch("/recipes/suggest-for-macros", authUser, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date }),
+    });
+
+    if (!response) {
+      return { success: false, recipes: [], message: "User not authenticated" };
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching suggested recipes:", error);
+    return {
+      success: false,
+      recipes: [],
+      message: error.message || "Failed to fetch suggested recipes",
+    };
+  }
+}

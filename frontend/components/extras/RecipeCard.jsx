@@ -70,14 +70,14 @@ export default function RecipeCard({ recipe, variant = "default" }) {
               </div>
             )}
           </div>
-          <div className="p-8 flex flex-col flex-1 justify-between">
+          <div className="flex flex-1 flex-col justify-between p-6 sm:p-8">
             <div>
               <p className="text-[0.65rem] uppercase tracking-[0.2em] text-[#777]">Recipe</p>
-              <h3 className="mt-4 font-display text-4xl leading-none text-[#111] group-hover:text-[#555] transition-colors line-clamp-2">
+              <h3 className="mt-4 line-clamp-2 break-words font-display text-3xl leading-none text-[#111] transition-colors group-hover:text-[#555] sm:text-4xl">
                 {data.title}
               </h3>
             </div>
-            <div className="mt-8 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-500 -translate-x-4 group-hover:translate-x-0">
+            <div className="mt-8 flex justify-end opacity-100 transition-opacity duration-500 sm:-translate-x-4 sm:opacity-0 sm:group-hover:translate-x-0 sm:group-hover:opacity-100">
                <span className="size-10 rounded-full border border-[#D5D3CE] bg-white flex items-center justify-center">
                  <ArrowRight className="size-4 text-[#111]" />
                </span>
@@ -109,7 +109,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
               )}
             </div>
 
-            <div className="flex flex-1 flex-col p-8 sm:p-10 justify-between">
+            <div className="flex flex-1 flex-col justify-between p-6 sm:p-10">
               <div>
                 <div className="flex flex-wrap gap-2 mb-6">
                   {data.cuisine && (
@@ -124,12 +124,12 @@ export default function RecipeCard({ recipe, variant = "default" }) {
                   )}
                 </div>
 
-                <h3 className="font-display text-4xl sm:text-5xl leading-none text-[#111] group-hover:text-[#555] transition-colors line-clamp-2">
+                <h3 className="line-clamp-2 break-words font-display text-3xl leading-none text-[#111] transition-colors group-hover:text-[#555] sm:text-5xl">
                   {data.title}
                 </h3>
                 
                 {data.description && (
-                  <p className="mt-6 line-clamp-3 text-lg font-light text-[#555] leading-relaxed">
+                  <p className="mt-5 line-clamp-3 text-base font-light leading-relaxed text-[#555] sm:mt-6 sm:text-lg">
                     {data.description}
                   </p>
                 )}
@@ -149,7 +149,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
                   )}
                 </div>
                 
-                <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#111] opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0">
+                <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#111] opacity-100 transition-all duration-500 sm:translate-x-4 sm:tracking-[0.2em] sm:opacity-0 sm:group-hover:translate-x-0 sm:group-hover:opacity-100">
                   Read <ArrowRight className="size-3" />
                 </span>
               </div>
@@ -181,7 +181,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
           </div>
         )}
 
-        <div className="flex flex-1 flex-col p-8 justify-between">
+        <div className="flex flex-1 flex-col justify-between p-6 sm:p-8">
           <div>
             <div className="flex flex-wrap gap-2 mb-6">
               {data.cuisine && (
@@ -201,12 +201,12 @@ export default function RecipeCard({ recipe, variant = "default" }) {
               )}
             </div>
 
-            <h3 className="font-display text-4xl leading-none text-[#111] group-hover:text-[#555] transition-colors">
+            <h3 className="break-words font-display text-3xl leading-none text-[#111] transition-colors group-hover:text-[#555] sm:text-4xl">
               {data.title}
             </h3>
 
             {data.description && (
-              <p className="mt-4 text-lg font-light text-[#555] leading-relaxed line-clamp-3">
+              <p className="mt-4 line-clamp-3 text-base font-light leading-relaxed text-[#555] sm:text-lg">
                 {data.description}
               </p>
             )}
@@ -246,7 +246,7 @@ export default function RecipeCard({ recipe, variant = "default" }) {
               </div>
             )}
 
-            <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-500 -translate-x-4 group-hover:translate-x-0">
+            <div className="flex justify-end opacity-100 transition-opacity duration-500 sm:-translate-x-4 sm:opacity-0 sm:group-hover:translate-x-0 sm:group-hover:opacity-100">
                <span className="size-10 rounded-full border border-[#D5D3CE] bg-white flex items-center justify-center">
                  <ArrowRight className="size-4 text-[#111]" />
                </span>
