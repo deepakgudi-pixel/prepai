@@ -1,6 +1,6 @@
 "use client";
 
-import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -18,12 +18,12 @@ export default function HomePrimaryCta() {
       </SignedIn>
 
       <SignedOut>
-        <SignUpButton mode="modal">
+        <Link href="/sign-up">
           <Button size="xl" variant="primary" className="w-full sm:w-auto">
             Go to pantry
             <ArrowRight className="size-5" />
           </Button>
-        </SignUpButton>
+        </Link>
       </SignedOut>
     </>
   );

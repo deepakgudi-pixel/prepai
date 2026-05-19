@@ -5,7 +5,7 @@ import { FEATURES, HOW_IT_WORKS_STEPS } from "@/lib/data";
 import Marquee from "@/components/ui/Marquee";
 import { ArrowRight, ChefHat, Dumbbell } from "lucide-react";
 import Link from "next/link";
-import { SignUpButton, SignedOut, SignedIn } from "@clerk/nextjs";
+import { SignedOut, SignedIn } from "@clerk/nextjs";
 
 export default function Home() {
   const prefersReducedMotion = useReducedMotion();
@@ -31,14 +31,12 @@ export default function Home() {
 
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <SignedOut>
-              <SignUpButton mode="modal">
-                <button className="magnetic group flex items-center gap-3 rounded-full bg-[#222] px-6 py-4 text-xs font-semibold uppercase tracking-[0.1em] text-[#EAE8E3] transition-all hover:bg-[#111] sm:gap-4 sm:px-8 sm:text-sm">
-                  Start Cooking
-                  <span className="flex size-8 items-center justify-center rounded-full bg-[#EAE8E3]/20 group-hover:bg-[#EAE8E3]/30 transition-colors">
-                    <ArrowRight className="size-4" />
-                  </span>
-                </button>
-              </SignUpButton>
+              <Link href="/sign-up" className="magnetic group flex items-center gap-3 rounded-full bg-[#222] px-6 py-4 text-xs font-semibold uppercase tracking-[0.1em] text-[#EAE8E3] transition-all hover:bg-[#111] sm:gap-4 sm:px-8 sm:text-sm">
+                Start Cooking
+                <span className="flex size-8 items-center justify-center rounded-full bg-[#EAE8E3]/20 group-hover:bg-[#EAE8E3]/30 transition-colors">
+                  <ArrowRight className="size-4" />
+                </span>
+              </Link>
             </SignedOut>
             <SignedIn>
                <Link href="/pantry" className="magnetic group flex items-center gap-3 rounded-full bg-[#222] px-6 py-4 text-xs font-semibold uppercase tracking-[0.1em] text-[#EAE8E3] transition-all hover:bg-[#111] sm:gap-4 sm:px-8 sm:text-sm">
@@ -100,7 +98,7 @@ export default function Home() {
               </Link>
             </SignedIn>
             <SignedOut>
-              <SignUpButton mode="modal">
+              <Link href="/sign-up">
                 <motion.div
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -122,7 +120,7 @@ export default function Home() {
                     <ArrowRight className="size-5" />
                   </div>
                 </motion.div>
-              </SignUpButton>
+              </Link>
             </SignedOut>
 
             {/* Fitness Path */}
@@ -152,7 +150,7 @@ export default function Home() {
               </Link>
             </SignedIn>
             <SignedOut>
-              <SignUpButton mode="modal">
+              <Link href="/sign-up">
                 <motion.div
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -174,7 +172,7 @@ export default function Home() {
                     <ArrowRight className="size-5" />
                   </div>
                 </motion.div>
-              </SignUpButton>
+              </Link>
             </SignedOut>
           </div>
         </div>

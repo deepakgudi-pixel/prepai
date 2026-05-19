@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import useFetch from "@/hooks/use-fetch";
-import { SignUpButton, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import {
   getOrGenerateRecipe,
   removeRecipeFromCollection,
@@ -245,11 +245,9 @@ function RecipeContent() {
               <ArrowLeft className="size-4" /> Go Back
             </button>
             {!authUser && (
-              <SignUpButton mode="modal">
-                <button className="glass-pill bg-[#222] text-white px-8 py-4 text-xs uppercase tracking-[0.2em] hover:bg-[#111] transition-colors">
-                  Sign up to continue
-                </button>
-              </SignUpButton>
+              <Link href="/sign-up" className="glass-pill bg-[#222] text-white px-8 py-4 text-xs uppercase tracking-[0.2em] hover:bg-[#111] transition-colors">
+                Sign up to continue
+              </Link>
             )}
             <button onClick={() => window.location.reload()} className="glass-pill bg-[#111] text-white px-8 py-4 text-xs uppercase tracking-[0.2em] hover:bg-black transition-colors">
               Retry

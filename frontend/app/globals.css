@@ -45,12 +45,6 @@
     @apply border-border outline-none;
   }
 
-  @media (pointer: fine) {
-    * {
-      cursor: none;
-    }
-  }
-
   html {
     scroll-behavior: initial;
     overflow-x: hidden;
@@ -71,12 +65,6 @@
     @apply transition-all duration-300;
   }
 
-  @media (pointer: fine) {
-    a,
-    button {
-      cursor: none;
-    }
-  }
 }
 
 @layer components {
@@ -97,11 +85,11 @@
   }
 
   .glass-card {
-    @apply bg-white/40 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] rounded-3xl;
+    @apply rounded-3xl border border-[#D5D3CE]/70 bg-[#F4F3F0]/80 shadow-[0_14px_36px_rgba(17,17,17,0.045)];
   }
 
   .glass-pill {
-    @apply bg-white/60 backdrop-blur-md border border-white/40 shadow-sm rounded-full;
+    @apply rounded-full border border-[#D5D3CE]/80 bg-white/75 shadow-sm;
   }
 
   .eyebrow {
@@ -127,7 +115,7 @@
   }
 
   .section-shell {
-    @apply bg-white/40 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] rounded-3xl;
+    @apply rounded-3xl border border-[#D5D3CE]/70 bg-[#F4F3F0]/80 shadow-[0_14px_36px_rgba(17,17,17,0.045)];
   }
 
   .panel-dark {
