@@ -11,6 +11,13 @@ const VISION_MODELS = [
 
 const MAX_RETRIES = 2;
 const REQUEST_TIMEOUT_MS = 45000; // 45 seconds max
+const DEBUG_OPENROUTER = process.env.DEBUG_OPENROUTER === "true";
+
+function logOpenRouter(message) {
+  if (DEBUG_OPENROUTER) {
+    console.info(message);
+  }
+}
 
 function extractContent(payload) {
   const content = payload?.choices?.[0]?.message?.content;
@@ -115,7 +122,7 @@ export async function createOpenRouterVisionCompletion({
   for (const model of VISION_MODELS) {
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
-        console.log(`[Vision] Trying ${model} (attempt ${attempt}/${MAX_RETRIES})...`);
+        logOpenRouter(`[Vision] Trying ${model} (attempt ${attempt}/${MAX_RETRIES})...`);
 
         const content = await attemptVisionRequest({
           model,
@@ -124,11 +131,11 @@ export async function createOpenRouterVisionCompletion({
           mimeType,
         });
 
-        console.log(`[Vision] Success with ${model}!`);
+        logOpenRouter(`[Vision] Success with ${model}!`);
         return content;
       } catch (error) {
         lastError = error;
-        console.log(`[Vision] ${model} attempt ${attempt} failed: ${error.message}`);
+        logOpenRouter(`[Vision] ${model} attempt ${attempt} failed: ${error.message}`);
 
         // If not last attempt, wait before retry
         if (attempt < MAX_RETRIES) {
@@ -138,7 +145,7 @@ export async function createOpenRouterVisionCompletion({
     }
 
     // Try next model
-    console.log(`[Vision] ${model} failed, trying next model...`);
+    logOpenRouter(`[Vision] ${model} failed, trying next model...`);
   }
 
   throw lastError || new Error("All vision models failed");

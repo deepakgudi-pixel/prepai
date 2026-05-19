@@ -11,6 +11,7 @@ const env = {
   openrouterApiKey: process.env.OPENROUTER_API_KEY || "",
   openrouterTextModel:
     process.env.OPENROUTER_TEXT_MODEL || "openrouter/free",
+  debugOpenrouter: process.env.DEBUG_OPENROUTER === "true",
   unsplashAccessKey: process.env.UNSPLASH_ACCESS_KEY || "",
 };
 

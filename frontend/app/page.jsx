@@ -5,10 +5,79 @@ import { FEATURES, HOW_IT_WORKS_STEPS } from "@/lib/data";
 import Marquee from "@/components/ui/Marquee";
 import { ArrowRight, ChefHat, Dumbbell } from "lucide-react";
 import Link from "next/link";
-import { SignedOut, SignedIn } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
+
+const pathCards = [
+  {
+    authenticatedHref: "/pantry",
+    label: "Plan Your Meals",
+    description:
+      "Turn pantry ingredients into chef-led recipes. AI-powered suggestions, meal planning, and zero waste cooking.",
+    cta: "Start Cooking",
+    icon: ChefHat,
+    delay: 0,
+  },
+  {
+    authenticatedHref: "/fitness-profile",
+    label: "Track Your Fitness",
+    description:
+      "Hit your macro targets, track body composition, and monitor progress. Smart calculations for your fitness goals.",
+    cta: "Start Tracking",
+    icon: Dumbbell,
+    delay: 0.2,
+  },
+];
+
+function PrimaryCta({ isSignedIn }) {
+  return (
+    <Link
+      href={isSignedIn ? "/pantry" : "/sign-up"}
+      className="magnetic group flex items-center gap-3 rounded-full bg-[#222] px-6 py-4 text-xs font-semibold uppercase tracking-[0.1em] text-[#EAE8E3] transition-all hover:bg-[#111] sm:gap-4 sm:px-8 sm:text-sm"
+    >
+      {isSignedIn ? "Open Pantry" : "Start Cooking"}
+      <span className="flex size-8 items-center justify-center rounded-full bg-[#EAE8E3]/20 transition-colors group-hover:bg-[#EAE8E3]/30">
+        <ArrowRight className="size-4" />
+      </span>
+    </Link>
+  );
+}
+
+function PathCard({ card, isSignedIn }) {
+  const Icon = card.icon;
+
+  return (
+    <Link href={isSignedIn ? card.authenticatedHref : "/sign-up"}>
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay: card.delay, ease: [0.76, 0, 0.24, 1] }}
+        className="glass-card group flex h-full min-h-[320px] cursor-pointer flex-col justify-between p-6 transition-all hover:border-[#aaa] sm:min-h-[400px] sm:p-10 lg:p-12"
+      >
+        <div>
+          <div className="mb-8 flex size-16 items-center justify-center rounded-full bg-[#222] transition-transform group-hover:scale-110">
+            <Icon className="size-8 text-[#EAE8E3]" />
+          </div>
+          <h3 className="mb-4 font-display text-3xl text-[#111] sm:mb-6 sm:text-4xl lg:text-5xl">
+            {card.label}
+          </h3>
+          <p className="text-base font-light leading-relaxed text-[#555] sm:text-lg">
+            {card.description}
+          </p>
+        </div>
+        <div className="mt-8 flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.15em] text-[#111] transition-all group-hover:gap-4">
+          {card.cta}
+          <ArrowRight className="size-5" />
+        </div>
+      </motion.div>
+    </Link>
+  );
+}
 
 export default function Home() {
   const prefersReducedMotion = useReducedMotion();
+  const { isSignedIn } = useUser();
+  const isAuthenticated = Boolean(isSignedIn);
 
   return (
     <div className="bg-[#EAE8E3]">
@@ -30,22 +99,7 @@ export default function Home() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-            <SignedOut>
-              <Link href="/sign-up" className="magnetic group flex items-center gap-3 rounded-full bg-[#222] px-6 py-4 text-xs font-semibold uppercase tracking-[0.1em] text-[#EAE8E3] transition-all hover:bg-[#111] sm:gap-4 sm:px-8 sm:text-sm">
-                Start Cooking
-                <span className="flex size-8 items-center justify-center rounded-full bg-[#EAE8E3]/20 group-hover:bg-[#EAE8E3]/30 transition-colors">
-                  <ArrowRight className="size-4" />
-                </span>
-              </Link>
-            </SignedOut>
-            <SignedIn>
-               <Link href="/pantry" className="magnetic group flex items-center gap-3 rounded-full bg-[#222] px-6 py-4 text-xs font-semibold uppercase tracking-[0.1em] text-[#EAE8E3] transition-all hover:bg-[#111] sm:gap-4 sm:px-8 sm:text-sm">
-                  Open Pantry
-                  <span className="flex size-8 items-center justify-center rounded-full bg-[#EAE8E3]/20 group-hover:bg-[#EAE8E3]/30 transition-colors">
-                    <ArrowRight className="size-4" />
-                  </span>
-                </Link>
-            </SignedIn>
+            <PrimaryCta isSignedIn={isAuthenticated} />
           </div>
         </motion.div>
 
@@ -70,110 +124,10 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-[1200px] mx-auto">
-            {/* Food Path */}
-            <SignedIn>
-              <Link href="/pantry">
-                <motion.div
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-                  className="glass-card group flex h-full min-h-[320px] cursor-pointer flex-col justify-between p-6 transition-all hover:border-[#aaa] sm:min-h-[400px] sm:p-10 lg:p-12"
-                >
-                  <div>
-                    <div className="size-16 rounded-full bg-[#222] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-                      <ChefHat className="size-8 text-[#EAE8E3]" />
-                    </div>
-                    <h3 className="mb-4 font-display text-3xl text-[#111] sm:mb-6 sm:text-4xl lg:text-5xl">Plan Your Meals</h3>
-                    <p className="text-base font-light leading-relaxed text-[#555] sm:text-lg">
-                      Turn pantry ingredients into chef-led recipes. AI-powered suggestions, meal planning, and zero waste cooking.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 text-[#111] font-semibold text-sm uppercase tracking-[0.15em] mt-8 group-hover:gap-4 transition-all">
-                    Start Cooking
-                    <ArrowRight className="size-5" />
-                  </div>
-                </motion.div>
-              </Link>
-            </SignedIn>
-            <SignedOut>
-              <Link href="/sign-up">
-                <motion.div
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-                  className="glass-card group flex h-full min-h-[320px] cursor-pointer flex-col justify-between p-6 transition-all hover:border-[#aaa] sm:min-h-[400px] sm:p-10 lg:p-12"
-                >
-                  <div>
-                    <div className="size-16 rounded-full bg-[#222] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-                      <ChefHat className="size-8 text-[#EAE8E3]" />
-                    </div>
-                    <h3 className="mb-4 font-display text-3xl text-[#111] sm:mb-6 sm:text-4xl lg:text-5xl">Plan Your Meals</h3>
-                    <p className="text-base font-light leading-relaxed text-[#555] sm:text-lg">
-                      Turn pantry ingredients into chef-led recipes. AI-powered suggestions, meal planning, and zero waste cooking.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 text-[#111] font-semibold text-sm uppercase tracking-[0.15em] mt-8 group-hover:gap-4 transition-all">
-                    Start Cooking
-                    <ArrowRight className="size-5" />
-                  </div>
-                </motion.div>
-              </Link>
-            </SignedOut>
-
-            {/* Fitness Path */}
-            <SignedIn>
-              <Link href="/fitness-profile">
-                <motion.div
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.2, ease: [0.76, 0, 0.24, 1] }}
-                  className="glass-card group flex h-full min-h-[320px] cursor-pointer flex-col justify-between p-6 transition-all hover:border-[#aaa] sm:min-h-[400px] sm:p-10 lg:p-12"
-                >
-                  <div>
-                    <div className="size-16 rounded-full bg-[#222] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-                      <Dumbbell className="size-8 text-[#EAE8E3]" />
-                    </div>
-                    <h3 className="mb-4 font-display text-3xl text-[#111] sm:mb-6 sm:text-4xl lg:text-5xl">Track Your Fitness</h3>
-                    <p className="text-base font-light leading-relaxed text-[#555] sm:text-lg">
-                      Hit your macro targets, track body composition, and monitor progress. Smart calculations for your fitness goals.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 text-[#111] font-semibold text-sm uppercase tracking-[0.15em] mt-8 group-hover:gap-4 transition-all">
-                    Start Tracking
-                    <ArrowRight className="size-5" />
-                  </div>
-                </motion.div>
-              </Link>
-            </SignedIn>
-            <SignedOut>
-              <Link href="/sign-up">
-                <motion.div
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.2, ease: [0.76, 0, 0.24, 1] }}
-                  className="glass-card group flex h-full min-h-[320px] cursor-pointer flex-col justify-between p-6 transition-all hover:border-[#aaa] sm:min-h-[400px] sm:p-10 lg:p-12"
-                >
-                  <div>
-                    <div className="size-16 rounded-full bg-[#222] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-                      <Dumbbell className="size-8 text-[#EAE8E3]" />
-                    </div>
-                    <h3 className="mb-4 font-display text-3xl text-[#111] sm:mb-6 sm:text-4xl lg:text-5xl">Track Your Fitness</h3>
-                    <p className="text-base font-light leading-relaxed text-[#555] sm:text-lg">
-                      Hit your macro targets, track body composition, and monitor progress. Smart calculations for your fitness goals.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 text-[#111] font-semibold text-sm uppercase tracking-[0.15em] mt-8 group-hover:gap-4 transition-all">
-                    Start Tracking
-                    <ArrowRight className="size-5" />
-                  </div>
-                </motion.div>
-              </Link>
-            </SignedOut>
+          <div className="mx-auto grid max-w-[1200px] gap-8 md:grid-cols-2">
+            {pathCards.map((card) => (
+              <PathCard key={card.label} card={card} isSignedIn={isAuthenticated} />
+            ))}
           </div>
         </div>
       </section>

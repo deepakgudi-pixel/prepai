@@ -33,6 +33,12 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function logOpenRouter(message) {
+  if (env.debugOpenrouter) {
+    console.info(message);
+  }
+}
+
 function isRetryable(status) {
   return status === 429 || status === 502 || status === 503 || status === 504;
 }
@@ -78,7 +84,7 @@ async function attemptWithModel({
 
         if (isRetryable(response.status) && attempt < MAX_RETRIES) {
           const delay = INITIAL_RETRY_DELAY_MS * Math.pow(2, attempt - 1);
-          console.log(
+          logOpenRouter(
             `[OpenRouter] Attempt ${attempt}/${MAX_RETRIES} failed with ${response.status}. Retrying in ${delay}ms...`
           );
           await sleep(delay);
@@ -96,7 +102,7 @@ async function attemptWithModel({
 
         if (attempt < MAX_RETRIES) {
           const delay = INITIAL_RETRY_DELAY_MS * Math.pow(2, attempt - 1);
-          console.log(
+          logOpenRouter(
             `[OpenRouter] Attempt ${attempt}/${MAX_RETRIES} returned empty. Retrying in ${delay}ms...`
           );
           await sleep(delay);
@@ -107,7 +113,7 @@ async function attemptWithModel({
       }
 
       if (attempt > 1) {
-        console.log(`[OpenRouter] Succeeded on attempt ${attempt}/${MAX_RETRIES}`);
+        logOpenRouter(`[OpenRouter] Succeeded on attempt ${attempt}/${MAX_RETRIES}`);
       }
 
       return content;
@@ -121,7 +127,7 @@ async function attemptWithModel({
 
       if (attempt < MAX_RETRIES && (error.name === "AbortError" || isRetryable(error.status))) {
         const delay = INITIAL_RETRY_DELAY_MS * Math.pow(2, attempt - 1);
-        console.log(
+        logOpenRouter(
           `[OpenRouter] Attempt ${attempt}/${MAX_RETRIES} error: ${lastError.message}. Retrying in ${delay}ms...`
         );
         await sleep(delay);
@@ -186,7 +192,7 @@ async function createOpenRouterChatCompletion({
       return result;
     } catch (error) {
       lastError = error;
-      console.log(
+      logOpenRouter(
         `[OpenRouter] Model "${currentModel}" failed: ${error.message}. ${
           currentModel !== modelsToTry[modelsToTry.length - 1]
             ? "Trying fallback model..."
