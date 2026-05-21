@@ -17,8 +17,15 @@ const {
   getGroceryList,
   generateGroceryList,
 } = require("../services/meal-planning.service");
+const { createRateLimiter } = require("../middleware/rate-limiter");
 
 const router = express.Router();
+
+const aiLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 5,
+  message: "Too many meal plan generation requests. Please wait a minute and try again.",
+});
 
 /**
  * GET /api/meal-plans
@@ -145,7 +152,7 @@ router.post("/", async (req, res, next) => {
  * POST /api/meal-plans/generate
  * Generate weekly meal plan
  */
-router.post("/generate", async (req, res, next) => {
+router.post("/generate", aiLimiter, async (req, res, next) => {
   try {
     const { workoutDays, mealsPerDay, includeSnacks, cuisinePreferences } = req.body;
 
@@ -189,7 +196,7 @@ router.post("/:mealPlanId/copy", async (req, res, next) => {
  * POST /api/meal-plans/:mealPlanId/optimize
  * Optimize meal plan
  */
-router.post("/:mealPlanId/optimize", async (req, res, next) => {
+router.post("/:mealPlanId/optimize", aiLimiter, async (req, res, next) => {
   try {
     const result = await optimizeMealPlan(req.appUser.id, req.params.mealPlanId);
 

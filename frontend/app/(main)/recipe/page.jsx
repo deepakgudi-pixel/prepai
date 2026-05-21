@@ -26,10 +26,18 @@ import {
 } from "@/actions/recipe.actions";
 import { toast } from "sonner";
 import { ClockLoader } from "react-spinners";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import { RecipePDF } from "@/components/extras/RecipePDF";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+
+const RecipePDFButton = dynamic(() => import("@/components/extras/RecipePDFButton"), {
+  ssr: false,
+  loading: () => (
+    <button disabled className="glass-pill inline-flex items-center gap-2 border-white/20 bg-white/10 px-5 py-3.5 text-xs uppercase tracking-[0.16em] text-[#EAE8E3]/50 sm:px-6 sm:py-4 sm:tracking-[0.2em]">
+      Loading PDF...
+    </button>
+  ),
+});
 
 function RecipeContent() {
   const { user, isLoaded } = useUser();
@@ -323,16 +331,7 @@ function RecipeContent() {
              </div>
              
              <div className="flex w-full flex-wrap gap-3 sm:w-auto sm:gap-4">
-                <PDFDownloadLink
-                  document={<RecipePDF recipe={recipe} />}
-                  fileName={`${recipe.title.replace(/\s+/g, "-").toLowerCase()}.pdf`}
-                >
-                  {({ loading }) => (
-                    <button disabled={loading} className="glass-pill inline-flex items-center gap-2 border-white/20 bg-white/10 px-5 py-3.5 text-xs uppercase tracking-[0.16em] text-[#EAE8E3] transition-colors hover:bg-white/20 sm:px-6 sm:py-4 sm:tracking-[0.2em]">
-                      <Download className="size-4" /> {loading ? "Preparing..." : "PDF"}
-                    </button>
-                  )}
-                </PDFDownloadLink>
+                <RecipePDFButton recipe={recipe} />
                 <button
                   onClick={handleToggleSave}
                   disabled={saving || removing}

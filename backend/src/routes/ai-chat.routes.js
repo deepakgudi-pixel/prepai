@@ -5,11 +5,18 @@ const {
   getChatHistory,
   clearChatHistory,
 } = require("../services/ai-chat.service");
+const { createRateLimiter } = require("../middleware/rate-limiter");
 
 const router = express.Router();
 
+const aiLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 5,
+  message: "Too many AI coach queries. Please wait a minute and try again.",
+});
+
 // Send message to AI
-router.post("/message", async (req, res, next) => {
+router.post("/message", aiLimiter, async (req, res, next) => {
   try {
     const { message, conversationHistory } = req.body;
 

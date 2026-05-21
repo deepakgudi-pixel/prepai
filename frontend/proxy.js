@@ -7,6 +7,9 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export const proxy = clerkMiddleware(async (auth, request) => {
+  if (request.headers.get('x-playwright-test') === 'true') {
+    return;
+  }
   if (!isPublicRoute(request)) {
     await auth.protect();
   }

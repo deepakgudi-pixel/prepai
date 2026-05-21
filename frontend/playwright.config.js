@@ -39,7 +39,7 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
       ? undefined
       : {
-          command: "npm run dev",
+          command: "PLAYWRIGHT_TEST=true npm run dev",
           url: baseURL,
           reuseExistingServer: true,
           stdout: "ignore",

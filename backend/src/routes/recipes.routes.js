@@ -9,10 +9,17 @@ const {
   suggestRecipesForMacros,
 } = require("../services/recipes.service");
 const { getRemainingMacros } = require("../services/daily-nutrition.service");
+const { createRateLimiter } = require("../middleware/rate-limiter");
 
 const router = express.Router();
 
-router.post("/generate", async (req, res, next) => {
+const aiLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  maxRequests: 5,
+  message: "Too many recipe generation requests. Please wait a minute and try again.",
+});
+
+router.post("/generate", aiLimiter, async (req, res, next) => {
   try {
     if (!req.body.recipeName) {
       return res.status(400).json({ success: false, message: "Recipe name is required" });
@@ -25,7 +32,7 @@ router.post("/generate", async (req, res, next) => {
   }
 });
 
-router.post("/suggestions", async (req, res, next) => {
+router.post("/suggestions", aiLimiter, async (req, res, next) => {
   try {
     const result = await listRecipeSuggestions(req.appUser.id, req.body.diet || "all");
     return res.json(result);
@@ -34,7 +41,7 @@ router.post("/suggestions", async (req, res, next) => {
   }
 });
 
-router.post("/suggest-for-macros", async (req, res, next) => {
+router.post("/suggest-for-macros", aiLimiter, async (req, res, next) => {
   try {
     const { date } = req.body;
 

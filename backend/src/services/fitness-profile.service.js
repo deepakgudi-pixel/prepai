@@ -28,9 +28,9 @@ function calculateTDEE(bmr, activityLevel) {
 }
 
 /**
- * Calculate target macros based on goal
+ * Calculate target macros based on goal and activity level
  */
-function calculateTargetMacros(tdee, weight, goal) {
+function calculateTargetMacros(tdee, weight, goal, activityLevel = "moderate") {
   let calories;
 
   // Adjust calories based on goal
@@ -51,11 +51,22 @@ function calculateTargetMacros(tdee, weight, goal) {
       calories = tdee;
   }
 
-  // Calculate protein (2.2g per kg for cutting/recomp, 2.0g for bulking/maintenance)
-  const protein =
-    goal === "cutting" || goal === "recomp"
-      ? Math.round(weight * 2.2)
-      : Math.round(weight * 2.0);
+  // Calculate protein multiplier based on activity level and goal
+  let proteinMultiplier;
+  const isHighProteinGoal = goal === "cutting" || goal === "recomp";
+
+  if (activityLevel === "sedentary") {
+    proteinMultiplier = isHighProteinGoal ? 1.6 : 1.4;
+  } else if (activityLevel === "light" || activityLevel === "lightly_active") {
+    proteinMultiplier = isHighProteinGoal ? 1.8 : 1.6;
+  } else if (activityLevel === "moderate") {
+    proteinMultiplier = isHighProteinGoal ? 2.0 : 1.8;
+  } else {
+    // very_active or athlete
+    proteinMultiplier = isHighProteinGoal ? 2.2 : 2.0;
+  }
+
+  const protein = Math.round(weight * proteinMultiplier);
 
   // Calculate fats (25% of calories)
   const fats = Math.round((calories * 0.25) / 9);
@@ -139,7 +150,7 @@ async function updateFitnessProfile(userId, profileData) {
   if (currentWeight && height && age && gender) {
     bmr = calculateBMR(currentWeight, height, age, gender);
     tdee = calculateTDEE(bmr, activityLevel || "moderate");
-    targetMacros = calculateTargetMacros(tdee, currentWeight, fitnessGoal || "maintenance");
+    targetMacros = calculateTargetMacros(tdee, currentWeight, fitnessGoal || "maintenance", activityLevel || "moderate");
   }
 
   const result = await query(
@@ -190,7 +201,7 @@ async function updateFitnessProfile(userId, profileData) {
 async function calculateMacrosForUser(userId, weight, height, age, gender, activityLevel, goal) {
   const bmr = calculateBMR(weight, height, age, gender);
   const tdee = calculateTDEE(bmr, activityLevel);
-  const macros = calculateTargetMacros(tdee, weight, goal);
+  const macros = calculateTargetMacros(tdee, weight, goal, activityLevel);
 
   return {
     bmr,

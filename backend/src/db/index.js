@@ -8,6 +8,9 @@ if (!env.databaseUrl) {
 const pool = new Pool({
   connectionString: env.databaseUrl,
   ssl: env.databaseUrl ? { rejectUnauthorized: false } : undefined,
+  max: 4, // Limit connections per serverless function instance to prevent DB exhaustion
+  idleTimeoutMillis: 15000, // Close idle clients quickly in transient environment
+  connectionTimeoutMillis: 5000, // Return connection errors fast
 });
 
 async function query(text, params = []) {

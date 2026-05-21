@@ -2,9 +2,46 @@
 
 import { backendFetch, checkUser } from "@/lib/checkUser";
 import { createOpenRouterVisionCompletion } from "@/lib/openrouter";
+import { headers } from "next/headers";
+
+const scanLimiter = new Map();
+const LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_SCANS_PER_WINDOW = 5; // max 5 scans per minute
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  if (!scanLimiter.has(ip)) {
+    scanLimiter.set(ip, []);
+  }
+  const timestamps = scanLimiter.get(ip).filter((time) => now - time < LIMIT_WINDOW_MS);
+  if (timestamps.length >= MAX_SCANS_PER_WINDOW) {
+    return false;
+  }
+  timestamps.push(now);
+  scanLimiter.set(ip, timestamps);
+  return true;
+}
+
+function extractJsonArray(text) {
+  const sanitized = String(text || "").trim();
+  const firstBracket = sanitized.indexOf("[");
+  const lastBracket = sanitized.lastIndexOf("]");
+
+  if (firstBracket === -1 || lastBracket === -1 || lastBracket <= firstBracket) {
+    throw new Error("Invalid JSON structure in AI response");
+  }
+  return JSON.parse(sanitized.slice(firstBracket, lastBracket + 1));
+}
 
 export async function scanPantryImage(formData) {
   try {
+    const headerList = await headers();
+    const ip = headerList.get("x-forwarded-for") || "127.0.0.1";
+
+    if (!checkRateLimit(ip)) {
+      throw new Error("Too many image scan requests. Please wait a minute and try again.");
+    }
+
     const userJson = formData.get("authUser");
     const user = await checkUser(userJson ? JSON.parse(userJson) : null);
 
@@ -41,11 +78,9 @@ Rules:
 
     let ingredients;
     try {
-      ingredients = JSON.parse(
-        text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim(),
-      );
+      ingredients = extractJsonArray(text);
     } catch {
-      throw new Error("Failed to parse ingredients. Please try again.");
+      throw new Error("Failed to parse ingredients from AI response. Please try again.");
     }
 
     if (!Array.isArray(ingredients) || ingredients.length === 0) {

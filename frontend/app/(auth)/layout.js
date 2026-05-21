@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 function AuthLayout({ children }) {
   return (
-    <div className="min-h-screen bg-[#EAE8E3] flex">
+    <div className="min-h-screen bg-[#EAE8E3] flex overflow-x-hidden">
       {/* Left side: Premium Image/Abstract Background */}
       <div className="hidden lg:flex w-1/2 relative bg-[#111] overflow-hidden items-center justify-center">
         {/* Abstract animated grain / gradient */}
@@ -37,7 +37,7 @@ function AuthLayout({ children }) {
       </div>
 
       {/* Right side: Auth Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative">
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-6 sm:p-12 relative">
         <motion.div 
            initial={{ opacity: 0, x: 20 }}
            animate={{ opacity: 1, x: 0 }}
