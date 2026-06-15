@@ -12,6 +12,7 @@ import {
 import { getFitnessProfile } from "@/actions/fitness-profile.actions";
 import useFetch from "@/hooks/use-fetch";
 import HealthNav from "@/components/extras/HealthNav";
+import ConfirmDialog from "@/components/extras/ConfirmDialog";
 import { useUser } from "@clerk/nextjs";
 import {
   Calendar,
@@ -24,6 +25,7 @@ import {
   ShoppingCart,
   ExternalLink,
   Package,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -246,6 +248,7 @@ export default function MealPlannerPage() {
   const [groceryData, setGroceryData] = useState(undefined);
   const [activeOutputTab, setActiveOutputTab] = useState("weekly");
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
+  const [planPendingDelete, setPlanPendingDelete] = useState(null);
   const [generatePrefs, setGeneratePrefs] = useState({
     workoutDays: [1, 3, 5],
     mealsPerDay: 3,
@@ -330,13 +333,14 @@ export default function MealPlannerPage() {
     }
   };
 
-  const handleDeletePlan = async (planId) => {
-    if (!window.confirm("Are you sure you want to delete this meal plan?")) return;
+  const handleDeletePlan = async () => {
+    if (!planPendingDelete) return;
 
-    const result = await deletePlanAction(authUser, planId);
+    const result = await deletePlanAction(authUser, planPendingDelete.id);
 
     if (result?.success) {
       toast.success("Meal plan deleted");
+      setPlanPendingDelete(null);
       setSelectedPlan(null);
       setDaysData({ success: true, days: [] });
       setGroceryData(undefined);
@@ -598,9 +602,10 @@ export default function MealPlannerPage() {
                 </p>
               </div>
               <button
-                onClick={() => handleDeletePlan(selectedPlan.id)}
+                onClick={() => setPlanPendingDelete(selectedPlan)}
                 disabled={deleting}
-                className="text-[#777] hover:text-red-700 transition-colors"
+                className="flex size-10 items-center justify-center rounded-full text-[#777] transition-colors hover:bg-red-50 hover:text-red-700"
+                aria-label={`Delete ${selectedPlan.name}`}
               >
                 <Trash2 className="size-5" />
               </button>
@@ -697,17 +702,32 @@ export default function MealPlannerPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 z-[220] flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-4"
               onClick={() => setIsGenerateModalOpen(false)}
             >
               <motion.div
                 initial={{ scale: 0.95, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 20 }}
-                className="bg-white rounded-3xl p-5 sm:p-8 max-w-lg w-full max-h-[calc(100vh-2rem)] overflow-y-auto shadow-2xl"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="generate-plan-title"
+                className="max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-y-auto rounded-t-[28px] bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl sm:max-h-[calc(100dvh-2rem)] sm:rounded-3xl sm:p-8"
                 onClick={(e) => e.stopPropagation()}
               >
-                <h3 className="font-display text-2xl sm:text-3xl text-[#111] mb-6">Generate Weekly Plan</h3>
+                <div className="mb-6 flex items-start justify-between gap-4">
+                  <h3 id="generate-plan-title" className="font-display text-2xl text-[#111] sm:text-3xl">
+                    Generate Weekly Plan
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setIsGenerateModalOpen(false)}
+                    className="flex size-10 shrink-0 items-center justify-center rounded-full text-[#777] transition-colors hover:bg-[#EAE8E3] hover:text-[#111]"
+                    aria-label="Close generate plan dialog"
+                  >
+                    <X className="size-5" />
+                  </button>
+                </div>
                 
                 <div className="space-y-6">
                   {/* Workout Days */}
@@ -806,6 +826,16 @@ export default function MealPlannerPage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <ConfirmDialog
+          open={Boolean(planPendingDelete)}
+          title="Delete meal plan?"
+          description={`This removes ${planPendingDelete?.name || "this meal plan"} and its saved weekly meals. Grocery list data for this plan will no longer be available.`}
+          confirmLabel="Delete Plan"
+          loading={deleting}
+          onCancel={() => setPlanPendingDelete(null)}
+          onConfirm={handleDeletePlan}
+        />
 
       </div>
     </div>

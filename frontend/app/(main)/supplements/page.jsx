@@ -10,6 +10,7 @@ import {
 } from "@/actions/supplement.actions";
 import useFetch from "@/hooks/use-fetch";
 import HealthNav from "@/components/extras/HealthNav";
+import ConfirmDialog from "@/components/extras/ConfirmDialog";
 import { useUser } from "@clerk/nextjs";
 import {
   Check,
@@ -48,6 +49,7 @@ const getTimingValue = (timing) => {
 export default function SupplementsPage() {
   const { user, isLoaded } = useUser();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [supplementPendingDelete, setSupplementPendingDelete] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     brand: "",
@@ -138,13 +140,14 @@ export default function SupplementsPage() {
     }
   };
 
-  const handleDelete = async (supplementId) => {
-    if (!window.confirm("Are you sure you want to delete this supplement?")) return;
+  const handleDelete = async () => {
+    if (!supplementPendingDelete) return;
 
-    const result = await deleteSupplementAction(authUser, supplementId);
+    const result = await deleteSupplementAction(authUser, supplementPendingDelete.id);
 
     if (result?.success) {
       toast.success("Supplement deleted");
+      setSupplementPendingDelete(null);
       refreshData();
     } else {
       toast.error(result?.error || "Failed to delete supplement");
@@ -336,7 +339,7 @@ export default function SupplementsPage() {
                           )}
                         </div>
                         <button
-                          onClick={() => handleDelete(supplement.id)}
+                          onClick={() => setSupplementPendingDelete(supplement)}
                           disabled={deleting}
                           className="shrink-0 text-[#777] opacity-100 transition-opacity hover:text-red-700 sm:opacity-0 sm:group-hover:opacity-100"
                           aria-label={`Delete ${supplement.name}`}
@@ -428,21 +431,25 @@ export default function SupplementsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 z-[220] flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-4"
               onClick={() => setIsAddModalOpen(false)}
             >
               <motion.div
                 initial={{ scale: 0.95, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 20 }}
-                className="bg-white rounded-3xl p-5 sm:p-8 max-w-2xl w-full max-h-[calc(100vh-2rem)] overflow-y-auto shadow-2xl"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="add-supplement-title"
+                className="max-h-[calc(100dvh-1rem)] w-full max-w-2xl overflow-y-auto rounded-t-[28px] bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl sm:max-h-[calc(100dvh-2rem)] sm:rounded-3xl sm:p-8"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex justify-between items-center gap-4 mb-6">
-                  <h3 className="font-display text-2xl sm:text-3xl text-[#111]">Add Supplement</h3>
+                  <h3 id="add-supplement-title" className="font-display text-2xl sm:text-3xl text-[#111]">Add Supplement</h3>
                   <button
                     onClick={() => setIsAddModalOpen(false)}
-                    className="text-[#777] hover:text-[#111]"
+                    className="flex size-10 shrink-0 items-center justify-center rounded-full text-[#777] transition-colors hover:bg-[#EAE8E3] hover:text-[#111]"
+                    aria-label="Close add supplement dialog"
                   >
                     <X className="size-6" />
                   </button>
@@ -637,6 +644,15 @@ export default function SupplementsPage() {
             </motion.div>
           )}
         </AnimatePresence>
+        <ConfirmDialog
+          open={Boolean(supplementPendingDelete)}
+          title="Delete supplement?"
+          description={`This removes ${supplementPendingDelete?.name || "this supplement"} from your stack. Today's logged history stays separate, but the saved supplement cannot be restored here.`}
+          confirmLabel="Delete"
+          loading={deleting}
+          onCancel={() => setSupplementPendingDelete(null)}
+          onConfirm={handleDelete}
+        />
       </div>
     </div>
   );

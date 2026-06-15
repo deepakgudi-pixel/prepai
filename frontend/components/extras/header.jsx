@@ -42,12 +42,18 @@ export default function Header() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const { scrollY } = useScroll();
   const prefersReducedMotion = useReducedMotion();
 
   const showSignedIn = isLoaded && isSignedIn;
   const isAuthRoute = pathname?.startsWith("/sign-in") || pathname?.startsWith("/sign-up");
   const menuId = "site-navigation-menu";
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setIsHydrated(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   // Filter nav items based on sign-in status
   const visibleNavSections = navSections.map(section => ({
@@ -198,10 +204,11 @@ export default function Header() {
             )}
             <button
               onClick={toggleMenu}
+              disabled={!isHydrated}
               aria-label={isOpen ? "Close menu" : "Open menu"}
               aria-expanded={isOpen}
               aria-controls={menuId}
-              className="group flex size-10 items-center justify-center"
+              className="group flex size-10 items-center justify-center disabled:cursor-default disabled:opacity-50"
             >
               <div className="flex flex-col gap-[5px] w-5 sm:w-6">
                 <motion.span
@@ -292,7 +299,6 @@ export default function Header() {
                 ) : (
                   <Link
                     href="/sign-in"
-                    onClick={() => setIsOpen(false)}
                     className="flex items-center gap-2 rounded-full bg-[#111] px-5 py-2.5 text-[0.65rem] uppercase text-[#EAE8E3] transition-colors duration-300 hover:bg-black sm:text-xs"
                   >
                     SIGN IN <ArrowUpRight className="size-4" />

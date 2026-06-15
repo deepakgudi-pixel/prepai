@@ -9,6 +9,7 @@ import {
 } from "@/actions/body-tracking.actions";
 import useFetch from "@/hooks/use-fetch";
 import HealthNav from "@/components/extras/HealthNav";
+import ConfirmDialog from "@/components/extras/ConfirmDialog";
 import { useUser } from "@clerk/nextjs";
 import {
   Activity,
@@ -39,6 +40,7 @@ const MEASUREMENT_FIELDS = [
 export default function BodyTrackingPage() {
   const { user, isLoaded } = useUser();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [measurementPendingDelete, setMeasurementPendingDelete] = useState(null);
   const [formData, setFormData] = useState({
     weightKg: "",
     bodyFatPercentage: "",
@@ -112,13 +114,14 @@ export default function BodyTrackingPage() {
     }
   };
 
-  const handleDelete = async (measurementId) => {
-    if (!window.confirm("Are you sure you want to delete this measurement?")) return;
+  const handleDelete = async () => {
+    if (!measurementPendingDelete) return;
 
-    const result = await deleteMeasurementAction(authUser, measurementId);
+    const result = await deleteMeasurementAction(authUser, measurementPendingDelete.id);
 
     if (result?.success) {
       toast.success("Measurement deleted");
+      setMeasurementPendingDelete(null);
       refreshData();
     } else {
       toast.error(result?.error || "Failed to delete measurement");
@@ -310,7 +313,7 @@ export default function BodyTrackingPage() {
                         </div>
                       </div>
                       <button
-                        onClick={() => handleDelete(measurement.id)}
+                        onClick={() => setMeasurementPendingDelete(measurement)}
                         disabled={deleting}
                         className="shrink-0 text-[#777] opacity-100 transition-opacity hover:text-red-700 sm:opacity-0 sm:group-hover:opacity-100"
                         aria-label={`Delete measurement from ${formatDate(measurement.createdAt)}`}
@@ -378,21 +381,25 @@ export default function BodyTrackingPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 z-[220] flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-4"
               onClick={() => setIsAddModalOpen(false)}
             >
               <motion.div
                 initial={{ scale: 0.95, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 20 }}
-                className="bg-white rounded-3xl p-5 sm:p-8 max-w-2xl w-full max-h-[calc(100vh-2rem)] overflow-y-auto shadow-2xl"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="add-measurement-title"
+                className="max-h-[calc(100dvh-1rem)] w-full max-w-2xl overflow-y-auto rounded-t-[28px] bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl sm:max-h-[calc(100dvh-2rem)] sm:rounded-3xl sm:p-8"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex justify-between items-center gap-4 mb-6">
-                  <h3 className="font-display text-2xl sm:text-3xl text-[#111]">Add Measurement</h3>
+                  <h3 id="add-measurement-title" className="font-display text-2xl sm:text-3xl text-[#111]">Add Measurement</h3>
                   <button
                     onClick={() => setIsAddModalOpen(false)}
-                    className="text-[#777] hover:text-[#111]"
+                    className="flex size-10 shrink-0 items-center justify-center rounded-full text-[#777] transition-colors hover:bg-[#EAE8E3] hover:text-[#111]"
+                    aria-label="Close add measurement dialog"
                   >
                     <X className="size-6" />
                   </button>
@@ -506,6 +513,15 @@ export default function BodyTrackingPage() {
             </motion.div>
           )}
         </AnimatePresence>
+        <ConfirmDialog
+          open={Boolean(measurementPendingDelete)}
+          title="Delete measurement?"
+          description={`This removes the entry from ${measurementPendingDelete ? formatDate(measurementPendingDelete.createdAt) : "this date"}. Your charts and progress summaries will update without it.`}
+          confirmLabel="Delete Entry"
+          loading={deleting}
+          onCancel={() => setMeasurementPendingDelete(null)}
+          onConfirm={handleDelete}
+        />
       </div>
     </div>
   );

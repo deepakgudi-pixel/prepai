@@ -11,6 +11,7 @@ import {
   updateUserPreference,
 } from "@/actions/recipe.actions";
 import AddToPantryModal from "@/components/extras/AddToPantryModal";
+import ConfirmDialog from "@/components/extras/ConfirmDialog";
 import useFetch from "@/hooks/use-fetch";
 import { useUser } from "@clerk/nextjs";
 import {
@@ -34,6 +35,7 @@ export default function PantryPage() {
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({ name: "", quantity: "" });
   const [optimisticDietaryPreference, setOptimisticDietaryPreference] = useState(null);
+  const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
 
   const {
     loading: loadingPref,
@@ -115,15 +117,14 @@ export default function PantryPage() {
   };
 
   const handleClearAll = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to clear ALL ingredients? This cannot be undone.",
-      )
-    ) {
-      const formData = new FormData();
-      formData.append("authUser", JSON.stringify(authUser));
-      await clearAll(formData);
-    }
+    setIsClearConfirmOpen(true);
+  };
+
+  const confirmClearAll = async () => {
+    const formData = new FormData();
+    formData.append("authUser", JSON.stringify(authUser));
+    await clearAll(formData);
+    setIsClearConfirmOpen(false);
   };
 
   const startEdit = (item) => {
@@ -471,6 +472,15 @@ export default function PantryPage() {
           onClose={handleCloseModal}
           onSuccess={handleModalSuccess}
           authUser={authUser}
+        />
+        <ConfirmDialog
+          open={isClearConfirmOpen}
+          title="Clear pantry?"
+          description="This removes every ingredient from your pantry. Your dietary preference stays saved, but the inventory cannot be restored from here."
+          confirmLabel="Clear All"
+          loading={clearing}
+          onCancel={() => setIsClearConfirmOpen(false)}
+          onConfirm={confirmClearAll}
         />
       </div>
     </div>

@@ -506,17 +506,30 @@ export default function NutritionPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 z-[220] flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-4"
               onClick={() => setIsAddMealOpen(false)}
             >
               <motion.div
                 initial={{ scale: 0.95, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 20 }}
-                className="bg-white rounded-3xl p-5 sm:p-8 max-w-md w-full max-h-[calc(100vh-2rem)] overflow-y-auto shadow-2xl"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="add-meal-title"
+                className="max-h-[calc(100dvh-1rem)] w-full max-w-md overflow-y-auto rounded-t-[28px] bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl sm:max-h-[calc(100dvh-2rem)] sm:rounded-3xl sm:p-8"
                 onClick={(e) => e.stopPropagation()}
               >
-                <h3 className="font-display text-3xl text-[#111] mb-6">Add Meal</h3>
+                <div className="mb-6 flex items-start justify-between gap-4">
+                  <h3 id="add-meal-title" className="font-display text-3xl text-[#111]">Add Meal</h3>
+                  <button
+                    type="button"
+                    onClick={() => setIsAddMealOpen(false)}
+                    className="flex size-10 shrink-0 items-center justify-center rounded-full text-[#777] transition-colors hover:bg-[#EAE8E3] hover:text-[#111]"
+                    aria-label="Close add meal dialog"
+                  >
+                    <X className="size-5" />
+                  </button>
+                </div>
                 
                 <div className="space-y-6">
                   {/* Meal Type */}
@@ -622,14 +635,17 @@ export default function NutritionPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 z-[220] flex items-end justify-center bg-black/70 p-0 sm:items-center sm:p-4"
               onClick={() => setIsSuggestRecipesOpen(false)}
             >
               <motion.div
                 initial={{ scale: 0.95, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 20 }}
-                className="bg-white rounded-3xl p-5 sm:p-8 max-w-4xl w-full max-h-[calc(100vh-2rem)] overflow-y-auto shadow-2xl"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="recipe-suggestions-title"
+                className="max-h-[calc(100dvh-1rem)] w-full max-w-4xl overflow-y-auto rounded-t-[28px] bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl sm:max-h-[calc(100dvh-2rem)] sm:rounded-3xl sm:p-8"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-start justify-between gap-4 mb-6">
@@ -637,11 +653,13 @@ export default function NutritionPage() {
                     <span className="flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-600 text-white">
                       <Sparkles className="size-6" />
                     </span>
-                    <h3 className="font-display text-2xl sm:text-3xl text-[#111]">AI Recipe Suggestions</h3>
+                    <h3 id="recipe-suggestions-title" className="font-display text-2xl sm:text-3xl text-[#111]">AI Recipe Suggestions</h3>
                   </div>
                   <button
+                    type="button"
                     onClick={() => setIsSuggestRecipesOpen(false)}
                     className="flex size-10 items-center justify-center rounded-full hover:bg-[#EAE8E3] transition-colors"
+                    aria-label="Close recipe suggestions dialog"
                   >
                     <X className="size-5 text-[#555]" />
                   </button>

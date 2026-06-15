@@ -157,7 +157,7 @@ function AddToPantryModal({ isOpen, onClose, onSuccess, authUser }) {
     >
       <DialogContent 
         onPointerDownOutside={(e) => e.preventDefault()}
-        className="flex max-h-[calc(100dvh-1.5rem)] max-w-[calc(100%-1.5rem)] flex-col overflow-hidden rounded-[20px] border border-[#D5D3CE] bg-[#EAE8E3] p-0 shadow-2xl backdrop-blur-xl sm:max-h-[90vh] sm:max-w-2xl sm:rounded-[32px]"
+        className="flex max-h-[calc(100dvh-1.5rem)] max-w-[calc(100%-1.5rem)] flex-col overflow-hidden rounded-[20px] border border-[#D5D3CE] bg-[#EAE8E3] p-0 shadow-2xl sm:max-h-[90vh] sm:max-w-2xl sm:rounded-[32px]"
       >
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-5 sm:p-12">
           <DialogHeader className="mb-6 sm:mb-10 text-center sm:text-left">
