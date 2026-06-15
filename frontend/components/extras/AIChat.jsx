@@ -163,7 +163,7 @@ export default function AIChat() {
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
               onWheel={(e) => e.preventDefault()}
-              className="fixed inset-0 z-[190] bg-black/20 backdrop-blur-sm"
+              className="fixed inset-0 z-[190] bg-black/20"
             />
 
             {/* Chat Panel */}
@@ -175,7 +175,7 @@ export default function AIChat() {
               className="fixed right-0 top-0 z-[200] flex h-[100dvh] w-full flex-col border-l border-[#D5D3CE] bg-[#EAE8E3] shadow-2xl sm:w-[480px]"
             >
               {/* Header */}
-              <div className="flex items-center justify-between gap-3 border-b border-[#D5D3CE] bg-white/40 p-4 backdrop-blur-xl sm:p-6">
+              <div className="flex items-center justify-between gap-3 border-b border-[#D5D3CE] bg-[#F4F3F0] p-4 pt-[calc(1rem+env(safe-area-inset-top))] sm:p-6 sm:pt-6">
                 <div className="flex items-center gap-3">
                   <div className="flex size-9 items-center justify-center rounded-full bg-[#222] sm:size-10">
                     <Sparkles className="size-4 text-[#EAE8E3] sm:size-5" />
@@ -245,7 +245,7 @@ export default function AIChat() {
                       className={`max-w-[88%] rounded-3xl px-4 py-3 sm:max-w-[80%] sm:px-5 ${
                         message.role === "user"
                           ? "bg-[#222] text-[#EAE8E3]"
-                          : "bg-white/60 backdrop-blur-md text-[#111] border border-[#D5D3CE]"
+                          : "border border-[#D5D3CE] bg-white/70 text-[#111]"
                       }`}
                     >
                       <p className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -261,7 +261,7 @@ export default function AIChat() {
                     animate={{ opacity: 1, y: 0 }}
                     className="flex justify-start"
                   >
-                    <div className="bg-white/60 backdrop-blur-md border border-[#D5D3CE] rounded-3xl px-5 py-3">
+                    <div className="rounded-3xl border border-[#D5D3CE] bg-white/70 px-5 py-3">
                       <div className="flex gap-1">
                         <motion.div
                           animate={{ scale: [1, 1.2, 1] }}
@@ -287,7 +287,7 @@ export default function AIChat() {
               </div>
 
               {/* Input */}
-              <div className="border-t border-[#D5D3CE] bg-white/40 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur-xl sm:p-6">
+              <div className="border-t border-[#D5D3CE] bg-[#F4F3F0] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-6">
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -302,7 +302,7 @@ export default function AIChat() {
                     onChange={(e) => setInput(e.target.value)}
                     placeholder={authUser ? "Ask me anything..." : "Sign in to chat"}
                     disabled={!authUser || sending || isTyping}
-                    className="min-w-0 flex-1 rounded-full border border-[#D5D3CE] bg-white/60 px-4 py-3 text-sm text-[#111] placeholder:text-[#aaa] outline-none backdrop-blur-md transition-colors focus:border-[#222] disabled:opacity-50 sm:px-6 sm:py-4"
+                    className="min-w-0 flex-1 rounded-full border border-[#D5D3CE] bg-white px-4 py-3 text-sm text-[#111] placeholder:text-[#aaa] outline-none transition-colors focus:border-[#222] disabled:opacity-50 sm:px-6 sm:py-4"
                   />
                   <button
                     type="submit"

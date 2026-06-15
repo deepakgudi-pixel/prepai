@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback, useSyncExternalStore } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, useReducedMotion } from "framer-motion";
 import { useLenis } from "lenis/react";
 import { SignOutButton, useUser } from "@clerk/nextjs";
 import { Soup, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navSections = [
   {
@@ -38,17 +39,15 @@ const navSections = [
 
 export default function Header() {
   const { user, isLoaded, isSignedIn } = useUser();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
-  const isHydrated = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
   const { scrollY } = useScroll();
   const prefersReducedMotion = useReducedMotion();
 
   const showSignedIn = isLoaded && isSignedIn;
+  const isAuthRoute = pathname?.startsWith("/sign-in") || pathname?.startsWith("/sign-up");
+  const menuId = "site-navigation-menu";
 
   // Filter nav items based on sign-in status
   const visibleNavSections = navSections.map(section => ({
@@ -57,7 +56,7 @@ export default function Header() {
   })).filter(section => section.items.length > 0);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    const nextHidden = latest > 100;
+    const nextHidden = latest > 240 && !isOpen;
 
     setHidden((currentValue) => (
       currentValue === nextHidden ? currentValue : nextHidden
@@ -91,9 +90,13 @@ export default function Header() {
     }
   }, [isOpen, lenis]);
 
+  if (isAuthRoute) {
+    return null;
+  }
+
   return (
     <>
-      {/* Dimmed Backdrop - Restored backdrop-blur-sm */}
+      {/* Dimmed Backdrop */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -101,7 +104,7 @@ export default function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-[90] bg-[#111]/30 backdrop-blur-sm"
+            className="fixed inset-0 z-[90] bg-[#111]/25"
             onClick={() => setIsOpen(false)}
           />
         )}
@@ -114,14 +117,14 @@ export default function Header() {
           y: hidden && !isOpen ? -20 : 0,
           scale: hidden && !isOpen ? 0.9 : 1,
           opacity: hidden && !isOpen ? 0 : 1,
-          width: hidden && !isOpen ? "64px" : "calc(100% - 3rem)",
+          width: hidden && !isOpen ? "64px" : "calc(100% - 2rem)",
           maxWidth: hidden && !isOpen ? "64px" : "500px",
           height: isOpen ? "auto" : "64px",
           borderRadius: isOpen ? "22px" : "32px",
           backgroundColor: isOpen ? "rgba(255, 255, 255, 0.98)" : "rgba(255, 255, 255, 0.85)",
         }}
         transition={headerTransition}
-        className="fixed left-1/2 top-6 z-[100] -translate-x-1/2 flex flex-col items-center border border-white/40 backdrop-blur-md shadow-2xl overflow-hidden px-4 py-4 sm:px-5"
+        className="fixed left-1/2 top-4 z-[100] -translate-x-1/2 flex flex-col items-center overflow-hidden border border-white/40 px-4 py-4 shadow-2xl backdrop-blur-md sm:top-6 sm:px-5"
         style={{
           willChange: "width, height, background-color, border-radius, transform, opacity",
         }}
@@ -130,7 +133,7 @@ export default function Header() {
         <motion.div 
           animate={{ opacity: hidden && !isOpen ? 0 : 1 }}
           transition={{ duration: 0.3 }}
-          className="flex w-[calc(100vw-5rem)] max-w-[460px] items-center justify-between shrink-0 h-[28px]"
+          className="flex h-[28px] w-[calc(100vw-4rem)] max-w-[460px] shrink-0 items-center justify-between"
         >
           {/* Left: Dynamic Action Based on Auth */}
           <div className="flex-1 flex justify-start">
@@ -195,9 +198,10 @@ export default function Header() {
             )}
             <button
               onClick={toggleMenu}
-              disabled={!isHydrated}
               aria-label={isOpen ? "Close menu" : "Open menu"}
-              className="group flex size-10 items-center justify-center disabled:cursor-default"
+              aria-expanded={isOpen}
+              aria-controls={menuId}
+              className="group flex size-10 items-center justify-center"
             >
               <div className="flex flex-col gap-[5px] w-5 sm:w-6">
                 <motion.span
@@ -224,11 +228,12 @@ export default function Header() {
         <AnimatePresence>
           {isOpen && (
             <motion.div
+              id={menuId}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex-1 flex max-h-[min(72vh,520px)] w-[calc(100vw-5rem)] max-w-[460px] flex-col overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="flex max-h-[min(68dvh,500px)] w-[calc(100vw-4rem)] max-w-[460px] flex-1 flex-col overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               data-lenis-prevent
             >
               <nav className="flex flex-col gap-3 pt-4">
@@ -276,8 +281,8 @@ export default function Header() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, delay: 0.2 }}
-              className="mt-4 flex justify-end border-[#111]/10 pt-1"
-            >
+                className="mt-4 flex justify-end border-[#111]/10 pt-1"
+              >
                 {showSignedIn ? (
                   <SignOutButton>
                     <button className="bg-[#111] text-[#EAE8E3] rounded-full px-5 py-2.5 text-[0.65rem] sm:text-xs uppercase flex items-center gap-2 hover:bg-black transition-colors duration-300">

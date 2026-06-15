@@ -8,7 +8,7 @@ import SmoothScroll from "@/components/ui/SmoothScroll";
 
 export const metadata = {
   title: "PrepAI",
-  description: "Turn pantry ingredients into striking, chef-led meal ideas.",
+  description: "AI meal planning, pantry recipes, grocery lists, and fitness tracking.",
 };
 
 export default function RootLayout({ children }) {

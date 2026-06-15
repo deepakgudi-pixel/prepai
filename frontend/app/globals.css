@@ -109,7 +109,7 @@
   .section-copy {
     @apply max-w-lg text-base leading-relaxed text-[#555] font-light sm:text-lg;
   }
-  
+
   .nav-pill {
     @apply inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-700;
   }
@@ -381,13 +381,21 @@
 }
 
 .marquee-content {
-  padding-inline: 2rem;
+  padding-inline: 1.25rem;
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #555;
+}
+
+@media (min-width: 640px) {
+  .marquee-content {
+    padding-inline: 2rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

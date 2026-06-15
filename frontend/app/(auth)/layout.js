@@ -4,9 +4,12 @@ import { motion } from "framer-motion";
 
 function AuthLayout({ children }) {
   return (
-    <div className="min-h-screen bg-[#EAE8E3] flex overflow-x-hidden">
+    <div className="flex min-h-dvh overflow-x-hidden bg-[#EAE8E3]">
       {/* Left side: Premium Image/Abstract Background */}
-      <div className="hidden lg:flex w-1/2 relative bg-[#111] overflow-hidden items-center justify-center">
+      <div
+        className="relative hidden w-1/2 items-center justify-center overflow-hidden bg-[#111] lg:flex"
+        aria-hidden="true"
+      >
         {/* Abstract animated grain / gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#1C5042] to-[#D59032] opacity-40 mix-blend-screen" />
         <motion.div 
@@ -26,22 +29,22 @@ function AuthLayout({ children }) {
           }}
         />
         
-        <div className="relative z-10 px-20 max-w-2xl">
-           <h1 className="font-display text-7xl text-[#EAE8E3] leading-[0.9] mb-8">
-             Cleaner cooking<br/>starts here.
-           </h1>
-           <p className="text-[#aaa] text-xl font-light">
+        <div className="relative z-10 max-w-2xl px-20">
+           <h2 className="mb-8 font-display text-7xl leading-[0.9] text-[#EAE8E3]">
+             Cleaner cooking<br />starts here.
+           </h2>
+           <p className="text-xl font-light text-[#aaa]">
              Turn pantry ingredients into striking, chef-led meal ideas with a calmer interface.
            </p>
         </div>
       </div>
 
       {/* Right side: Auth Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-6 sm:p-12 relative">
+      <div className="relative flex w-full items-center justify-center px-4 py-10 sm:p-12 lg:w-1/2">
         <motion.div 
-           initial={{ opacity: 0, x: 20 }}
-           animate={{ opacity: 1, x: 0 }}
-           transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+           initial={{ x: 16 }}
+           animate={{ x: 0 }}
+           transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
            className="w-full max-w-md"
         >
           {children}

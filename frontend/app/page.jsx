@@ -28,17 +28,33 @@ const pathCards = [
   },
 ];
 
+const heroSignals = [
+  "Pantry scans",
+  "Recipe ideas",
+  "Weekly plans",
+  "Saved grocery lists",
+  "Macro tracking",
+];
+
 function PrimaryCta({ isSignedIn }) {
   return (
-    <Link
-      href={isSignedIn ? "/pantry" : "/sign-up"}
-      className="magnetic group flex items-center gap-3 rounded-full bg-[#222] px-6 py-4 text-xs font-semibold uppercase tracking-[0.1em] text-[#EAE8E3] transition-all hover:bg-[#111] sm:gap-4 sm:px-8 sm:text-sm"
-    >
-      {isSignedIn ? "Open Pantry" : "Start Cooking"}
-      <span className="flex size-8 items-center justify-center rounded-full bg-[#EAE8E3]/20 transition-colors group-hover:bg-[#EAE8E3]/30">
-        <ArrowRight className="size-4" />
-      </span>
-    </Link>
+    <div className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center">
+      <Link
+        href={isSignedIn ? "/pantry" : "/sign-up"}
+        className="magnetic group inline-flex w-full items-center justify-center gap-3 rounded-full bg-[#222] px-6 py-4 text-xs font-semibold uppercase tracking-[0.1em] text-[#EAE8E3] transition-all hover:bg-[#111] sm:w-auto sm:gap-4 sm:px-8 sm:text-sm"
+      >
+        {isSignedIn ? "Open Pantry" : "Start Cooking"}
+        <span className="flex size-8 items-center justify-center rounded-full bg-[#EAE8E3]/20 transition-colors group-hover:bg-[#EAE8E3]/30">
+          <ArrowRight className="size-4" />
+        </span>
+      </Link>
+      <Link
+        href={isSignedIn ? "/fitness-profile" : "/sign-up"}
+        className="inline-flex w-full items-center justify-center rounded-full border border-[#222]/15 bg-white/55 px-6 py-4 text-xs font-semibold uppercase tracking-[0.1em] text-[#222] transition-colors hover:bg-white sm:w-auto sm:px-8 sm:text-sm"
+      >
+        Track Fitness
+      </Link>
+    </div>
   );
 }
 
@@ -82,45 +98,56 @@ export default function Home() {
   return (
     <div className="bg-[#EAE8E3]">
       {/* Hero Section */}
-      <section className="relative flex min-h-[82svh] flex-col items-center justify-center overflow-hidden px-4 pb-16 pt-28 sm:min-h-[90vh] sm:px-12 sm:pb-20 sm:pt-32 lg:px-20">
+      <section className="relative flex min-h-[76svh] flex-col items-center justify-center overflow-hidden px-4 pb-10 pt-24 sm:min-h-[86vh] sm:px-12 sm:pb-20 sm:pt-32 lg:px-20">
         <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={prefersReducedMotion ? { duration: 0 } : { duration: 1, ease: [0.76, 0, 0.24, 1] }}
-          className="text-center z-10 max-w-5xl mx-auto"
+          initial={prefersReducedMotion ? false : { y: 24 }}
+          animate={{ y: 0 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.7, ease: [0.76, 0, 0.24, 1] }}
+          className="z-10 mx-auto max-w-4xl text-center"
         >
-          <p className="eyebrow mb-8">Intelligence for the Kitchen</p>
-          <h1 className="display-title mb-8">
-            Distilled planning.<br />
-            <span className="italic text-[#777]">Differently.</span>
+          <p className="eyebrow mb-6">PrepAI meal planning</p>
+          <h1 className="mb-6 font-display text-5xl leading-[0.92] text-[#111] sm:text-7xl lg:text-8xl">
+            AI meal planning{" "}<br className="hidden sm:block" />
+            and fitness tracking.
           </h1>
-          <p className="section-copy mx-auto mb-12">
-            Turn pantry ingredients into striking, chef-led meal ideas with a calmer interface, less friction, and a sharper product feel from the first screen onward.
+          <p className="section-copy mx-auto mb-8">
+            Scan pantry items, generate recipes, build weekly plans, save grocery lists, and keep macros in one calmer workspace.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+          <div className="mx-auto max-w-sm sm:max-w-none">
             <PrimaryCta isSignedIn={isAuthenticated} />
+          </div>
+
+          <div className="mx-auto mt-6 flex max-w-2xl flex-wrap justify-center gap-2">
+            {heroSignals.map((signal) => (
+              <span
+                key={signal}
+                className="rounded-full border border-[#222]/10 bg-white/45 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[#555]"
+              >
+                {signal}
+              </span>
+            ))}
           </div>
         </motion.div>
 
         {/* Abstract Background Element */}
         <motion.div 
-          className="pointer-events-none absolute left-1/2 top-1/2 h-[120vw] max-h-[800px] w-[120vw] max-w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#D5D3CE] opacity-50"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[112vw] max-h-[720px] w-[112vw] max-w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#D5D3CE] opacity-45"
           animate={prefersReducedMotion ? { rotate: 0, scale: 1 } : { rotate: 360, scale: [1, 1.05, 1] }}
           transition={prefersReducedMotion ? { duration: 0 } : { duration: 40, repeat: Infinity, ease: "linear" }}
         />
       </section>
 
-      <Marquee text="CLEANER COOKING • PANTRY FIRST • ZERO WASTE • EFFORTLESS MEALS • CHEF LED IDEAS" />
+      <Marquee text="PANTRY SCANS • RECIPE IDEAS • WEEKLY PLANS • SAVED GROCERY LISTS • MACRO TRACKING" />
 
       {/* Two Paths Section */}
       <section className="relative px-4 py-20 sm:px-12 sm:py-32 lg:px-20">
         <div className="max-w-[1400px] mx-auto">
           <div className="mx-auto mb-12 max-w-4xl text-center sm:mb-20">
             <p className="eyebrow mb-4">Choose Your Path</p>
-            <h2 className="section-title">Food or Fitness.<br/>Or both.</h2>
+            <h2 className="section-title">Food or Fitness.<br />Or both.</h2>
             <p className="section-copy mx-auto mt-6">
-              Plan your meals with AI-powered recipes, or track your fitness journey with smart macro calculations. PrepAI does both, beautifully.
+              Plan your meals with AI-powered recipes, or track your fitness journey with smart macro calculations. PrepAI keeps both paths easy to find.
             </p>
           </div>
 

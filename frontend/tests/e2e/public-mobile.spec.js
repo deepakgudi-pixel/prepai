@@ -16,7 +16,7 @@ async function expectNoHorizontalOverflow(page) {
 test.describe("public shell and routing", () => {
   test("home page renders without horizontal overflow and keeps AI chat hidden signed out", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: /distilled planning/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /ai meal planning/i })).toBeVisible();
     await expect(page.getByRole("button", { name: "Open AI coach" })).toHaveCount(0);
     await expectNoHorizontalOverflow(page);
   });
@@ -63,4 +63,3 @@ test.describe("public shell and routing", () => {
     await expectNoHorizontalOverflow(page);
   });
 });
-
